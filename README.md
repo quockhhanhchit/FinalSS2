@@ -99,7 +99,7 @@ DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=budgetfit_db
 DB_USER=root
-DB_PASSWORD=your_password
+DB_PASSWORD=khanhkk123@
 
 JWT_SECRET=budgetfit_super_secret_key
 JWT_ACCESS_EXPIRES_IN=15m
