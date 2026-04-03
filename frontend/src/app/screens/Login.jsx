@@ -29,6 +29,7 @@ export function Login() {
 
       setAuthSession({
         token: data.token,
+        refreshToken: data.refreshToken,
         user: data.user,
         name: data.user?.fullName,
         email: data.user?.email,
@@ -71,20 +72,20 @@ export function Login() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-xl">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#22c55e] via-[#34d399] to-[#8b5cf6] rounded-2xl mb-4 shadow-lg">
-              <Activity className="w-8 h-8 text-white" />
+      <div className="flex-1 flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-3xl">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#22c55e] via-[#34d399] to-[#8b5cf6] rounded-3xl mb-5 shadow-lg">
+              <Activity className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-3">Welcome Back!</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">Welcome Back!</h1>
+            <p className="text-lg text-muted-foreground">
               Sign in to continue your health journey
             </p>
           </div>
 
-          <div className="bg-card rounded-3xl p-10 md:p-12 shadow-xl border border-border">
-            <form onSubmit={handleLogin} className="space-y-6">
+          <div className="bg-card rounded-3xl p-14 md:p-16 shadow-xl border border-border">
+            <form onSubmit={handleLogin} className="space-y-8">
               {error ? (
                 <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                   {error}
@@ -101,7 +102,7 @@ export function Login() {
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-12 h-14 text-base rounded-xl"
+                    className="pl-14 h-16 text-lg rounded-xl"
                     required
                   />
                 </div>
@@ -117,7 +118,7 @@ export function Login() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-12 pr-12 h-14 text-base rounded-xl"
+                    className="pl-14 pr-14 h-16 text-lg rounded-xl"
                     required
                   />
                   <button
@@ -134,7 +135,7 @@ export function Login() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center justify-between text-base">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
@@ -150,17 +151,17 @@ export function Login() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-14 text-lg font-semibold rounded-xl shadow-lg"
+                className="w-full h-16 text-xl font-semibold rounded-xl shadow-lg"
               >
                 {isSubmitting ? "Signing in..." : "Sign in"}
               </Button>
             </form>
 
-            <p className="text-center text-base text-muted-foreground mt-8">
+            <p className="text-center text-lg text-muted-foreground mt-10">
               Don&apos;t have an account?{" "}
               <Link
                 to="/register"
-                className="text-primary text-lg font-semibold hover:underline"
+                className="text-primary text-xl font-semibold hover:underline"
               >
                 Sign up
               </Link>

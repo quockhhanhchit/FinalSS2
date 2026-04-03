@@ -25,3 +25,7 @@ export function clearAuthSession() {
 export function getAuthToken() {
   return getAuthSession()?.token || null;
 }
+
+export function getRefreshToken() {
+  return getAuthSession()?.refreshToken || null;
+}

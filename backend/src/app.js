@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const { swaggerSpec, swaggerUi } = require("./config/swagger");
 
 const authRoutes = require("./routes/auth.routes");
 const profileRoutes = require("./routes/profile.routes");
@@ -16,6 +17,8 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.json({ message: "BudgetFit backend is running" });
 });
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);

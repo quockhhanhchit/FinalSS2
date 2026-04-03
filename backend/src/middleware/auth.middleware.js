@@ -1,4 +1,4 @@
-const { verifyToken } = require("../utils/jwt");
+const { verifyAccessToken } = require("../utils/jwt");
 
 function authMiddleware(req, res, next) {
   try {
@@ -9,7 +9,7 @@ function authMiddleware(req, res, next) {
     }
 
     const token = authHeader.split(" ")[1];
-    const decoded = verifyToken(token);
+    const decoded = verifyAccessToken(token);
 
     req.user = decoded;
     next();

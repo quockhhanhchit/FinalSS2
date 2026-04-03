@@ -6,7 +6,7 @@ async function register(req, res) {
     const data = await authService.register({ fullName, email, password });
     res.status(201).json(data);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(error.status || 400).json({ message: error.message });
   }
 }
 
@@ -16,7 +16,7 @@ async function login(req, res) {
     const data = await authService.login({ email, password });
     res.json(data);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(error.status || 400).json({ message: error.message });
   }
 }
 
@@ -29,8 +29,28 @@ async function me(req, res) {
   }
 }
 
+async function refreshToken(req, res) {
+  try {
+    const data = await authService.refreshAccessToken(req.body.refreshToken);
+    res.json(data);
+  } catch (error) {
+    res.status(error.status || 401).json({ message: error.message });
+  }
+}
+
+async function logout(req, res) {
+  try {
+    const data = await authService.logout(req.user.id);
+    res.json(data);
+  } catch (error) {
+    res.status(error.status || 500).json({ message: error.message });
+  }
+}
+
 module.exports = {
   register,
   login,
   me,
+  refreshToken,
+  logout,
 };

@@ -19,6 +19,7 @@ import {
   DropdownMenuSeparator,
 } from "./ui/dropdown-menu";
 import { clearAuthSession, getAuthSession } from "../lib/auth";
+import { apiPost } from "../lib/api";
 
 export function Layout() {
   const location = useLocation();
@@ -48,9 +49,15 @@ export function Layout() {
     .join("")
     .toUpperCase();
 
-  const handleLogout = () => {
-    clearAuthSession();
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await apiPost("/api/auth/logout", {});
+    } catch {
+      // Client-side logout should still proceed if the server token is already invalid.
+    } finally {
+      clearAuthSession();
+      navigate("/");
+    }
   };
 
   const handleOpenSettings = () => {

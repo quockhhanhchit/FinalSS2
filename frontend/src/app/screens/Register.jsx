@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { z } from "zod";
 import { Mail, Lock, User, Eye, EyeOff, Activity } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -7,6 +8,23 @@ import { Label } from "../components/ui/label";
 import runnerIllustration from "../../assets/Fitness-stats-amico.svg";
 import { setAuthSession } from "../lib/auth";
 import { apiPost } from "../lib/api";
+
+const registerSchema = z
+  .object({
+    name: z.string().trim().min(2, "Full name must be at least 2 characters long"),
+    email: z.string().trim().email("Enter a valid email address"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .regex(/[A-Z]/, "Password must include at least one uppercase letter")
+      .regex(/[a-z]/, "Password must include at least one lowercase letter")
+      .regex(/[0-9]/, "Password must include at least one number"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export function Register() {
   const navigate = useNavigate();
@@ -19,14 +37,28 @@ export function Register() {
     confirmPassword: "",
   });
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
+    setFieldErrors({});
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+    const parsed = registerSchema.safeParse(formData);
+
+    if (!parsed.success) {
+      const nextErrors = {};
+
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0];
+
+        if (!nextErrors[key]) {
+          nextErrors[key] = issue.message;
+        }
+      }
+
+      setFieldErrors(nextErrors);
       return;
     }
 
@@ -34,13 +66,14 @@ export function Register() {
 
     try {
       const data = await apiPost("/api/auth/register", {
-        fullName: formData.name,
-        email: formData.email,
-        password: formData.password,
+        fullName: parsed.data.name,
+        email: parsed.data.email,
+        password: parsed.data.password,
       });
 
       setAuthSession({
         token: data.token,
+        refreshToken: data.refreshToken,
         user: data.user,
         name: data.user?.fullName,
         email: data.user?.email,
@@ -83,20 +116,20 @@ export function Register() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-xl">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#22c55e] via-[#34d399] to-[#8b5cf6] rounded-2xl mb-4 shadow-lg">
-              <Activity className="w-8 h-8 text-white" />
+      <div className="flex-1 flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-3xl">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#22c55e] via-[#34d399] to-[#8b5cf6] rounded-3xl mb-5 shadow-lg">
+              <Activity className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-3">Create Account</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">Create Account</h1>
+            <p className="text-lg text-muted-foreground">
               Start your health journey today
             </p>
           </div>
 
-          <div className="bg-card rounded-3xl p-10 md:p-12 shadow-xl border border-border">
-            <form onSubmit={handleRegister} className="space-y-6">
+          <div className="bg-card rounded-3xl p-14 md:p-16 shadow-xl border border-border">
+            <form onSubmit={handleRegister} className="space-y-8">
               {error ? (
                 <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                   {error}
@@ -115,10 +148,13 @@ export function Register() {
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    className="pl-12 h-14 text-base rounded-xl"
+                    className={`pl-14 h-16 text-lg rounded-xl ${fieldErrors.name ? "border-red-300 focus-visible:ring-red-300" : ""}`}
                     required
                   />
                 </div>
+                {fieldErrors.name ? (
+                  <p className="text-sm text-red-600">{fieldErrors.name}</p>
+                ) : null}
               </div>
 
               <div className="space-y-2">
@@ -133,10 +169,13 @@ export function Register() {
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
-                    className="pl-12 h-14 text-base rounded-xl"
+                    className={`pl-14 h-16 text-lg rounded-xl ${fieldErrors.email ? "border-red-300 focus-visible:ring-red-300" : ""}`}
                     required
                   />
                 </div>
+                {fieldErrors.email ? (
+                  <p className="text-sm text-red-600">{fieldErrors.email}</p>
+                ) : null}
               </div>
 
               <div className="space-y-2">
@@ -151,7 +190,7 @@ export function Register() {
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
-                    className="pl-12 pr-12 h-14 text-base rounded-xl"
+                    className={`pl-14 pr-14 h-16 text-lg rounded-xl ${fieldErrors.password ? "border-red-300 focus-visible:ring-red-300" : ""}`}
                     required
                   />
                   <button
@@ -166,6 +205,9 @@ export function Register() {
                     )}
                   </button>
                 </div>
+                {fieldErrors.password ? (
+                  <p className="text-sm text-red-600">{fieldErrors.password}</p>
+                ) : null}
               </div>
 
               <div className="space-y-2">
@@ -183,7 +225,7 @@ export function Register() {
                         confirmPassword: e.target.value,
                       })
                     }
-                    className="pl-12 pr-12 h-14 text-base rounded-xl"
+                    className={`pl-14 pr-14 h-16 text-lg rounded-xl ${fieldErrors.confirmPassword ? "border-red-300 focus-visible:ring-red-300" : ""}`}
                     required
                   />
                   <button
@@ -200,20 +242,23 @@ export function Register() {
                     )}
                   </button>
                 </div>
+                {fieldErrors.confirmPassword ? (
+                  <p className="text-sm text-red-600">{fieldErrors.confirmPassword}</p>
+                ) : null}
               </div>
 
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-14 text-lg font-semibold rounded-xl shadow-lg"
+                className="w-full h-16 text-xl font-semibold rounded-xl shadow-lg"
               >
                 {isSubmitting ? "Creating account..." : "Sign up"}
               </Button>
             </form>
 
-            <p className="text-center text-base text-muted-foreground mt-8">
+            <p className="text-center text-lg text-muted-foreground mt-10">
               Already have an account?{" "}
-              <Link to="/" className="text-primary text-lg font-semibold hover:underline">
+              <Link to="/" className="text-primary text-xl font-semibold hover:underline">
                 Sign in
               </Link>
             </p>
