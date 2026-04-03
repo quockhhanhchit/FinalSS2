@@ -15,6 +15,7 @@ Nhóm đã nén sẵn cấu trúc bảng và dữ liệu mẫu vào file `budget
 - **Bước 2:** Cài đặt toàn bộ thư viện:
   npm install
 - **Bước 3:** Kết nối Database: Bạn cần TỰ TẠO một file có tên là `.env` (file này bị git ẩn độ bảo mật) đặt ngang hàng trong thư mục `backend`. Dán nội dung sau vào file (Thay đổi Password cho khớp với MySQL dưới máy của bạn):
+
   PORT=5000
   
   DB_HOST=localhost
