@@ -16,12 +16,19 @@ Nhóm đã nén sẵn cấu trúc bảng và dữ liệu mẫu vào file `budget
   npm install
 - **Bước 3:** Kết nối Database: Bạn cần TỰ TẠO một file có tên là `.env` (file này bị git ẩn độ bảo mật) đặt ngang hàng trong thư mục `backend`. Dán nội dung sau vào file (Thay đổi Password cho khớp với MySQL dưới máy của bạn):
   PORT=5000
+  
   DB_HOST=localhost
+  
   DB_PORT=3306
+  
   DB_NAME=budgetfit_db
+  
   DB_USER=root
+  
   DB_PASSWORD=nhập_mật_khẩu_mysql_của_bạn_vào_đây
+  
   JWT_SECRET=budgetfit_super_secret_key
+  
   JWT_EXPIRES_IN=7d
 - **Bước 4:** Khởi động máy chủ Backend:
   npm run dev
