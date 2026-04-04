@@ -1,6 +1,7 @@
 jest.mock("../src/services/auth.service", () => ({
   register: jest.fn(),
   login: jest.fn(),
+  loginWithGoogle: jest.fn(),
   getMe: jest.fn(),
   refreshAccessToken: jest.fn(),
   logout: jest.fn(),
@@ -53,5 +54,16 @@ describe("Auth routes validation", () => {
     expect(response.body.message).toBe("Validation failed");
     expect(response.body.errors.refreshToken).toBeDefined();
     expect(authService.refreshAccessToken).not.toHaveBeenCalled();
+  });
+
+  it("requires google id token for google login", async () => {
+    const response = await request(app)
+      .post("/api/auth/google")
+      .send({});
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+    expect(response.body.errors.idToken).toBeDefined();
+    expect(authService.loginWithGoogle).not.toHaveBeenCalled();
   });
 });

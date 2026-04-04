@@ -20,6 +20,17 @@ async function login(req, res) {
   }
 }
 
+async function googleLogin(req, res) {
+  try {
+    const data = await authService.loginWithGoogle({
+      idToken: req.body.idToken,
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(error.status || 400).json({ message: error.message });
+  }
+}
+
 async function me(req, res) {
   try {
     const data = await authService.getMe(req.user.id);
@@ -50,6 +61,7 @@ async function logout(req, res) {
 module.exports = {
   register,
   login,
+  googleLogin,
   me,
   refreshToken,
   logout,

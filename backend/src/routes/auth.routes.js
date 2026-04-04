@@ -24,6 +24,10 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+const googleLoginSchema = z.object({
+  idToken: z.string().min(1, "Google ID token is required"),
+});
+
 const refreshSchema = z.object({
   refreshToken: z.string().min(1, "Refresh token is required"),
 });
@@ -83,6 +87,7 @@ router.post("/register", validateBody(registerSchema), authController.register);
  *         description: Invalid credentials
  */
 router.post("/login", validateBody(loginSchema), authController.login);
+router.post("/google", validateBody(googleLoginSchema), authController.googleLogin);
 
 /**
  * @swagger
