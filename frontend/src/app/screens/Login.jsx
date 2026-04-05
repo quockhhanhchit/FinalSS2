@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Mail, Lock, Eye, EyeOff, Activity } from "lucide-react";
 import { Button } from "../components/ui/button";
@@ -8,13 +8,89 @@ import fitnessIllustration from "../../assets/undraw_fitness-tracker_y5q5.svg";
 import { setAuthSession } from "../lib/auth";
 import { apiPost } from "../lib/api";
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
 export function Login() {
   const navigate = useNavigate();
+  const googleButtonRef = useRef(null);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
+
+  useEffect(() => {
+    const handleGoogleCredential = async (response) => {
+      setError("");
+      setIsGoogleSubmitting(true);
+
+      try {
+        const data = await apiPost("/api/auth/google", {
+          idToken: response.credential,
+        });
+
+        setAuthSession({
+          token: data.token,
+          refreshToken: data.refreshToken,
+          user: data.user,
+          name: data.user?.fullName,
+          email: data.user?.email,
+          loggedInAt: Date.now(),
+        });
+
+        navigate("/app");
+      } catch (requestError) {
+        setError(requestError.message);
+      } finally {
+        setIsGoogleSubmitting(false);
+      }
+    };
+
+    if (!GOOGLE_CLIENT_ID || !googleButtonRef.current) {
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    const renderGoogleButton = () => {
+      if (cancelled || !window.google?.accounts?.id || !googleButtonRef.current) {
+        return false;
+      }
+
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCredential,
+      });
+
+      googleButtonRef.current.innerHTML = "";
+      window.google.accounts.id.renderButton(googleButtonRef.current, {
+        theme: "outline",
+        size: "large",
+        shape: "pill",
+        text: "continue_with",
+        locale: "en",
+        width: 200,
+      });
+
+      return true;
+    };
+
+    if (renderGoogleButton()) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      if (renderGoogleButton()) {
+        window.clearInterval(intervalId);
+      }
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -115,7 +191,7 @@ export function Login() {
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
+                    placeholder="********"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-14 pr-14 h-16 text-lg rounded-xl"
@@ -150,11 +226,35 @@ export function Login() {
 
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isGoogleSubmitting}
                 className="w-full h-16 text-xl font-semibold rounded-xl shadow-lg"
               >
                 {isSubmitting ? "Signing in..." : "Sign in"}
               </Button>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-sm uppercase">
+                  <span className="bg-card px-3 text-muted-foreground">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+
+              {GOOGLE_CLIENT_ID ? (
+                <div className="flex justify-center">
+                  <div
+                    ref={googleButtonRef}
+                    className={isGoogleSubmitting ? "pointer-events-none opacity-60" : ""}
+                  />
+                </div>
+              ) : (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                  Google Sign-In is unavailable until <code>VITE_GOOGLE_CLIENT_ID</code> is set.
+                </div>
+              )}
             </form>
 
             <p className="text-center text-lg text-muted-foreground mt-10">

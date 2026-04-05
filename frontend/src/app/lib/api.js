@@ -88,7 +88,8 @@ async function request(path, options = {}) {
     !options._retry &&
     path !== "/api/auth/refresh" &&
     path !== "/api/auth/login" &&
-    path !== "/api/auth/register"
+    path !== "/api/auth/register" &&
+    path !== "/api/auth/google"
   ) {
     try {
       const nextToken = await refreshAccessToken();
