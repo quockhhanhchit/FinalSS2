@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import {
   ChevronLeft,
@@ -10,7 +10,7 @@ import {
   Droplet,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { apiGet } from "../lib/api";
+import { apiGet, apiPut } from "../lib/api";
 
 export function DailyRoutine() {
   const navigate = useNavigate();
@@ -18,6 +18,9 @@ export function DailyRoutine() {
   const [checkedItems, setCheckedItems] = useState(new Set());
   const [dayData, setDayData] = useState(null);
   const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
+  const lastSavedSignatureRef = useRef("");
 
   const dayNumber = Number(dayId || 1);
 
@@ -29,7 +32,15 @@ export function DailyRoutine() {
         const data = await apiGet(`/api/plans/current/day/${dayNumber}`);
 
         if (!ignore) {
+          const completedTaskIds = new Set(data?.completed_tasks || []);
+
           setDayData(data);
+          setCheckedItems(completedTaskIds);
+          lastSavedSignatureRef.current = JSON.stringify(
+            [...completedTaskIds].sort(),
+          );
+          setError("");
+          setSaveMessage("");
         }
       } catch (requestError) {
         if (!ignore) {
@@ -44,6 +55,53 @@ export function DailyRoutine() {
       ignore = true;
     };
   }, [dayNumber]);
+
+  async function saveProgress(taskIds, options = {}) {
+    if (!dayData) {
+      return false;
+    }
+
+    const sortedTaskIds = [...taskIds].sort();
+    const signature = JSON.stringify(sortedTaskIds);
+
+    if (!options.force && signature === lastSavedSignatureRef.current) {
+      return true;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const response = await apiPut(`/api/plans/current/day/${dayNumber}/complete`, {
+        completedTasks: sortedTaskIds,
+      });
+
+      lastSavedSignatureRef.current = JSON.stringify(
+        [...(response?.completed_tasks || sortedTaskIds)].sort(),
+      );
+      setSaveMessage(
+        response?.completed ? "Day completed and saved." : "Progress saved.",
+      );
+      setError("");
+      return true;
+    } catch (requestError) {
+      setError(requestError.message);
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!dayData) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      saveProgress(checkedItems);
+    }, 500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [checkedItems, dayData]);
 
   const formattedDate = useMemo(() => {
     const date = dayData?.plan_date ? new Date(dayData.plan_date) : new Date();
@@ -90,13 +148,18 @@ export function DailyRoutine() {
   }, [dayData, dayNumber, formattedDate]);
 
   const toggleCheck = (id) => {
-    const newChecked = new Set(checkedItems);
-    if (newChecked.has(id)) {
-      newChecked.delete(id);
-    } else {
-      newChecked.add(id);
-    }
-    setCheckedItems(newChecked);
+    setSaveMessage("");
+    setCheckedItems((currentChecked) => {
+      const newChecked = new Set(currentChecked);
+
+      if (newChecked.has(id)) {
+        newChecked.delete(id);
+      } else {
+        newChecked.add(id);
+      }
+
+      return newChecked;
+    });
   };
 
   const totalChecked = checkedItems.size;
@@ -105,6 +168,14 @@ export function DailyRoutine() {
   const completionPercentage = totalItems
     ? Math.round((totalChecked / totalItems) * 100)
     : 0;
+
+  const handleFinishDay = async () => {
+    const wasSaved = await saveProgress(checkedItems, { force: true });
+
+    if (wasSaved) {
+      navigate("/app/plan");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -126,6 +197,12 @@ export function DailyRoutine() {
       {error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
+        </div>
+      ) : null}
+
+      {saveMessage ? (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          {saveMessage}
         </div>
       ) : null}
 
@@ -175,7 +252,7 @@ export function DailyRoutine() {
           <Apple className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-semibold">Meals</h3>
           <span className="text-sm text-muted-foreground">
-            ({normalizedDayData.meals.filter((m) => checkedItems.has(m.id)).length}/{normalizedDayData.meals.length})
+            ({normalizedDayData.meals.filter((meal) => checkedItems.has(meal.id)).length}/{normalizedDayData.meals.length})
           </span>
         </div>
         <div className="space-y-3">
@@ -210,7 +287,7 @@ export function DailyRoutine() {
           <Dumbbell className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-semibold">Workout</h3>
           <span className="text-sm text-muted-foreground">
-            ({normalizedDayData.workouts.filter((w) => checkedItems.has(w.id)).length}/{normalizedDayData.workouts.length})
+            ({normalizedDayData.workouts.filter((workout) => checkedItems.has(workout.id)).length}/{normalizedDayData.workouts.length})
           </span>
         </div>
         <div className="space-y-3">
@@ -284,11 +361,15 @@ export function DailyRoutine() {
       </div>
 
       <Button
-        onClick={() => navigate("/app/plan")}
+        onClick={handleFinishDay}
         className="w-full h-12"
-        disabled={completionPercentage < 100}
+        disabled={isSaving}
       >
-        {completionPercentage === 100 ? "Day Complete!" : "Complete All Tasks First"}
+        {isSaving
+          ? "Saving..."
+          : completionPercentage === 100
+            ? "Day Complete!"
+            : "Save & Return to Plan"}
       </Button>
     </div>
   );

@@ -9,6 +9,7 @@ export function BudgetBreakdown() {
   const navigate = useNavigate();
   const [budget, setBudget] = useState(null);
   const [error, setError] = useState("");
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -35,12 +36,20 @@ export function BudgetBreakdown() {
   }, []);
 
   const budgetData = useMemo(
-    () => [
-      { name: "Food", value: Number(budget?.food_amount || 0), color: "#10b981", percentage: 60 },
-      { name: "Workout", value: Number(budget?.workout_amount || 0), color: "#3b82f6", percentage: 16 },
-      { name: "Wellness", value: Number(budget?.wellness_amount || 0), color: "#f59e0b", percentage: 14 },
-      { name: "Buffer", value: Number(budget?.buffer_amount || 0), color: "#6b7280", percentage: 10 },
-    ],
+    () => {
+      const items = [
+        { name: "Food", value: Number(budget?.food_amount || 0), color: "#10b981" },
+        { name: "Workout", value: Number(budget?.workout_amount || 0), color: "#3b82f6" },
+        { name: "Wellness", value: Number(budget?.wellness_amount || 0), color: "#f59e0b" },
+        { name: "Buffer", value: Number(budget?.buffer_amount || 0), color: "#6b7280" },
+      ];
+      const total = items.reduce((sum, item) => sum + item.value, 0);
+
+      return items.map((item) => ({
+        ...item,
+        percentage: total ? Math.round((item.value / total) * 100) : 0,
+      }));
+    },
     [budget],
   );
 
@@ -49,6 +58,7 @@ export function BudgetBreakdown() {
 
   const handleRegeneratePlan = async () => {
     setError("");
+    setIsRegenerating(true);
 
     try {
       await apiPost("/api/plans/generate", {});
@@ -56,6 +66,8 @@ export function BudgetBreakdown() {
       setBudget(data);
     } catch (requestError) {
       setError(requestError.message);
+    } finally {
+      setIsRegenerating(false);
     }
   };
 
@@ -68,9 +80,9 @@ export function BudgetBreakdown() {
             Your personalized 30-day budget allocation
           </p>
         </div>
-        <Button className="gap-2" onClick={handleRegeneratePlan}>
+        <Button className="gap-2" onClick={handleRegeneratePlan} disabled={isRegenerating}>
           <RefreshCw className="w-4 h-4" />
-          Regenerate Plan
+          {isRegenerating ? "Regenerating..." : "Regenerate Plan"}
         </Button>
       </div>
 
