@@ -7,6 +7,10 @@ import { Label } from "../components/ui/label";
 import { Progress } from "../components/ui/progress";
 import { apiGet, apiPost } from "../lib/api";
 import { isAuthenticated } from "../lib/auth";
+import {
+  isOnboardingComplete,
+  setCachedOnboardingStatus,
+} from "../lib/onboarding";
 
 export function Onboarding() {
   const navigate = useNavigate();
@@ -24,9 +28,13 @@ export function Onboarding() {
   });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckingProfile, setIsCheckingProfile] = useState(true);
 
   const totalSteps = 3;
   const progress = (step / totalSteps) * 100;
+
+  const hasValidPositiveNumber = (value) =>
+    Number.isFinite(Number(value)) && Number(value) > 0;
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -38,10 +46,28 @@ export function Onboarding() {
     let ignore = false;
 
     async function loadProfile() {
+      if (!isAuthenticated()) {
+        return;
+      }
+
       try {
         const profile = await apiGet("/api/profile");
 
-        if (!profile || ignore) {
+        if (ignore) {
+          return;
+        }
+
+        if (!profile) {
+          setCachedOnboardingStatus(false);
+          setIsCheckingProfile(false);
+          return;
+        }
+
+        const completed = isOnboardingComplete(profile);
+        setCachedOnboardingStatus(completed);
+
+        if (completed) {
+          navigate("/app", { replace: true });
           return;
         }
 
@@ -56,8 +82,13 @@ export function Onboarding() {
           mealsPerDay: String(profile.meals_per_day || "3"),
           budgetStyle: profile.budget_style || "normal",
         });
+        setIsCheckingProfile(false);
       } catch {
         // First-time onboarding can proceed without an existing profile.
+        if (!ignore) {
+          setCachedOnboardingStatus(false);
+          setIsCheckingProfile(false);
+        }
       }
     }
 
@@ -70,6 +101,23 @@ export function Onboarding() {
 
   const handleNext = async () => {
     setError("");
+
+    if (step === 1) {
+      if (!hasValidPositiveNumber(formData.age)) {
+        setError("Age is required and must be greater than 0.");
+        return;
+      }
+
+      if (!hasValidPositiveNumber(formData.height)) {
+        setError("Height is required and must be greater than 0.");
+        return;
+      }
+
+      if (!hasValidPositiveNumber(formData.weight)) {
+        setError("Weight is required and must be greater than 0.");
+        return;
+      }
+    }
 
     if (step < totalSteps) {
       setStep(step + 1);
@@ -89,6 +137,7 @@ export function Onboarding() {
           budgetStyle: formData.budgetStyle,
         });
 
+        setCachedOnboardingStatus(true);
         await apiPost("/api/plans/generate", {});
         navigate("/app/budget-breakdown");
       } catch (requestError) {
@@ -104,6 +153,10 @@ export function Onboarding() {
       setStep(step - 1);
     }
   };
+
+  if (isCheckingProfile) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">

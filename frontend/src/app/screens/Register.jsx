@@ -78,6 +78,7 @@ export function Register() {
         name: data.user?.fullName,
         email: data.user?.email,
         loggedInAt: Date.now(),
+        onboardingCompleted: false,
       });
 
       navigate("/onboarding");

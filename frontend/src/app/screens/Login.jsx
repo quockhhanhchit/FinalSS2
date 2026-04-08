@@ -7,8 +7,24 @@ import { Label } from "../components/ui/label";
 import fitnessIllustration from "../../assets/undraw_fitness-tracker_y5q5.svg";
 import { setAuthSession } from "../lib/auth";
 import { apiPost } from "../lib/api";
+import { fetchOnboardingStatus } from "../lib/onboarding";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+async function completeSignIn(navigate, data) {
+  setAuthSession({
+    token: data.token,
+    refreshToken: data.refreshToken,
+    user: data.user,
+    name: data.user?.fullName,
+    email: data.user?.email,
+    loggedInAt: Date.now(),
+    onboardingCompleted: false,
+  });
+
+  const onboardingCompleted = await fetchOnboardingStatus();
+  navigate(onboardingCompleted ? "/app" : "/onboarding");
+}
 
 export function Login() {
   const navigate = useNavigate();
@@ -30,16 +46,7 @@ export function Login() {
           idToken: response.credential,
         });
 
-        setAuthSession({
-          token: data.token,
-          refreshToken: data.refreshToken,
-          user: data.user,
-          name: data.user?.fullName,
-          email: data.user?.email,
-          loggedInAt: Date.now(),
-        });
-
-        navigate("/app");
+        await completeSignIn(navigate, data);
       } catch (requestError) {
         setError(requestError.message);
       } finally {
@@ -103,16 +110,7 @@ export function Login() {
         password,
       });
 
-      setAuthSession({
-        token: data.token,
-        refreshToken: data.refreshToken,
-        user: data.user,
-        name: data.user?.fullName,
-        email: data.user?.email,
-        loggedInAt: Date.now(),
-      });
-
-      navigate("/app");
+      await completeSignIn(navigate, data);
     } catch (requestError) {
       setError(requestError.message);
     } finally {
