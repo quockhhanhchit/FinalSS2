@@ -156,6 +156,7 @@ Các migration đang có:
 
 - [backend/database/001_add_refresh_token_hash.sql](/d:/FinalSS2/backend/database/001_add_refresh_token_hash.sql)
 - [backend/database/002_add_google_auth_columns.sql](/d:/FinalSS2/backend/database/002_add_google_auth_columns.sql)
+- [backend/database/003_create_daily_task_completions.sql](/d:/FinalSS2/backend/database/003_create_daily_task_completions.sql)
 
 ## API chính
 
