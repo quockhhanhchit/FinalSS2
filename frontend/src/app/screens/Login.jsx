@@ -217,9 +217,12 @@ export function Login() {
                   />
                   <span className="text-muted-foreground">Remember me</span>
                 </label>
-                <a href="#" className="text-primary hover:underline font-medium">
+                <Link
+                  to="/forgot-password"
+                  className="text-primary hover:underline font-medium"
+                >
                   Forgot password?
-                </a>
+                </Link>
               </div>
 
               <Button
