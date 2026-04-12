@@ -12,7 +12,48 @@ import {
 import { Button } from "../components/ui/button";
 import { useNavigate } from "react-router";
 import { apiGet } from "../lib/api";
-import { formatCurrency } from "../lib/formatters";
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <div className="h-9 w-48 rounded-lg bg-secondary animate-pulse mb-2" />
+        <div className="h-5 w-72 rounded-lg bg-secondary animate-pulse" />
+      </div>
+      <div className="grid grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="rounded-2xl border border-border bg-card p-6">
+            <div className="h-10 w-10 rounded-lg bg-secondary animate-pulse mb-4" />
+            <div className="h-8 w-24 rounded-lg bg-secondary animate-pulse mb-2" />
+            <div className="h-4 w-32 rounded-lg bg-secondary animate-pulse" />
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-2 gap-6">
+        {Array.from({ length: 2 }).map((_, index) => (
+          <div key={index} className="rounded-2xl border border-border bg-card p-6">
+            <div className="h-6 w-40 rounded-lg bg-secondary animate-pulse mb-6" />
+            <div className="h-[300px] rounded-xl bg-secondary animate-pulse" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ChartEmptyState({ onClick }) {
+  return (
+    <div className="h-[300px] rounded-xl border border-dashed border-border bg-secondary/30 flex flex-col items-center justify-center text-center px-8">
+      <div className="font-semibold mb-2">Bạn chưa có dữ liệu biểu đồ.</div>
+      <p className="text-sm text-muted-foreground mb-4">
+        Bấm vào đây để khai báo Tracking và xem biểu đồ tiến độ.
+      </p>
+      <Button size="sm" onClick={onClick}>
+        Go to Tracking
+      </Button>
+    </div>
+  );
+}
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -71,12 +112,7 @@ export function Dashboard() {
 
   const currentWeight = Number(dashboard?.currentWeight || 0);
   const startWeight = Number(dashboard?.startWeight || 0);
-  const goalWeight =
-    dashboard?.goalType === "gain"
-      ? startWeight + 5
-      : dashboard?.goalType === "maintain"
-        ? startWeight
-        : startWeight - 5;
+  const goalWeight = Number(dashboard?.goalWeight || 0);
   const weightProgress = Number(dashboard?.goalProgress || 0);
   const totalSpent = Number(dashboard?.totalSpent || 0);
   const totalBudget = Number(dashboard?.budgetTotal || 0);
@@ -85,6 +121,14 @@ export function Dashboard() {
   const adherenceRate = daysCompleted
     ? Math.min(100, Math.round((daysCompleted / 30) * 100))
     : 0;
+  const weeklyStats = dashboard?.weeklyStats || {};
+  const achievements = dashboard?.achievements || [];
+  const currentStreak = Number(dashboard?.currentStreak || 0);
+  const bestStreak = Number(dashboard?.bestStreak || 0);
+
+  if (!dashboard && !error) {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <div className="space-y-6">
@@ -168,29 +212,33 @@ export function Dashboard() {
               View Details
             </Button>
           </div>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={weightData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="day" stroke="#6b7280" fontSize={12} />
-                <YAxis stroke="#6b7280" fontSize={12} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#ffffff",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="weight"
-                  stroke="#10b981"
-                  strokeWidth={3}
-                  dot={{ fill: "#10b981", r: 4 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          {weightData.length === 0 ? (
+            <ChartEmptyState onClick={() => navigate("/app/tracking")} />
+          ) : (
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={weightData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="day" stroke="#6b7280" fontSize={12} />
+                  <YAxis stroke="#6b7280" fontSize={12} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#ffffff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="weight"
+                    stroke="#10b981"
+                    strokeWidth={3}
+                    dot={{ fill: "#10b981", r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
             <div>
               <div className="text-xs text-muted-foreground">Start</div>
@@ -217,40 +265,44 @@ export function Dashboard() {
               View Details
             </Button>
           </div>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={spendingData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="week" stroke="#6b7280" fontSize={12} />
-                <YAxis stroke="#6b7280" fontSize={12} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#ffffff",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                  }}
-                  formatter={(value) => `${Math.round(value / 1000)}k VND`}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="spent"
-                  stroke="#10b981"
-                  strokeWidth={3}
-                  dot={{ fill: "#10b981", r: 4 }}
-                  name="Spent"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="budget"
-                  stroke="#e5e7eb"
-                  strokeWidth={2}
-                  strokeDasharray="5 5"
-                  dot={{ fill: "#6b7280", r: 3 }}
-                  name="Budget"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          {spendingData.length === 0 ? (
+            <ChartEmptyState onClick={() => navigate("/app/tracking")} />
+          ) : (
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={spendingData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="week" stroke="#6b7280" fontSize={12} />
+                  <YAxis stroke="#6b7280" fontSize={12} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#ffffff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                    }}
+                    formatter={(value) => `${Math.round(value / 1000)}k VND`}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="spent"
+                    stroke="#10b981"
+                    strokeWidth={3}
+                    dot={{ fill: "#10b981", r: 4 }}
+                    name="Spent"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="budget"
+                    stroke="#e5e7eb"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    dot={{ fill: "#6b7280", r: 3 }}
+                    name="Budget"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
             <div>
               <div className="text-xs text-muted-foreground">Total Spent</div>
@@ -280,15 +332,21 @@ export function Dashboard() {
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Days completed</span>
-              <span className="font-semibold">{Math.min(daysCompleted, 7)}/7</span>
+              <span className="font-semibold">
+                {Number(weeklyStats.daysCompletedThisWeek || 0)}/7
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Workouts done</span>
-              <span className="font-semibold">{Math.min(daysCompleted, 5)}/5</span>
+              <span className="font-semibold">
+                {Number(weeklyStats.workoutsDoneThisWeek || 0)}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Meals logged</span>
-              <span className="font-semibold">{(dashboard?.expenseLogs || []).length}/21</span>
+              <span className="font-semibold">
+                {Number(weeklyStats.mealsLoggedThisWeek || 0)}
+              </span>
             </div>
           </div>
         </div>
@@ -302,11 +360,11 @@ export function Dashboard() {
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Current streak</span>
-              <span className="font-semibold">{daysCompleted} days</span>
+              <span className="font-semibold">{currentStreak} days</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Best streak</span>
-              <span className="font-semibold">{daysCompleted} days</span>
+              <span className="font-semibold">{bestStreak} days</span>
             </div>
           </div>
         </div>
@@ -314,24 +372,24 @@ export function Dashboard() {
         <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
           <h4 className="font-semibold mb-4">Achievements</h4>
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                <span>T1</span>
+            {achievements.length === 0 ? (
+              <div className="text-sm text-muted-foreground">
+                Complete tracking or daily routine tasks to unlock achievements.
               </div>
-              <div className="text-sm">First week complete</div>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                <span>T2</span>
+            ) : null}
+            {achievements.map((achievement) => (
+              <div key={achievement.code} className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                  <span>{achievement.code}</span>
+                </div>
+                <div>
+                  <div className="text-sm font-medium">{achievement.title}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {achievement.description}
+                  </div>
+                </div>
               </div>
-              <div className="text-sm">{daysCompleted} plan days done</div>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                <span>T3</span>
-              </div>
-              <div className="text-sm">{formatCurrency(totalBudget - totalSpent)} VND left</div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
