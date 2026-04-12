@@ -1,116 +1,276 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Calendar, DollarSign } from "lucide-react";
+import { Plus, Calendar, DollarSign, Pencil, Trash2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { apiGet, apiPost } from "../lib/api";
+import { apiDelete, apiGet, apiPost, apiPut } from "../lib/api";
 import { formatShortDate } from "../lib/formatters";
+
+const EMPTY_WEIGHT = { date: "", weight: "", note: "" };
+const EMPTY_EXPENSE = {
+  date: "",
+  category: "Food",
+  amount: "",
+  description: "",
+};
+
+function toInputDate(value) {
+  if (!value) return "";
+  return new Date(value).toISOString().split("T")[0];
+}
+
+function getItems(payload) {
+  return Array.isArray(payload) ? payload : payload?.items || [];
+}
+
+function getPagination(payload, page) {
+  if (Array.isArray(payload)) {
+    return { page, totalPages: 1, total: payload.length };
+  }
+
+  return {
+    page: payload?.page || page,
+    totalPages: payload?.totalPages || 1,
+    total: payload?.total || 0,
+  };
+}
+
+function PaginationControls({ pagination, onPrevious, onNext }) {
+  return (
+    <div className="flex items-center justify-between pt-4">
+      <div className="text-sm text-muted-foreground">
+        Page {pagination.page} / {pagination.totalPages} · {pagination.total} logs
+      </div>
+      <div className="flex gap-2">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          disabled={pagination.page <= 1}
+          onClick={onPrevious}
+        >
+          Previous
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          disabled={pagination.page >= pagination.totalPages}
+          onClick={onNext}
+        >
+          Next
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({ message }) {
+  return (
+    <div className="rounded-xl border border-dashed border-border bg-secondary/30 p-6 text-center text-sm text-muted-foreground">
+      {message}
+    </div>
+  );
+}
 
 export function Tracking() {
   const [showWeightForm, setShowWeightForm] = useState(false);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [weightLog, setWeightLog] = useState([]);
   const [expenseLog, setExpenseLog] = useState([]);
-  const [error, setError] = useState("");
-
-  const [newWeight, setNewWeight] = useState({ date: "", weight: "", note: "" });
-  const [newExpense, setNewExpense] = useState({
-    date: "",
-    category: "Food",
-    amount: "",
-    description: "",
+  const [dashboard, setDashboard] = useState(null);
+  const [weightPagination, setWeightPagination] = useState({
+    page: 1,
+    totalPages: 1,
+    total: 0,
   });
+  const [expensePagination, setExpensePagination] = useState({
+    page: 1,
+    totalPages: 1,
+    total: 0,
+  });
+  const [period, setPeriod] = useState("all");
+  const [weightPage, setWeightPage] = useState(1);
+  const [expensePage, setExpensePage] = useState(1);
+  const [editingWeightId, setEditingWeightId] = useState(null);
+  const [editingExpenseId, setEditingExpenseId] = useState(null);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    let ignore = false;
+  const [newWeight, setNewWeight] = useState(EMPTY_WEIGHT);
+  const [newExpense, setNewExpense] = useState(EMPTY_EXPENSE);
 
-    async function loadTrackingData() {
-      try {
-        const [weights, expenses] = await Promise.all([
-          apiGet("/api/tracking/weights"),
-          apiGet("/api/tracking/expenses"),
-        ]);
-
-        if (!ignore) {
-          setWeightLog(
-            weights.map((entry) => ({
-              id: entry.id,
-              date: entry.log_date,
-              weight: Number(entry.weight_kg),
-              note: entry.note || "",
-            })),
-          );
-          setExpenseLog(
-            expenses.map((entry) => ({
-              id: entry.id,
-              date: entry.log_date,
-              category: entry.category,
-              amount: Number(entry.amount),
-              description: entry.description || "",
-            })),
-          );
-        }
-      } catch (requestError) {
-        if (!ignore) {
-          setError(requestError.message);
-        }
-      }
-    }
-
-    loadTrackingData();
-
-    return () => {
-      ignore = true;
-    };
-  }, []);
-
-  const handleAddWeight = async (e) => {
-    e.preventDefault();
+  async function loadTrackingData() {
+    setIsLoading(true);
+    setError("");
 
     try {
-      const weight = await apiPost("/api/tracking/weights", {
+      const query = `period=${period}&limit=8`;
+      const [weights, expenses, summary] = await Promise.all([
+        apiGet(`/api/tracking/weights?${query}&page=${weightPage}`),
+        apiGet(`/api/tracking/expenses?${query}&page=${expensePage}`),
+        apiGet("/api/dashboard/summary"),
+      ]);
+
+      setWeightLog(
+        getItems(weights).map((entry) => ({
+          id: entry.id,
+          date: entry.log_date,
+          weight: Number(entry.weight_kg),
+          note: entry.note || "",
+        })),
+      );
+      setExpenseLog(
+        getItems(expenses).map((entry) => ({
+          id: entry.id,
+          date: entry.log_date,
+          category: entry.category,
+          amount: Number(entry.amount),
+          description: entry.description || "",
+        })),
+      );
+      setWeightPagination(getPagination(weights, weightPage));
+      setExpensePagination(getPagination(expenses, expensePage));
+      setDashboard(summary);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadTrackingData();
+  }, [period, weightPage, expensePage]);
+
+  const resetWeightForm = () => {
+    setNewWeight(EMPTY_WEIGHT);
+    setEditingWeightId(null);
+    setShowWeightForm(false);
+  };
+
+  const resetExpenseForm = () => {
+    setNewExpense(EMPTY_EXPENSE);
+    setEditingExpenseId(null);
+    setShowExpenseForm(false);
+  };
+
+  const handleAddOrUpdateWeight = async (event) => {
+    event.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      const payload = {
         date: newWeight.date,
         weight: Number(newWeight.weight),
         note: newWeight.note,
-      });
+      };
 
-      setWeightLog([{ ...weight, weight: Number(weight.weight) }, ...weightLog]);
-      setNewWeight({ date: "", weight: "", note: "" });
-      setShowWeightForm(false);
+      if (editingWeightId) {
+        await apiPut(`/api/tracking/weights/${editingWeightId}`, payload);
+      } else {
+        await apiPost("/api/tracking/weights", payload);
+        setWeightPage(1);
+      }
+
+      resetWeightForm();
+      await loadTrackingData();
     } catch (requestError) {
       setError(requestError.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleAddExpense = async (e) => {
-    e.preventDefault();
+  const handleAddOrUpdateExpense = async (event) => {
+    event.preventDefault();
+    setError("");
+    setIsSubmitting(true);
 
     try {
-      const expense = await apiPost("/api/tracking/expenses", {
+      const payload = {
         date: newExpense.date,
         category: newExpense.category,
         amount: Number(newExpense.amount),
         description: newExpense.description,
-      });
+      };
 
-      setExpenseLog([{ ...expense, amount: Number(expense.amount) }, ...expenseLog]);
-      setNewExpense({ date: "", category: "Food", amount: "", description: "" });
-      setShowExpenseForm(false);
+      if (editingExpenseId) {
+        await apiPut(`/api/tracking/expenses/${editingExpenseId}`, payload);
+      } else {
+        await apiPost("/api/tracking/expenses", payload);
+        setExpensePage(1);
+      }
+
+      resetExpenseForm();
+      await loadTrackingData();
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteWeight = async (entryId) => {
+    if (!window.confirm("Delete this weight log?")) return;
+
+    try {
+      await apiDelete(`/api/tracking/weights/${entryId}`);
+      await loadTrackingData();
     } catch (requestError) {
       setError(requestError.message);
     }
   };
 
-  const totalExpenses = useMemo(
-    () => expenseLog.reduce((sum, exp) => sum + exp.amount, 0),
-    [expenseLog],
-  );
-  const weeklyExpenses = expenseLog
-    .filter((exp) => new Date(exp.date) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
-    .reduce((sum, exp) => sum + exp.amount, 0);
+  const handleDeleteExpense = async (entryId) => {
+    if (!window.confirm("Delete this expense log?")) return;
 
+    try {
+      await apiDelete(`/api/tracking/expenses/${entryId}`);
+      await loadTrackingData();
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  };
+
+  const beginEditWeight = (entry) => {
+    setEditingWeightId(entry.id);
+    setNewWeight({
+      date: toInputDate(entry.date),
+      weight: String(entry.weight),
+      note: entry.note || "",
+    });
+    setShowWeightForm(true);
+  };
+
+  const beginEditExpense = (entry) => {
+    setEditingExpenseId(entry.id);
+    setNewExpense({
+      date: toInputDate(entry.date),
+      category: entry.category,
+      amount: String(entry.amount),
+      description: entry.description || "",
+    });
+    setShowExpenseForm(true);
+  };
+
+  const weeklyExpenses = useMemo(() => {
+    const logs = dashboard?.expenseLogs || [];
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    return logs
+      .filter((entry) => new Date(entry.log_date) >= weekAgo)
+      .reduce((sum, entry) => sum + Number(entry.amount), 0);
+  }, [dashboard]);
+
+  const currentWeight = Number(dashboard?.currentWeight || 0);
+  const startWeight = Number(dashboard?.startWeight || 0);
   const weightChange =
-    weightLog.length >= 2 ? weightLog[0].weight - weightLog[weightLog.length - 1].weight : 0;
+    currentWeight && startWeight ? currentWeight - startWeight : 0;
+  const goalWeight = Number(dashboard?.goalWeight || 0);
+  const totalExpenses = Number(dashboard?.totalSpent || 0);
 
   const getCategoryColor = (category) => {
     switch (category) {
@@ -129,11 +289,26 @@ export function Tracking() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold mb-2">Tracking</h1>
-        <p className="text-muted-foreground">
-          Monitor your weight progress and expenses
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-semibold mb-2">Tracking</h1>
+          <p className="text-muted-foreground">
+            Monitor your weight progress and expenses
+          </p>
+        </div>
+        <select
+          value={period}
+          onChange={(event) => {
+            setPeriod(event.target.value);
+            setWeightPage(1);
+            setExpensePage(1);
+          }}
+          className="h-10 px-3 rounded-lg border border-border bg-background"
+        >
+          <option value="all">All logs</option>
+          <option value="week">This week</option>
+          <option value="month">This month</option>
+        </select>
       </div>
 
       {error ? (
@@ -145,16 +320,17 @@ export function Tracking() {
       <div className="grid grid-cols-4 gap-4">
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
           <div className="text-sm text-muted-foreground mb-1">Current Weight</div>
-          <div className="text-2xl font-bold">{weightLog[0]?.weight || "--"} kg</div>
-          <div className={`text-xs mt-1 ${weightChange < 0 ? "text-primary" : "text-orange-500"}`}>
-            {weightChange > 0 ? "+" : ""}
-            {weightChange.toFixed(1)} kg
+          <div className="text-2xl font-bold">{currentWeight || "--"} kg</div>
+          <div className={`text-xs mt-1 ${weightChange <= 0 ? "text-primary" : "text-orange-500"}`}>
+            {currentWeight && startWeight ? `${weightChange.toFixed(1)} kg from start` : "No data yet"}
           </div>
         </div>
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
           <div className="text-sm text-muted-foreground mb-1">Goal Weight</div>
-          <div className="text-2xl font-bold">65.0 kg</div>
-          <div className="text-xs text-muted-foreground mt-1">Track from dashboard</div>
+          <div className="text-2xl font-bold">
+            {goalWeight ? `${goalWeight.toFixed(1)} kg` : "-- kg"}
+          </div>
+          <div className="text-xs text-muted-foreground mt-1">From profile goal</div>
         </div>
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
           <div className="text-sm text-muted-foreground mb-1">Weekly Spending</div>
@@ -168,13 +344,23 @@ export function Tracking() {
         </div>
       </div>
 
+      {isLoading ? (
+        <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
+          Đang lấy dữ liệu...
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-2 gap-6">
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Weight Log</h3>
             <Button
               size="sm"
-              onClick={() => setShowWeightForm(!showWeightForm)}
+              onClick={() => {
+                setShowWeightForm(!showWeightForm);
+                setEditingWeightId(null);
+                setNewWeight(EMPTY_WEIGHT);
+              }}
               className="gap-2"
             >
               <Plus className="w-4 h-4" />
@@ -182,15 +368,15 @@ export function Tracking() {
             </Button>
           </div>
 
-          {showWeightForm && (
-            <form onSubmit={handleAddWeight} className="mb-6 p-4 bg-secondary/50 rounded-xl space-y-4">
+          {showWeightForm ? (
+            <form onSubmit={handleAddOrUpdateWeight} className="mb-6 p-4 bg-secondary/50 rounded-xl space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="weightDate">Date</Label>
                 <Input
                   id="weightDate"
                   type="date"
                   value={newWeight.date}
-                  onChange={(e) => setNewWeight({ ...newWeight, date: e.target.value })}
+                  onChange={(event) => setNewWeight({ ...newWeight, date: event.target.value })}
                   required
                 />
               </div>
@@ -202,7 +388,7 @@ export function Tracking() {
                   step="0.1"
                   placeholder="70.5"
                   value={newWeight.weight}
-                  onChange={(e) => setNewWeight({ ...newWeight, weight: e.target.value })}
+                  onChange={(event) => setNewWeight({ ...newWeight, weight: event.target.value })}
                   required
                 />
               </div>
@@ -213,26 +399,25 @@ export function Tracking() {
                   type="text"
                   placeholder="Morning weight"
                   value={newWeight.note}
-                  onChange={(e) => setNewWeight({ ...newWeight, note: e.target.value })}
+                  onChange={(event) => setNewWeight({ ...newWeight, note: event.target.value })}
                 />
               </div>
               <div className="flex gap-2">
-                <Button type="submit" size="sm" className="flex-1">
-                  Save
+                <Button type="submit" size="sm" className="flex-1" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : editingWeightId ? "Update" : "Save"}
                 </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setShowWeightForm(false)}
-                >
+                <Button type="button" size="sm" variant="outline" onClick={resetWeightForm}>
                   Cancel
                 </Button>
               </div>
             </form>
-          )}
+          ) : null}
 
           <div className="space-y-2">
+            {!isLoading && weightLog.length === 0 ? (
+              <EmptyState message="Bạn chưa ghi nhận cân nặng nào. Hãy thêm mới ngay!" />
+            ) : null}
+
             {weightLog.map((entry) => (
               <div
                 key={entry.id}
@@ -242,17 +427,33 @@ export function Tracking() {
                   <Calendar className="w-4 h-4 text-muted-foreground" />
                   <div>
                     <div className="font-medium">{entry.weight} kg</div>
-                    {entry.note && (
+                    {entry.note ? (
                       <div className="text-xs text-muted-foreground">{entry.note}</div>
-                    )}
+                    ) : null}
                   </div>
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  {formatShortDate(entry.date)}
+                <div className="flex items-center gap-2">
+                  <div className="text-sm text-muted-foreground">
+                    {formatShortDate(entry.date)}
+                  </div>
+                  <Button size="icon" variant="ghost" onClick={() => beginEditWeight(entry)}>
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => handleDeleteWeight(entry.id)}>
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
+
+          {!isLoading ? (
+            <PaginationControls
+              pagination={weightPagination}
+              onPrevious={() => setWeightPage((page) => Math.max(page - 1, 1))}
+              onNext={() => setWeightPage((page) => page + 1)}
+            />
+          ) : null}
         </div>
 
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
@@ -260,7 +461,11 @@ export function Tracking() {
             <h3 className="text-lg font-semibold">Expense Log</h3>
             <Button
               size="sm"
-              onClick={() => setShowExpenseForm(!showExpenseForm)}
+              onClick={() => {
+                setShowExpenseForm(!showExpenseForm);
+                setEditingExpenseId(null);
+                setNewExpense(EMPTY_EXPENSE);
+              }}
               className="gap-2"
             >
               <Plus className="w-4 h-4" />
@@ -268,15 +473,15 @@ export function Tracking() {
             </Button>
           </div>
 
-          {showExpenseForm && (
-            <form onSubmit={handleAddExpense} className="mb-6 p-4 bg-secondary/50 rounded-xl space-y-4">
+          {showExpenseForm ? (
+            <form onSubmit={handleAddOrUpdateExpense} className="mb-6 p-4 bg-secondary/50 rounded-xl space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="expenseDate">Date</Label>
                 <Input
                   id="expenseDate"
                   type="date"
                   value={newExpense.date}
-                  onChange={(e) => setNewExpense({ ...newExpense, date: e.target.value })}
+                  onChange={(event) => setNewExpense({ ...newExpense, date: event.target.value })}
                   required
                 />
               </div>
@@ -285,9 +490,7 @@ export function Tracking() {
                 <select
                   id="expenseCategory"
                   value={newExpense.category}
-                  onChange={(e) =>
-                    setNewExpense({ ...newExpense, category: e.target.value })
-                  }
+                  onChange={(event) => setNewExpense({ ...newExpense, category: event.target.value })}
                   className="w-full h-10 px-3 rounded-lg border border-border bg-background"
                   required
                 >
@@ -304,7 +507,7 @@ export function Tracking() {
                   type="number"
                   placeholder="50000"
                   value={newExpense.amount}
-                  onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
+                  onChange={(event) => setNewExpense({ ...newExpense, amount: event.target.value })}
                   required
                 />
               </div>
@@ -315,29 +518,26 @@ export function Tracking() {
                   type="text"
                   placeholder="Daily meals"
                   value={newExpense.description}
-                  onChange={(e) =>
-                    setNewExpense({ ...newExpense, description: e.target.value })
-                  }
+                  onChange={(event) => setNewExpense({ ...newExpense, description: event.target.value })}
                   required
                 />
               </div>
               <div className="flex gap-2">
-                <Button type="submit" size="sm" className="flex-1">
-                  Save
+                <Button type="submit" size="sm" className="flex-1" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : editingExpenseId ? "Update" : "Save"}
                 </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setShowExpenseForm(false)}
-                >
+                <Button type="button" size="sm" variant="outline" onClick={resetExpenseForm}>
                   Cancel
                 </Button>
               </div>
             </form>
-          )}
+          ) : null}
 
           <div className="space-y-2">
+            {!isLoading && expenseLog.length === 0 ? (
+              <EmptyState message="Bạn chưa ghi nhận chi tiêu nào. Hãy thêm mới ngay!" />
+            ) : null}
+
             {expenseLog.map((entry) => (
               <div
                 key={entry.id}
@@ -354,17 +554,31 @@ export function Tracking() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <div className={`px-2 py-1 rounded-md border text-xs ${getCategoryColor(entry.category)}`}>
                     {entry.category}
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {formatShortDate(entry.date)}
                   </div>
+                  <Button size="icon" variant="ghost" onClick={() => beginEditExpense(entry)}>
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => handleDeleteExpense(entry.id)}>
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
+
+          {!isLoading ? (
+            <PaginationControls
+              pagination={expensePagination}
+              onPrevious={() => setExpensePage((page) => Math.max(page - 1, 1))}
+              onNext={() => setExpensePage((page) => page + 1)}
+            />
+          ) : null}
         </div>
       </div>
     </div>

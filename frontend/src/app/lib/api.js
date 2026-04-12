@@ -141,3 +141,9 @@ export function apiPut(path, data) {
     body: JSON.stringify(data),
   });
 }
+
+export function apiDelete(path) {
+  return request(path, {
+    method: "DELETE",
+  });
+}
