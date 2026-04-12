@@ -58,6 +58,15 @@ async function logout(req, res) {
   }
 }
 
+async function changePassword(req, res) {
+  try {
+    const data = await authService.changePassword(req.user.id, req.body);
+    res.json(data);
+  } catch (error) {
+    res.status(error.status || 400).json({ message: error.message });
+  }
+}
+
 module.exports = {
   register,
   login,
@@ -65,4 +74,5 @@ module.exports = {
   me,
   refreshToken,
   logout,
+  changePassword,
 };

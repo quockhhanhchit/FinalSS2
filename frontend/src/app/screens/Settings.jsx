@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { User, Bell, Lock, Wallet, Target } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { getAuthSession } from "../lib/auth";
-import { apiGet } from "../lib/api";
+import { apiGet, apiPut } from "../lib/api";
 import { showToast } from "../components/ui/toast";
 
 const initialBodyGoalsData = {
@@ -20,6 +20,18 @@ const initialBudgetData = {
   budgetStyle: "normal",
 };
 
+const initialNotificationData = {
+  dailyReminders: true,
+  weightTrackingReminders: true,
+  budgetAlerts: true,
+};
+
+const initialPasswordData = {
+  currentPassword: "",
+  newPassword: "",
+  confirmPassword: "",
+};
+
 function hasValidPositiveNumber(value) {
   return Number.isFinite(Number(value)) && Number(value) > 0;
 }
@@ -28,21 +40,29 @@ export function Settings() {
   const session = getAuthSession();
   const [bodyGoalsData, setBodyGoalsData] = useState(initialBodyGoalsData);
   const [budgetData, setBudgetData] = useState(initialBudgetData);
+  const [notificationData, setNotificationData] = useState(initialNotificationData);
+  const [passwordData, setPasswordData] = useState(initialPasswordData);
   const [savedBodyGoalsData, setSavedBodyGoalsData] = useState(initialBodyGoalsData);
   const [savedBudgetData, setSavedBudgetData] = useState(initialBudgetData);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingBodyGoals, setIsSavingBodyGoals] = useState(false);
   const [isSavingBudget, setIsSavingBudget] = useState(false);
+  const [isSavingNotifications, setIsSavingNotifications] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isBodyGoalsEditing, setIsBodyGoalsEditing] = useState(false);
   const [isBudgetEditing, setIsBudgetEditing] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   useEffect(() => {
     let ignore = false;
 
     async function loadProfile() {
       try {
-        const profile = await apiGet("/api/profile");
+        const [profile, notifications] = await Promise.all([
+          apiGet("/api/profile"),
+          apiGet("/api/profile/notifications"),
+        ]);
 
         if (ignore || !profile) {
           return;
@@ -67,6 +87,11 @@ export function Settings() {
         setBudgetData(nextBudgetData);
         setSavedBodyGoalsData(nextBodyGoalsData);
         setSavedBudgetData(nextBudgetData);
+        setNotificationData({
+          dailyReminders: Boolean(notifications.daily_reminders),
+          weightTrackingReminders: Boolean(notifications.weight_tracking_reminders),
+          budgetAlerts: Boolean(notifications.budget_alerts),
+        });
       } catch (requestError) {
         if (!ignore) {
           setError(requestError.message);
@@ -97,6 +122,26 @@ export function Settings() {
       ...current,
       [key]: value,
     }));
+  };
+
+  const handleNotificationChange = async (key, value) => {
+    const nextNotificationData = {
+      ...notificationData,
+      [key]: value,
+    };
+
+    setNotificationData(nextNotificationData);
+    setIsSavingNotifications(true);
+    setError("");
+
+    try {
+      await apiPut("/api/profile/notifications", nextNotificationData);
+      showToast("Notification preferences saved.", "success");
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsSavingNotifications(false);
+    }
   };
 
   const handleCancelBodyGoals = () => {
@@ -132,9 +177,16 @@ export function Settings() {
     setIsSavingBodyGoals(true);
 
     try {
+      await apiPut("/api/profile/body-goals", {
+        age: Number(bodyGoalsData.age),
+        height: Number(bodyGoalsData.height),
+        weight: Number(bodyGoalsData.weight),
+        goal: bodyGoalsData.goal,
+        duration: Number(bodyGoalsData.duration),
+      });
       setSavedBodyGoalsData(bodyGoalsData);
       setIsBodyGoalsEditing(false);
-      showToast("Body & Goals updated in Settings only.", "success");
+      showToast("Body & Goals saved to database.", "success");
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -144,16 +196,51 @@ export function Settings() {
 
   const handleSaveBudget = async () => {
     setError("");
+
+    if (!hasValidPositiveNumber(budgetData.budget)) {
+      setError("Budget is required and must be greater than 0.");
+      return;
+    }
+
     setIsSavingBudget(true);
 
     try {
+      await apiPut("/api/profile/budget", {
+        budget: Number(budgetData.budget),
+        location: budgetData.location,
+        mealsPerDay: Number(budgetData.mealsPerDay),
+        budgetStyle: budgetData.budgetStyle,
+      });
       setSavedBudgetData(budgetData);
       setIsBudgetEditing(false);
-      showToast("Budget & Preferences updated in Settings only.", "success");
+      showToast("Budget & Preferences saved to database.", "success");
     } catch (requestError) {
       setError(requestError.message);
     } finally {
       setIsSavingBudget(false);
+    }
+  };
+
+  const handleChangePassword = async (event) => {
+    event.preventDefault();
+    setError("");
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setError("New password and confirm password do not match.");
+      return;
+    }
+
+    setIsChangingPassword(true);
+
+    try {
+      await apiPut("/api/auth/change-password", passwordData);
+      setPasswordData(initialPasswordData);
+      setShowPasswordForm(false);
+      showToast("Password changed successfully. Please sign in again later if needed.", "success");
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -408,7 +495,9 @@ export function Settings() {
           </div>
           <div>
             <h3 className="text-lg font-semibold">Notifications</h3>
-            <p className="text-sm text-muted-foreground">Demo-only static preferences</p>
+            <p className="text-sm text-muted-foreground">
+              Preferences are saved to your account
+            </p>
           </div>
         </div>
         <div className="space-y-4">
@@ -417,21 +506,48 @@ export function Settings() {
               <div className="font-medium">Daily Reminders</div>
               <div className="text-sm text-muted-foreground">Get notified about your daily tasks</div>
             </div>
-            <input type="checkbox" defaultChecked className="w-5 h-5 text-primary" />
+            <input
+              type="checkbox"
+              checked={notificationData.dailyReminders}
+              disabled={isSavingNotifications}
+              onChange={(event) =>
+                handleNotificationChange("dailyReminders", event.target.checked)
+              }
+              className="w-5 h-5 text-primary"
+            />
           </div>
           <div className="flex items-center justify-between">
             <div>
               <div className="font-medium">Weight Tracking</div>
               <div className="text-sm text-muted-foreground">Reminders to log your weight</div>
             </div>
-            <input type="checkbox" defaultChecked className="w-5 h-5 text-primary" />
+            <input
+              type="checkbox"
+              checked={notificationData.weightTrackingReminders}
+              disabled={isSavingNotifications}
+              onChange={(event) =>
+                handleNotificationChange(
+                  "weightTrackingReminders",
+                  event.target.checked
+                )
+              }
+              className="w-5 h-5 text-primary"
+            />
           </div>
           <div className="flex items-center justify-between">
             <div>
               <div className="font-medium">Budget Alerts</div>
               <div className="text-sm text-muted-foreground">Notifications when approaching budget limit</div>
             </div>
-            <input type="checkbox" defaultChecked className="w-5 h-5 text-primary" />
+            <input
+              type="checkbox"
+              checked={notificationData.budgetAlerts}
+              disabled={isSavingNotifications}
+              onChange={(event) =>
+                handleNotificationChange("budgetAlerts", event.target.checked)
+              }
+              className="w-5 h-5 text-primary"
+            />
           </div>
         </div>
       </div>
@@ -443,16 +559,97 @@ export function Settings() {
           </div>
           <div>
             <h3 className="text-lg font-semibold">Security</h3>
-            <p className="text-sm text-muted-foreground">Demo-only account actions</p>
+            <p className="text-sm text-muted-foreground">Manage account security</p>
           </div>
         </div>
         <div className="space-y-4">
-          <Button variant="outline" className="w-full justify-start">
+          <Button
+            variant="outline"
+            className="w-full justify-start"
+            onClick={() => setShowPasswordForm((current) => !current)}
+          >
             Change Password
           </Button>
-          <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50">
+
+          {showPasswordForm ? (
+            <form
+              onSubmit={handleChangePassword}
+              className="rounded-xl border border-border bg-secondary/40 p-4 space-y-4"
+            >
+              <div>
+                <label className="text-sm font-medium mb-2 block">Current Password</label>
+                <input
+                  type="password"
+                  value={passwordData.currentPassword}
+                  onChange={(event) =>
+                    setPasswordData((current) => ({
+                      ...current,
+                      currentPassword: event.target.value,
+                    }))
+                  }
+                  className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">New Password</label>
+                <input
+                  type="password"
+                  value={passwordData.newPassword}
+                  onChange={(event) =>
+                    setPasswordData((current) => ({
+                      ...current,
+                      newPassword: event.target.value,
+                    }))
+                  }
+                  className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Confirm New Password</label>
+                <input
+                  type="password"
+                  value={passwordData.confirmPassword}
+                  onChange={(event) =>
+                    setPasswordData((current) => ({
+                      ...current,
+                      confirmPassword: event.target.value,
+                    }))
+                  }
+                  className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isChangingPassword}
+                  onClick={() => {
+                    setShowPasswordForm(false);
+                    setPasswordData(initialPasswordData);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isChangingPassword}>
+                  {isChangingPassword ? "Changing..." : "Update Password"}
+                </Button>
+              </div>
+            </form>
+          ) : null}
+
+          <Button
+            variant="outline"
+            disabled
+            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
             Delete Account
           </Button>
+          <p className="text-xs text-muted-foreground">
+            Delete Account is disabled until a safe account deletion flow is added.
+          </p>
         </div>
       </div>
     </div>

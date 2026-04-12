@@ -74,7 +74,94 @@ async function getProfile(userId) {
   return rows[0] || null;
 }
 
+async function updateBodyGoals(userId, payload) {
+  const current = await getProfile(userId);
+
+  if (!current) {
+    throw new Error("Profile not found. Complete onboarding first.");
+  }
+
+  return saveProfile(userId, {
+    age: payload.age,
+    height: payload.height,
+    weight: payload.weight,
+    goal: payload.goal,
+    duration: payload.duration,
+    budget: current.budget_total,
+    location: current.workout_location,
+    mealsPerDay: current.meals_per_day,
+    budgetStyle: current.budget_style,
+  });
+}
+
+async function updateBudgetPreferences(userId, payload) {
+  const current = await getProfile(userId);
+
+  if (!current) {
+    throw new Error("Profile not found. Complete onboarding first.");
+  }
+
+  return saveProfile(userId, {
+    age: current.age,
+    height: current.height_cm,
+    weight: current.weight_kg,
+    goal: current.goal_type,
+    duration: current.duration_days,
+    budget: payload.budget,
+    location: payload.location,
+    mealsPerDay: payload.mealsPerDay,
+    budgetStyle: payload.budgetStyle,
+  });
+}
+
+async function getNotificationSettings(userId) {
+  const [rows] = await pool.query(
+    "SELECT * FROM user_notification_settings WHERE user_id = ?",
+    [userId]
+  );
+
+  if (rows.length > 0) {
+    return rows[0];
+  }
+
+  await pool.query(
+    "INSERT INTO user_notification_settings (user_id) VALUES (?)",
+    [userId]
+  );
+
+  const [nextRows] = await pool.query(
+    "SELECT * FROM user_notification_settings WHERE user_id = ?",
+    [userId]
+  );
+
+  return nextRows[0];
+}
+
+async function updateNotificationSettings(userId, payload) {
+  await pool.query(
+    `INSERT INTO user_notification_settings
+     (user_id, daily_reminders, weight_tracking_reminders, budget_alerts)
+     VALUES (?, ?, ?, ?)
+     ON DUPLICATE KEY UPDATE
+       daily_reminders = VALUES(daily_reminders),
+       weight_tracking_reminders = VALUES(weight_tracking_reminders),
+       budget_alerts = VALUES(budget_alerts)`,
+    [
+      userId,
+      Boolean(payload.dailyReminders),
+      Boolean(payload.weightTrackingReminders),
+      Boolean(payload.budgetAlerts),
+    ]
+  );
+
+  return getNotificationSettings(userId);
+}
+
 module.exports = {
   saveProfile,
   getProfile,
+  updateBodyGoals,
+  updateBudgetPreferences,
+  getNotificationSettings,
+  updateNotificationSettings,
 };

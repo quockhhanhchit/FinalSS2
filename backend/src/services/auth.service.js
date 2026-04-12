@@ -231,6 +231,37 @@ async function logout(userId) {
   return { message: "Logged out successfully" };
 }
 
+async function changePassword(userId, { currentPassword, newPassword }) {
+  const [rows] = await pool.query(
+    "SELECT id, password_hash FROM users WHERE id = ?",
+    [userId]
+  );
+
+  if (rows.length === 0) {
+    const error = new Error("User not found");
+    error.status = 404;
+    throw error;
+  }
+
+  const user = rows[0];
+  const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
+
+  if (!isMatch) {
+    const error = new Error("Current password is incorrect");
+    error.status = 400;
+    throw error;
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 10);
+
+  await pool.query(
+    "UPDATE users SET password_hash = ?, refresh_token_hash = NULL WHERE id = ?",
+    [passwordHash, userId]
+  );
+
+  return { message: "Password changed successfully" };
+}
+
 module.exports = {
   register,
   login,
@@ -238,4 +269,5 @@ module.exports = {
   getMe,
   refreshAccessToken,
   logout,
+  changePassword,
 };

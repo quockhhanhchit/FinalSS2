@@ -1,79 +1,93 @@
+import { useEffect, useMemo, useState } from "react";
 import { Trophy, Gift, Star, Zap, Award, Crown, Sparkles, Tag } from "lucide-react";
 import { AchievementBadge } from "../components/ui/achievement-badge";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
-import { useState } from "react";
 import { SuccessCelebration } from "../components/SuccessCelebration";
+import { apiGet, apiPost } from "../lib/api";
+import { formatShortDate } from "../lib/formatters";
 
 export function Rewards() {
+  const [summary, setSummary] = useState(null);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [redeemingId, setRedeemingId] = useState(null);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationReward, setCelebrationReward] = useState(null);
 
-  // User stats
-  const totalPoints = 2450;
-  const currentLevel = 5;
-  const nextLevelPoints = 3000;
+  async function loadRewards() {
+    setIsLoading(true);
+    setError("");
 
-  // Achievements
-  const achievements = [
-  { type: "streak", level: 7, title: "7-Day Streak", description: "Completed 7 days in a row", earned: true },
-  { type: "streak", level: 14, title: "14-Day Streak", description: "Completed 14 days in a row", earned: true },
-  { type: "streak", level: 30, title: "30-Day Streak", description: "Completed 30 days in a row", earned: false },
-  { type: "weight", title: "First 1kg Lost", description: "Lost your first kilogram", earned: true },
-  { type: "weight", title: "5kg Milestone", description: "Lost 5 kilograms", earned: false },
-  { type: "budget", title: "Budget Master", description: "Stayed under budget for 7 days", earned: true },
-  { type: "complete", title: "Week 1 Complete", description: "Finished first week", earned: true },
-  { type: "complete", title: "Week 2 Complete", description: "Finished second week", earned: true },
-  { type: "milestone", title: "Perfect Day", description: "100% completion on a day", earned: true },
-  { type: "milestone", title: "Early Bird", description: "Logged breakfast 7 days in a row", earned: true },
-  { type: "special", title: "Fitness Champion", description: "Completed 20 workouts", earned: true },
-  { type: "special", title: "Hydration Hero", description: "Hit water goal 14 days", earned: false },
-];
-  // Available vouchers/rewards
-  const vouchers = [
-    {
-      brand: "Shopee",
-      discount: "50,000₫",
-      image: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=400",
-      points: 500,
-      available: 5,
-      claimed: false,
-    },
-    {
-      brand: "Grab Food",
-      discount: "30,000₫",
-      image: "https://images.unsplash.com/photo-1661257711676-79a0fc533569?w=400",
-      points: 300,
-      available: 3,
-      claimed: false,
-    },
-    {
-      brand: "The Coffee House",
-      discount: "25,000₫",
-      image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400",
-      points: 250,
-      available: 10,
-      claimed: true,
-    },
-    {
-      brand: "Decathlon",
-      discount: "100,000₫",
-      image: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=400",
-      points: 1000,
-      available: 2,
-      claimed: false,
-    },
-  ];
+    try {
+      const data = await apiGet("/api/rewards/summary");
+      setSummary(data);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
-  // Recent rewards
-  const recentRewards = [
-    { date: "March 24, 2026", reward: "The Coffee House 25,000₫", points: 250 },
-    { date: "March 20, 2026", reward: "7-Day Streak Badge", points: 100 },
-    { date: "March 15, 2026", reward: "Week 2 Complete Badge", points: 150 },
-  ];
+  useEffect(() => {
+    loadRewards();
+  }, []);
+
+  const totalPoints = Number(summary?.totalPoints || 0);
+  const currentLevel = Number(summary?.currentLevel || 1);
+  const nextLevelPoints = Number(summary?.nextLevelPoints || 500);
+  const achievements = summary?.achievements || [];
+  const vouchers = summary?.vouchers || [];
+  const recentRewards = summary?.recentRewards || [];
+  const earnedCount = achievements.filter((achievement) => achievement.earned).length;
+  const levelProgress = nextLevelPoints
+    ? Math.min(100, Math.round((totalPoints / nextLevelPoints) * 100))
+    : 0;
+
+  const pointsToNextLevel = useMemo(
+    () => Math.max(nextLevelPoints - totalPoints, 0),
+    [nextLevelPoints, totalPoints],
+  );
+
+  const handleRedeem = async (voucher) => {
+    setRedeemingId(voucher.id);
+    setError("");
+
+    try {
+      const response = await apiPost("/api/rewards/redeem", {
+        voucherId: voucher.id,
+      });
+
+      setSummary(response.summary);
+      setCelebrationReward({
+        type: `${voucher.brand} Voucher`,
+        value: voucher.discount,
+        code: response.redeemCode,
+      });
+      setShowCelebration(true);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setRedeemingId(null);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-40 rounded-3xl bg-secondary animate-pulse" />
+        <div className="grid grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="h-32 rounded-2xl bg-secondary animate-pulse" />
+          ))}
+        </div>
+        <div className="h-96 rounded-2xl bg-secondary animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header with illustration */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 p-8 text-white">
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-3">
@@ -90,14 +104,21 @@ export function Rewards() {
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
       </div>
 
-      {/* Points Summary */}
+      {error ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20">
           <div className="flex items-center gap-3 mb-2">
             <Star className="w-6 h-6 text-primary" />
             <span className="text-sm font-medium text-muted-foreground">Total Points</span>
           </div>
-          <div className="text-3xl font-bold text-primary">{totalPoints.toLocaleString()}</div>
+          <div className="text-3xl font-bold text-primary">
+            {totalPoints.toLocaleString()}
+          </div>
         </div>
 
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 border border-purple-200">
@@ -113,28 +134,30 @@ export function Rewards() {
             <Zap className="w-6 h-6 text-orange-600" />
             <span className="text-sm font-medium text-orange-900">Next Level</span>
           </div>
-          <div className="text-3xl font-bold text-orange-600">{nextLevelPoints - totalPoints} pts</div>
+          <div className="text-3xl font-bold text-orange-600">
+            {pointsToNextLevel} pts
+          </div>
         </div>
       </div>
 
-      {/* Level Progress */}
       <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
             <h3 className="font-semibold">Progress to Level {currentLevel + 1}</h3>
           </div>
-          <span className="text-sm text-muted-foreground">{totalPoints} / {nextLevelPoints} points</span>
+          <span className="text-sm text-muted-foreground">
+            {totalPoints} / {nextLevelPoints} points
+          </span>
         </div>
         <div className="h-3 bg-muted rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
-            style={{ width: `${(totalPoints / nextLevelPoints) * 100}%` }}
+            style={{ width: `${levelProgress}%` }}
           />
         </div>
       </div>
 
-      {/* Achievements Grid */}
       <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -142,13 +165,13 @@ export function Rewards() {
             <h3 className="text-lg font-semibold">Your Achievements</h3>
           </div>
           <Badge variant="purple">
-            {achievements.filter((a) => a.earned).length}/{achievements.length} Earned
+            {earnedCount}/{achievements.length} Earned
           </Badge>
         </div>
         <div className="grid grid-cols-6 gap-4">
-          {achievements.map((achievement, index) => (
+          {achievements.map((achievement) => (
             <AchievementBadge
-              key={index}
+              key={achievement.title}
               type={achievement.type}
               level={achievement.level}
               title={achievement.title}
@@ -160,38 +183,31 @@ export function Rewards() {
         </div>
       </div>
 
-      {/* Available Vouchers */}
       <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Gift className="w-6 h-6 text-primary" />
             <h3 className="text-lg font-semibold">Redeem Vouchers</h3>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              setShowCelebration(true)
-            }
-          >
-            View All
+          <Button variant="outline" size="sm" onClick={loadRewards}>
+            Refresh
           </Button>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          {vouchers.map((voucher, index) => (
+          {vouchers.map((voucher) => (
             <div
-              key={index}
+              key={voucher.id}
               className={`relative overflow-hidden rounded-2xl border ${
                 voucher.claimed ? "border-muted bg-muted/30" : "border-border bg-card"
               }`}
             >
               <div className="h-32 overflow-hidden">
                 <img src={voucher.image} alt={voucher.brand} className="w-full h-full object-cover" />
-                {voucher.claimed && (
+                {voucher.claimed ? (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                     <Badge variant="success">Claimed</Badge>
                   </div>
-                )}
+                ) : null}
               </div>
               <div className="p-4">
                 <div className="flex items-center justify-between mb-2">
@@ -205,15 +221,19 @@ export function Rewards() {
                     <Star className="w-4 h-4 fill-current text-primary" />
                     <span className="font-medium">{voucher.points} points</span>
                   </div>
-                  {!voucher.claimed && (
+                  {!voucher.claimed ? (
                     <Button
                       size="sm"
-                      disabled={totalPoints < voucher.points}
-                      onClick={() => alert(`Redeemed ${voucher.brand} voucher!`)}
+                      disabled={
+                        totalPoints < voucher.points ||
+                        voucher.available <= 0 ||
+                        redeemingId === voucher.id
+                      }
+                      onClick={() => handleRedeem(voucher)}
                     >
-                      Redeem
+                      {redeemingId === voucher.id ? "Redeeming..." : "Redeem"}
                     </Button>
-                  )}
+                  ) : null}
                 </div>
                 <div className="text-xs text-muted-foreground mt-2">
                   {voucher.available} available
@@ -224,36 +244,45 @@ export function Rewards() {
         </div>
       </div>
 
-      {/* Recent Rewards History */}
       <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
         <div className="flex items-center gap-3 mb-6">
           <Trophy className="w-6 h-6 text-primary" />
           <h3 className="text-lg font-semibold">Recent Rewards</h3>
         </div>
         <div className="space-y-3">
+          {recentRewards.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+              No rewards history yet. Complete achievements or redeem vouchers to see it here.
+            </div>
+          ) : null}
           {recentRewards.map((item, index) => (
-            <div key={index} className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
+            <div key={`${item.reward}-${index}`} className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
               <div>
                 <div className="font-medium">{item.reward}</div>
-                <div className="text-sm text-muted-foreground">{item.date}</div>
+                <div className="text-sm text-muted-foreground">
+                  {formatShortDate(item.date)}
+                </div>
               </div>
-              <Badge variant="success" icon={<Star className="w-3 h-3 fill-current" />}>
-                +{item.points} pts
+              <Badge
+                variant={Number(item.points) >= 0 ? "success" : "outline"}
+                icon={<Star className="w-3 h-3 fill-current" />}
+              >
+                {Number(item.points) >= 0 ? "+" : ""}
+                {item.points} pts
               </Badge>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Success Celebration Modal */}
       <SuccessCelebration
         isOpen={showCelebration}
         onClose={() => setShowCelebration(false)}
-        achievement="30-Day Goal Completed"
-        reward={{
-          type: "Shopee Voucher",
-          value: "50,000₫",
-          code: "HEALTH2026",
+        achievement="Voucher Redeemed"
+        reward={celebrationReward || {
+          type: "Voucher",
+          value: "",
+          code: "",
         }}
       />
     </div>
