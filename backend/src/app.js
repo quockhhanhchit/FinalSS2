@@ -8,6 +8,7 @@ const planRoutes = require("./routes/plan.routes");
 const trackingRoutes = require("./routes/tracking.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const budgetRoutes = require("./routes/budget.routes");
+const rewardsRoutes = require("./routes/rewards.routes");
 
 const app = express();
 
@@ -26,5 +27,6 @@ app.use("/api/plans", planRoutes);
 app.use("/api/tracking", trackingRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/budget", budgetRoutes);
+app.use("/api/rewards", rewardsRoutes);
 
 module.exports = app;
