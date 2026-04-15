@@ -151,15 +151,12 @@ async function getDashboardSummary(userId) {
     }
   }
 
-  const totalSpent = expenses.reduce((sum, item) => sum + Number(item.amount), 0);
-
   let daysCompleted = 0;
   let daysCompletedThisWeek = 0;
   let mealsLoggedThisWeek = 0;
   let workoutsDoneThisWeek = 0;
   let currentStreak = 0;
   let bestStreak = 0;
-
   if (plans.length > 0) {
     const [planDays] = await pool.query(
       "SELECT COUNT(*) AS totalCompleted FROM plan_days WHERE plan_id = ? AND completed = true",
@@ -195,6 +192,17 @@ async function getDashboardSummary(userId) {
     workoutsDoneThisWeek = Number(weeklyRows[0]?.workoutsDoneThisWeek || 0);
   }
 
+  const spendingLogs = [
+    ...expenses.map((expense) => ({
+      ...expense,
+      amount: Number(expense.amount || 0),
+      source: "tracking-expense",
+    })),
+  ].sort((a, b) => new Date(a.log_date) - new Date(b.log_date));
+  const totalSpent = spendingLogs.reduce(
+    (sum, item) => sum + Number(item.amount || 0),
+    0
+  );
   const budgetTotal = profile ? Number(profile.budget_total) : 0;
   const achievements = buildAchievements({
     weights,
@@ -225,6 +233,7 @@ async function getDashboardSummary(userId) {
     achievements,
     weightLogs: weights,
     expenseLogs: expenses,
+    spendingLogs,
   };
 }
 

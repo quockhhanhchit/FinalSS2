@@ -2,6 +2,9 @@ const profileService = require("../services/profile.service");
 
 async function saveProfile(req, res) {
   try {
+    if (req.body.budget_total && Number(req.body.budget_total) < 3000000) {
+      throw new Error("Minimum budget is 3,000,000 VND.");
+    }
     const data = await profileService.saveProfile(req.user.id, req.body);
     res.json(data);
   } catch (error) {
@@ -29,6 +32,9 @@ async function updateBodyGoals(req, res) {
 
 async function updateBudgetPreferences(req, res) {
   try {
+    if (req.body.budget && Number(req.body.budget) < 3000000) {
+      throw new Error("Minimum budget is 3,000,000 VND.");
+    }
     const data = await profileService.updateBudgetPreferences(
       req.user.id,
       req.body

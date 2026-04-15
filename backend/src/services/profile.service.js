@@ -3,6 +3,7 @@ const pool = require("../config/db");
 async function saveProfile(userId, payload) {
   const {
     age,
+    gender = "male",
     height,
     weight,
     goal,
@@ -13,6 +14,10 @@ async function saveProfile(userId, payload) {
     budgetStyle,
   } = payload;
 
+  if (Number(budget) < 3000000) {
+    throw new Error("Minimum budget is 3,000,000 VND");
+  }
+
   const [existing] = await pool.query(
     "SELECT id FROM user_profiles WHERE user_id = ?",
     [userId]
@@ -21,11 +26,12 @@ async function saveProfile(userId, payload) {
   if (existing.length > 0) {
     await pool.query(
       `UPDATE user_profiles
-       SET age = ?, height_cm = ?, weight_kg = ?, goal_type = ?, duration_days = ?,
+       SET age = ?, gender = ?, height_cm = ?, weight_kg = ?, goal_type = ?, duration_days = ?,
            budget_total = ?, workout_location = ?, meals_per_day = ?, budget_style = ?
        WHERE user_id = ?`,
       [
         age,
+        gender,
         height,
         weight,
         goal,
@@ -40,11 +46,12 @@ async function saveProfile(userId, payload) {
   } else {
     await pool.query(
       `INSERT INTO user_profiles
-      (user_id, age, height_cm, weight_kg, goal_type, duration_days, budget_total, workout_location, meals_per_day, budget_style)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (user_id, age, gender, height_cm, weight_kg, goal_type, duration_days, budget_total, workout_location, meals_per_day, budget_style)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         userId,
         age,
+        gender,
         height,
         weight,
         goal,
@@ -83,6 +90,7 @@ async function updateBodyGoals(userId, payload) {
 
   return saveProfile(userId, {
     age: payload.age,
+    gender: payload.gender,
     height: payload.height,
     weight: payload.weight,
     goal: payload.goal,
@@ -103,6 +111,7 @@ async function updateBudgetPreferences(userId, payload) {
 
   return saveProfile(userId, {
     age: current.age,
+    gender: current.gender || "male",
     height: current.height_cm,
     weight: current.weight_kg,
     goal: current.goal_type,
