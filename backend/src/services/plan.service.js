@@ -92,6 +92,59 @@ function buildCompletionRecords(completedTasks, meals, workouts) {
   });
 }
 
+async function syncFoodExpenseForCompletedDay(
+  executor,
+  userId,
+  plan,
+  day,
+  meals,
+  isCompleted
+) {
+  const description = `Auto food expense for plan ${plan.id} day ${day.day_number}`;
+
+  if (!isCompleted) {
+    await executor.query(
+      `DELETE FROM expense_logs
+       WHERE user_id = ? AND category = 'Food' AND description = ?`,
+      [userId, description]
+    );
+    return;
+  }
+
+  const foodAmount = meals.reduce(
+    (sum, meal) => sum + Number(meal.cost || 0),
+    0
+  );
+
+  if (foodAmount <= 0) {
+    return;
+  }
+
+  const [existingLogs] = await executor.query(
+    `SELECT id FROM expense_logs
+     WHERE user_id = ? AND category = 'Food' AND description = ?
+     LIMIT 1`,
+    [userId, description]
+  );
+
+  if (existingLogs.length > 0) {
+    await executor.query(
+      `UPDATE expense_logs
+       SET log_date = CURDATE(), amount = ?
+       WHERE id = ? AND user_id = ?`,
+      [foodAmount, existingLogs[0].id, userId]
+    );
+    return;
+  }
+
+  await executor.query(
+    `INSERT INTO expense_logs
+     (user_id, log_date, category, amount, description)
+     VALUES (?, CURDATE(), 'Food', ?, ?)`,
+    [userId, foodAmount, description]
+  );
+}
+
 async function createPlanForUser(userId) {
   const [profiles] = await pool.query(
     "SELECT * FROM user_profiles WHERE user_id = ?",
@@ -108,7 +161,8 @@ async function createPlanForUser(userId) {
 
   const budget = generateBudgetBreakdown(
     Number(profile.budget_total),
-    profile.budget_style
+    profile.budget_style,
+    profile.workout_location
   );
   const connection = await pool.getConnection();
 
@@ -145,7 +199,7 @@ async function createPlanForUser(userId) {
       ]
     );
 
-    const planDays = generatePlanDays(startDate, durationDays, budget.dailyBudget);
+    const planDays = generatePlanDays(startDate, profile, budget);
 
     for (const day of planDays) {
       const [dayResult] = await connection.query(
@@ -285,6 +339,15 @@ async function updatePlanDayCompletion(userId, dayNumber, completedTasks) {
        SET completed = ?
        WHERE id = ?`,
       [isCompleted, day.id]
+    );
+
+    await syncFoodExpenseForCompletedDay(
+      connection,
+      userId,
+      plan,
+      day,
+      meals,
+      isCompleted
     );
 
     await connection.commit();

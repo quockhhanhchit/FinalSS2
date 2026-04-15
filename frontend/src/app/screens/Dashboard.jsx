@@ -97,7 +97,7 @@ export function Dashboard() {
     const budgetPerWeek = (dashboard?.budgetTotal || 0) / 4;
     const weeklyTotals = new Map();
 
-    for (const entry of dashboard?.expenseLogs || []) {
+    for (const entry of dashboard?.spendingLogs || dashboard?.expenseLogs || []) {
       const date = new Date(entry.log_date);
       const weekKey = `Week ${Math.floor(date.getDate() / 7) + 1}`;
       weeklyTotals.set(weekKey, (weeklyTotals.get(weekKey) || 0) + Number(entry.amount));
@@ -196,7 +196,9 @@ export function Dashboard() {
           </div>
           <div className="text-3xl font-bold mb-1">{Math.round(budgetProgress)}%</div>
           <div className="text-sm text-primary">
-            {totalBudget ? "Connected to backend" : "No budget yet"}
+            {totalBudget
+              ? `${Math.round(totalSpent / 1000)}k / ${Math.round(totalBudget / 1000)}k VND`
+              : "No budget yet"}
           </div>
         </div>
       </div>
@@ -259,7 +261,9 @@ export function Dashboard() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-semibold mb-1">Spending vs Budget</h3>
-              <p className="text-sm text-muted-foreground">Weekly comparison</p>
+              <p className="text-sm text-muted-foreground">
+                Tracking expenses + completed daily plan tasks
+              </p>
             </div>
             <Button variant="outline" size="sm" onClick={() => navigate("/app/tracking")}>
               View Details

@@ -55,6 +55,7 @@ export function BudgetBreakdown() {
 
   const totalBudget = budgetData.reduce((sum, item) => sum + item.value, 0);
   const dailyBudget = Number(budget?.daily_budget || Math.round(totalBudget / 30));
+  const isHomeWorkoutBudget = budget && Number(budget.workout_amount || 0) === 0;
 
   const handleRegeneratePlan = async () => {
     setError("");
@@ -89,6 +90,13 @@ export function BudgetBreakdown() {
       {error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
+        </div>
+      ) : null}
+
+      {isHomeWorkoutBudget ? (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          Home workout selected: workout budget is set to 0 VND and reallocated
+          to food, wellness, and buffer with priority on food.
         </div>
       ) : null}
 

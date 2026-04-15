@@ -7,6 +7,7 @@ import { showToast } from "../components/ui/toast";
 
 const initialBodyGoalsData = {
   age: "",
+  gender: "male",
   height: "",
   weight: "",
   goal: "lose",
@@ -70,6 +71,7 @@ export function Settings() {
 
         const nextBodyGoalsData = {
           age: String(profile.age || ""),
+          gender: profile.gender || "male",
           height: String(profile.height_cm || ""),
           weight: String(profile.weight_kg || ""),
           goal: profile.goal_type || "lose",
@@ -179,6 +181,7 @@ export function Settings() {
     try {
       await apiPut("/api/profile/body-goals", {
         age: Number(bodyGoalsData.age),
+        gender: bodyGoalsData.gender,
         height: Number(bodyGoalsData.height),
         weight: Number(bodyGoalsData.weight),
         goal: bodyGoalsData.goal,
@@ -199,6 +202,11 @@ export function Settings() {
 
     if (!hasValidPositiveNumber(budgetData.budget)) {
       setError("Budget is required and must be greater than 0.");
+      return;
+    }
+
+    if (Number(budgetData.budget) < 3000000) {
+      setError("Ngân sách tối thiểu là 3,000,000 VND.");
       return;
     }
 
@@ -348,6 +356,20 @@ export function Settings() {
             </div>
           </div>
 
+          <div>
+            <label className="text-sm font-medium mb-2 block">Gender</label>
+            <select
+              value={bodyGoalsData.gender}
+              onChange={(e) => handleBodyGoalsChange("gender", e.target.value)}
+              className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+              disabled={isLoading || isSavingBodyGoals || isSavingBudget || !isBodyGoalsEditing}
+            >
+              <option value="male">Nam</option>
+              <option value="female">Nu</option>
+              <option value="other">Khac</option>
+            </select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Goal Type</label>
@@ -421,6 +443,7 @@ export function Settings() {
             <input
               type="number"
               step="100000"
+              min="3000000"
               value={budgetData.budget}
               onChange={(e) => handleBudgetChange("budget", e.target.value)}
               className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary"

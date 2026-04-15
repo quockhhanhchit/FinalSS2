@@ -8,6 +8,7 @@ const router = express.Router();
 
 const bodyGoalsSchema = z.object({
   age: z.coerce.number().int().positive(),
+  gender: z.enum(["male", "female", "other"]).default("male"),
   height: z.coerce.number().positive(),
   weight: z.coerce.number().positive(),
   goal: z.enum(["lose", "maintain", "gain"]),
@@ -15,7 +16,9 @@ const bodyGoalsSchema = z.object({
 });
 
 const budgetSchema = z.object({
-  budget: z.coerce.number().positive(),
+  budget: z.coerce
+    .number()
+    .min(3000000, "Minimum budget is 3,000,000 VND"),
   location: z.enum(["home", "gym"]),
   mealsPerDay: z.coerce.number().int().min(2).max(6),
   budgetStyle: z.enum(["saving", "normal"]),

@@ -120,7 +120,7 @@ export function Plan() {
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
           <div className="text-sm text-muted-foreground mb-1">Current Streak</div>
           <div className="text-2xl font-bold">{completedDays} days</div>
-          <div className="text-xs text-primary mt-1">Data from backend</div>
+          
         </div>
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
           <div className="text-sm text-muted-foreground mb-1">Avg. Daily Cost</div>

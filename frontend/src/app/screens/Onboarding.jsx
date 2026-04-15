@@ -19,6 +19,7 @@ export function Onboarding() {
     age: "",
     height: "",
     weight: "",
+    gender: "male",
     goal: "lose",
     duration: "30",
     budget: "5000000",
@@ -73,6 +74,7 @@ export function Onboarding() {
 
         setFormData({
           age: String(profile.age || ""),
+          gender: profile.gender || "male",
           height: String(profile.height_cm || ""),
           weight: String(profile.weight_kg || ""),
           goal: profile.goal_type || "lose",
@@ -120,13 +122,24 @@ export function Onboarding() {
     }
 
     if (step < totalSteps) {
+      if (step === 2 && Number(formData.budget) < 3000000) {
+        setError("Ngân sách tối thiểu là 3,000,000 VND.");
+        return;
+      }
+
       setStep(step + 1);
     } else {
+      if (Number(formData.budget) < 3000000) {
+        setError("Ngân sách tối thiểu là 3,000,000 VND.");
+        return;
+      }
+
       setIsSubmitting(true);
 
       try {
         await apiPost("/api/profile", {
           age: Number(formData.age),
+          gender: formData.gender,
           height: Number(formData.height),
           weight: Number(formData.weight),
           goal: formData.goal,
@@ -246,6 +259,32 @@ export function Onboarding() {
               </div>
 
               <div className="space-y-2">
+                <Label>Gender</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { value: "male", label: "Nam" },
+                    { value: "female", label: "Nu" },
+                    { value: "other", label: "Khac" },
+                  ].map((gender) => (
+                    <button
+                      key={gender.value}
+                      type="button"
+                      onClick={() =>
+                        setFormData({ ...formData, gender: gender.value })
+                      }
+                      className={`p-4 rounded-xl border-2 transition-all ${
+                        formData.gender === gender.value
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <div className="font-medium text-sm">{gender.label}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
                 <Label>What's your goal?</Label>
                 <div className="grid grid-cols-3 gap-3">
                   {[
@@ -304,6 +343,7 @@ export function Onboarding() {
                   <Input
                     id="budget"
                     type="text"
+                    min="3000000"
                     placeholder="5,000,000"
                     value={formData.budget}
                     onChange={(e) =>
@@ -320,6 +360,7 @@ export function Onboarding() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
+                  Minimum 3,000,000 VND -{" "}
                   {parseInt(formData.budget || "0", 10).toLocaleString("vi-VN")} VND
                 </p>
               </div>

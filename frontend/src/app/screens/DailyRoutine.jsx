@@ -4,13 +4,86 @@ import {
   ChevronLeft,
   CheckCircle2,
   Circle,
-  Apple,
+  Sunrise,
+  Sun,
+  Sunset,
+  Cookie,
   Dumbbell,
   Moon,
   Droplet,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { apiGet, apiPut } from "../lib/api";
+
+function getMealSection(meal, index) {
+  const value = `${meal.meal_time || ""} ${meal.meal_name || ""}`.toLowerCase();
+
+  if (value.includes("breakfast") || value.includes("sáng")) return "breakfast";
+  if (value.includes("lunch") || value.includes("trưa")) return "lunch";
+  if (value.includes("dinner") || value.includes("tối")) return "dinner";
+  if (value.includes("snack") || value.includes("phụ")) return "snacks";
+
+  if (index === 0) return "breakfast";
+  if (index === 1) return "lunch";
+  if (index === 2) return "dinner";
+  return "snacks";
+}
+
+function MealGroup({
+  title,
+  subtitle,
+  icon: Icon,
+  gradient,
+  hoverBorder,
+  meals,
+  checkedItems,
+  onToggle,
+}) {
+  if (meals.length === 0) {
+    return null;
+  }
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+          <Icon className="w-5 h-5 text-white" />
+        </div>
+        <div>
+          <h4 className="font-semibold">{title}</h4>
+          <p className="text-xs text-muted-foreground">{subtitle}</p>
+        </div>
+      </div>
+      <div className="pl-12 space-y-3">
+        {meals.map((meal) => (
+          <div key={meal.id} className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            <button
+              onClick={() => onToggle(meal.id)}
+              className={`relative w-full flex items-start gap-4 p-4 rounded-xl border border-border ${hoverBorder} transition-all text-left`}
+            >
+              {checkedItems.has(meal.id) ? (
+                <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+              ) : (
+                <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="font-medium mb-1">{meal.name}</div>
+                <div className="text-sm text-muted-foreground">{meal.time}</div>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <div className="font-semibold">{meal.calories} kcal</div>
+                <div className="text-sm text-muted-foreground">
+                  {meal.cost.toLocaleString("vi-VN")} VND
+                </div>
+              </div>
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function DailyRoutine() {
   const navigate = useNavigate();
@@ -113,18 +186,30 @@ export function DailyRoutine() {
   }, [dayData]);
 
   const normalizedDayData = useMemo(() => {
-    const meals = (dayData?.meals || []).map((meal) => ({
-      id: `meal-${meal.id}`,
-      name: meal.meal_name,
-      calories: Number(meal.calories),
-      cost: Number(meal.cost),
-      time: meal.meal_time,
-    }));
+    const groupedMeals = {
+      breakfast: [],
+      lunch: [],
+      dinner: [],
+      snacks: [],
+    };
+
+    (dayData?.meals || []).forEach((meal, index) => {
+      const section = getMealSection(meal, index);
+
+      groupedMeals[section].push({
+        id: `meal-${meal.id}`,
+        name: meal.meal_name,
+        calories: Number(meal.calories),
+        cost: Number(meal.cost),
+        time: meal.meal_time,
+      });
+    });
 
     const workouts = (dayData?.workouts || []).map((workout) => ({
       id: `workout-${workout.id}`,
       name: workout.workout_name,
       duration: `${workout.duration_minutes} min`,
+      durationMinutes: Number(workout.duration_minutes || 0),
       description: workout.description,
     }));
 
@@ -134,7 +219,13 @@ export function DailyRoutine() {
       workout: dayData?.workout_type || "Workout",
       plannedCalories: Number(dayData?.planned_calories || 0),
       plannedCost: Number(dayData?.planned_cost || 0),
-      meals,
+      meals: groupedMeals,
+      allMeals: [
+        ...groupedMeals.breakfast,
+        ...groupedMeals.lunch,
+        ...groupedMeals.dinner,
+        ...groupedMeals.snacks,
+      ],
       workouts,
       sleep: {
         id: "sleep",
@@ -164,10 +255,14 @@ export function DailyRoutine() {
 
   const totalChecked = checkedItems.size;
   const totalItems =
-    normalizedDayData.meals.length + normalizedDayData.workouts.length + 2;
+    normalizedDayData.allMeals.length + normalizedDayData.workouts.length + 2;
   const completionPercentage = totalItems
     ? Math.round((totalChecked / totalItems) * 100)
     : 0;
+  const workoutDuration = normalizedDayData.workouts.reduce(
+    (sum, workout) => sum + workout.durationMinutes,
+    0,
+  );
 
   const handleFinishDay = async () => {
     const wasSaved = await saveProgress(checkedItems, { force: true });
@@ -243,42 +338,58 @@ export function DailyRoutine() {
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
           <div className="text-sm text-muted-foreground mb-1">Workout Type</div>
           <div className="text-lg font-bold">{normalizedDayData.workout}</div>
-          <div className="text-xs text-muted-foreground mt-1">From generated plan</div>
+          <div className="text-xs text-muted-foreground mt-1">
+            {workoutDuration} min total
+          </div>
         </div>
       </div>
 
       <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
-        <div className="flex items-center gap-2 mb-4">
-          <Apple className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">Meals</h3>
+        <div className="flex items-center gap-2 mb-6">
+          <Cookie className="w-5 h-5 text-primary" />
+          <h3 className="text-lg font-semibold">Nutrition Plan</h3>
           <span className="text-sm text-muted-foreground">
-            ({normalizedDayData.meals.filter((meal) => checkedItems.has(meal.id)).length}/{normalizedDayData.meals.length})
+            ({normalizedDayData.allMeals.filter((meal) => checkedItems.has(meal.id)).length}/{normalizedDayData.allMeals.length} meals)
           </span>
         </div>
-        <div className="space-y-3">
-          {normalizedDayData.meals.map((meal) => (
-            <button
-              key={meal.id}
-              onClick={() => toggleCheck(meal.id)}
-              className="w-full flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary/50 transition-all text-left"
-            >
-              {checkedItems.has(meal.id) ? (
-                <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-              ) : (
-                <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-              )}
-              <div className="flex-1">
-                <div className="font-medium mb-1">{meal.name}</div>
-                <div className="text-sm text-muted-foreground">{meal.time}</div>
-              </div>
-              <div className="text-right">
-                <div className="font-semibold">{meal.calories} kcal</div>
-                <div className="text-sm text-muted-foreground">
-                  {Math.round(meal.cost / 1000)}k VND
-                </div>
-              </div>
-            </button>
-          ))}
+
+        <div className="space-y-6">
+          <MealGroup
+            title="Breakfast"
+            icon={Sunrise}
+            gradient="from-amber-400 to-orange-500"
+            hoverBorder="hover:border-amber-500/50"
+            meals={normalizedDayData.meals.breakfast}
+            checkedItems={checkedItems}
+            onToggle={toggleCheck}
+          />
+          <MealGroup
+            title="Lunch"
+            icon={Sun}
+            gradient="from-emerald-400 to-teal-500"
+            hoverBorder="hover:border-teal-500/50"
+            meals={normalizedDayData.meals.lunch}
+            checkedItems={checkedItems}
+            onToggle={toggleCheck}
+          />
+          <MealGroup
+            title="Dinner"
+            icon={Sunset}
+            gradient="from-purple-400 to-violet-500"
+            hoverBorder="hover:border-purple-500/50"
+            meals={normalizedDayData.meals.dinner}
+            checkedItems={checkedItems}
+            onToggle={toggleCheck}
+          />
+          <MealGroup
+            title="Snacks"
+            icon={Cookie}
+            gradient="from-pink-400 to-rose-500"
+            hoverBorder="hover:border-pink-500/50"
+            meals={normalizedDayData.meals.snacks}
+            checkedItems={checkedItems}
+            onToggle={toggleCheck}
+          />
         </div>
       </div>
 

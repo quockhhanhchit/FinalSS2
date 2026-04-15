@@ -333,6 +333,7 @@ CREATE TABLE `user_profiles` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `age` int DEFAULT NULL,
+  `gender` enum('male','female','other') NOT NULL DEFAULT 'male',
   `height_cm` decimal(5,2) DEFAULT NULL,
   `weight_kg` decimal(5,2) DEFAULT NULL,
   `goal_type` enum('lose','maintain','gain') DEFAULT 'lose',
@@ -354,7 +355,7 @@ CREATE TABLE `user_profiles` (
 
 LOCK TABLES `user_profiles` WRITE;
 /*!40000 ALTER TABLE `user_profiles` DISABLE KEYS */;
-INSERT INTO `user_profiles` VALUES (1,2,21,172.00,65.00,'gain',30,2000000.00,'gym',4,'saving','2026-04-03 03:52:58'),(2,3,21,173.00,55.00,'gain',30,3000000.00,'home',4,'saving','2026-04-03 06:27:01'),(3,4,0,0.00,0.00,'lose',30,5000000.00,'home',3,'normal','2026-04-03 07:37:16'),(4,6,0,0.00,0.00,'lose',30,5000000.00,'home',3,'normal','2026-04-03 09:04:31');
+INSERT INTO `user_profiles` VALUES (1,2,21,'male',172.00,65.00,'gain',30,2000000.00,'gym',4,'saving','2026-04-03 03:52:58'),(2,3,21,'male',173.00,55.00,'gain',30,3000000.00,'home',4,'saving','2026-04-03 06:27:01'),(3,4,0,'male',0.00,0.00,'lose',30,5000000.00,'home',3,'normal','2026-04-03 07:37:16'),(4,6,0,'male',0.00,0.00,'lose',30,5000000.00,'home',3,'normal','2026-04-03 09:04:31');
 /*!40000 ALTER TABLE `user_profiles` ENABLE KEYS */;
 UNLOCK TABLES;
 

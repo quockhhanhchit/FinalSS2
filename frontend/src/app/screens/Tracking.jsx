@@ -9,7 +9,6 @@ import { formatShortDate } from "../lib/formatters";
 const EMPTY_WEIGHT = { date: "", weight: "", note: "" };
 const EMPTY_EXPENSE = {
   date: "",
-  category: "Food",
   amount: "",
   description: "",
 };
@@ -125,7 +124,6 @@ export function Tracking() {
         getItems(expenses).map((entry) => ({
           id: entry.id,
           date: entry.log_date,
-          category: entry.category,
           amount: Number(entry.amount),
           description: entry.description || "",
         })),
@@ -192,7 +190,6 @@ export function Tracking() {
     try {
       const payload = {
         date: newExpense.date,
-        category: newExpense.category,
         amount: Number(newExpense.amount),
         description: newExpense.description,
       };
@@ -249,7 +246,6 @@ export function Tracking() {
     setEditingExpenseId(entry.id);
     setNewExpense({
       date: toInputDate(entry.date),
-      category: entry.category,
       amount: String(entry.amount),
       description: entry.description || "",
     });
@@ -271,21 +267,6 @@ export function Tracking() {
     currentWeight && startWeight ? currentWeight - startWeight : 0;
   const goalWeight = Number(dashboard?.goalWeight || 0);
   const totalExpenses = Number(dashboard?.totalSpent || 0);
-
-  const getCategoryColor = (category) => {
-    switch (category) {
-      case "Food":
-        return "bg-green-50 text-green-700 border-green-200";
-      case "Workout":
-        return "bg-blue-50 text-blue-700 border-blue-200";
-      case "Wellness":
-        return "bg-orange-50 text-orange-700 border-orange-200";
-      case "Buffer":
-        return "bg-gray-50 text-gray-700 border-gray-200";
-      default:
-        return "bg-secondary text-foreground border-border";
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -486,21 +467,6 @@ export function Tracking() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="expenseCategory">Category</Label>
-                <select
-                  id="expenseCategory"
-                  value={newExpense.category}
-                  onChange={(event) => setNewExpense({ ...newExpense, category: event.target.value })}
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-background"
-                  required
-                >
-                  <option value="Food">Food</option>
-                  <option value="Workout">Workout</option>
-                  <option value="Wellness">Wellness</option>
-                  <option value="Buffer">Buffer</option>
-                </select>
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="expenseAmount">Amount (VND)</Label>
                 <Input
                   id="expenseAmount"
@@ -512,14 +478,13 @@ export function Tracking() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="expenseDescription">Description</Label>
+                <Label htmlFor="expenseDescription">Description (optional)</Label>
                 <Input
                   id="expenseDescription"
                   type="text"
                   placeholder="Daily meals"
                   value={newExpense.description}
                   onChange={(event) => setNewExpense({ ...newExpense, description: event.target.value })}
-                  required
                 />
               </div>
               <div className="flex gap-2">
@@ -549,14 +514,16 @@ export function Tracking() {
                     <div className="font-medium">
                       {entry.amount.toLocaleString("vi-VN")} VND
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      {entry.description}
-                    </div>
+                    {entry.description ? (
+                      <div className="text-xs text-muted-foreground">
+                        {entry.description}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className={`px-2 py-1 rounded-md border text-xs ${getCategoryColor(entry.category)}`}>
-                    {entry.category}
+                  <div className="px-2 py-1 rounded-md border border-green-200 bg-green-50 text-xs text-green-700">
+                    Food
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {formatShortDate(entry.date)}

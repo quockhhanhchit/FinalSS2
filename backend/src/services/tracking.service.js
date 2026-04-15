@@ -88,13 +88,13 @@ async function deleteWeightLog(userId, logId) {
   return { id: Number(logId) };
 }
 
-async function addExpenseLog(userId, { date, category, amount, description }) {
+async function addExpenseLog(userId, { date, amount, description }) {
   const [result] = await pool.query(
     "INSERT INTO expense_logs (user_id, log_date, category, amount, description) VALUES (?, ?, ?, ?, ?)",
-    [userId, date, category, amount, description || null]
+    [userId, date, "Food", amount, description || null]
   );
 
-  return { id: result.insertId, date, category, amount, description };
+  return { id: result.insertId, date, category: "Food", amount, description };
 }
 
 async function getExpenseLogs(userId, query = {}) {
@@ -116,12 +116,12 @@ async function getExpenseLogs(userId, query = {}) {
   return paginatedResponse(rows, countRows, page, limit);
 }
 
-async function updateExpenseLog(userId, logId, { date, category, amount, description }) {
+async function updateExpenseLog(userId, logId, { date, amount, description }) {
   const [result] = await pool.query(
     `UPDATE expense_logs
      SET log_date = ?, category = ?, amount = ?, description = ?
      WHERE id = ? AND user_id = ?`,
-    [date, category, amount, description || null, logId, userId]
+    [date, "Food", amount, description || null, logId, userId]
   );
 
   if (result.affectedRows === 0) {
@@ -131,7 +131,7 @@ async function updateExpenseLog(userId, logId, { date, category, amount, descrip
   return {
     id: Number(logId),
     date,
-    category,
+    category: "Food",
     amount,
     description: description || "",
   };
