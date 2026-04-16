@@ -213,6 +213,13 @@ async function getDashboardSummary(userId) {
     totalSpent,
     budgetTotal,
   });
+  const [badges] = await pool.query(
+    `SELECT badge_name, earned_at
+     FROM user_badges
+     WHERE user_id = ?
+     ORDER BY earned_at DESC`,
+    [userId]
+  );
 
   return {
     currentWeight,
@@ -231,12 +238,99 @@ async function getDashboardSummary(userId) {
       workoutsDoneThisWeek,
     },
     achievements,
+    badges,
     weightLogs: weights,
     expenseLogs: expenses,
     spendingLogs,
   };
 }
 
+async function getDashboardAnalytics(userId) {
+  const [plans] = await pool.query(
+    `SELECT * FROM plans
+     WHERE user_id = ? AND status = 'active'
+     ORDER BY created_at DESC, id DESC
+     LIMIT 1`,
+    [userId]
+  );
+
+  if (plans.length === 0) {
+    return {
+      budget_summary: {
+        total_budget: 0,
+        planned_cost_so_far: 0,
+        actual_cost_so_far: 0,
+        remaining_budget: 0,
+      },
+      routine_summary: {
+        total_days: 0,
+        completed_days: 0,
+        skipped_days: 0,
+      },
+      chart_data: [],
+      badges: [],
+    };
+  }
+
+  const plan = plans[0];
+  const [[budget]] = await pool.query(
+    "SELECT * FROM budget_breakdowns WHERE plan_id = ? LIMIT 1",
+    [plan.id]
+  );
+  const [[summary]] = await pool.query(
+    `SELECT
+       COUNT(*) AS totalDays,
+       COUNT(CASE WHEN completed = true THEN 1 END) AS completedDays,
+       COUNT(CASE WHEN completed = false AND plan_date < CURDATE() THEN 1 END) AS skippedDays,
+       COALESCE(SUM(CASE WHEN plan_date <= CURDATE() THEN planned_cost ELSE 0 END), 0) AS plannedCostSoFar,
+       COALESCE(SUM(actual_cost), 0) AS actualCostSoFar
+     FROM plan_days
+     WHERE plan_id = ?`,
+    [plan.id]
+  );
+  const [chartRows] = await pool.query(
+    `SELECT day_number, planned_cost, actual_cost
+     FROM plan_days
+     WHERE plan_id = ? AND completed = true
+     ORDER BY plan_date DESC, day_number DESC
+     LIMIT 7`,
+    [plan.id]
+  );
+  const [badges] = await pool.query(
+    `SELECT badge_name, earned_at
+     FROM user_badges
+     WHERE user_id = ?
+     ORDER BY earned_at DESC`,
+    [userId]
+  );
+
+  const totalBudget = Number(budget?.total_budget || 0);
+  const actualCostSoFar = Number(summary?.actualCostSoFar || 0);
+
+  return {
+    budget_summary: {
+      total_budget: totalBudget,
+      planned_cost_so_far: Number(summary?.plannedCostSoFar || 0),
+      actual_cost_so_far: actualCostSoFar,
+      remaining_budget: Math.max(totalBudget - actualCostSoFar, 0),
+    },
+    routine_summary: {
+      total_days: Number(summary?.totalDays || 0),
+      completed_days: Number(summary?.completedDays || 0),
+      skipped_days: Number(summary?.skippedDays || 0),
+    },
+    chart_data: chartRows
+      .reverse()
+      .map((row) => ({
+        day: Number(row.day_number),
+        planned_cost: Number(row.planned_cost || 0),
+        actual_cost: row.actual_cost === null ? null : Number(row.actual_cost),
+      })),
+    badges,
+  };
+}
+
 module.exports = {
   getDashboardSummary,
+  getDashboardAnalytics,
 };

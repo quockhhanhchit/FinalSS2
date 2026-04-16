@@ -52,9 +52,63 @@ async function completePlanDay(req, res) {
   }
 }
 
+async function swapMeal(req, res) {
+  try {
+    const dayNumber = Number(req.params.dayNumber);
+    const mealId = Number(req.params.mealId);
+
+    if (!Number.isInteger(dayNumber) || dayNumber < 1 || !Number.isInteger(mealId)) {
+      return res.status(400).json({ message: "Invalid swap request" });
+    }
+
+    const data = await planService.swapMeal(req.user.id, dayNumber, mealId);
+    res.json(data);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+}
+
+async function swapWorkout(req, res) {
+  try {
+    const dayNumber = Number(req.params.dayNumber);
+    const workoutId = Number(req.params.workoutId);
+
+    if (!Number.isInteger(dayNumber) || dayNumber < 1 || !Number.isInteger(workoutId)) {
+      return res.status(400).json({ message: "Invalid swap request" });
+    }
+
+    const data = await planService.swapWorkout(req.user.id, dayNumber, workoutId);
+    res.json(data);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+}
+
+async function updateActualCost(req, res) {
+  try {
+    const dayNumber = Number(req.params.dayNumber);
+
+    if (!Number.isInteger(dayNumber) || dayNumber < 1) {
+      return res.status(400).json({ message: "Invalid day number" });
+    }
+
+    const data = await planService.updateActualCost(
+      req.user.id,
+      dayNumber,
+      req.body.actual_cost
+    );
+    res.json(data);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+}
+
 module.exports = {
   createPlan,
   getPlan,
   getPlanDay,
   completePlanDay,
+  swapMeal,
+  swapWorkout,
+  updateActualCost,
 };
