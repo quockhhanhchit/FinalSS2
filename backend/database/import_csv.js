@@ -1,5 +1,5 @@
 //npm install csv-parser
-//node database/import_csv.js
+//sau khi tạo execute file sql 006 quay lại cmd chạy: node database/import_csv.js
 
 const fs = require('fs');
 const readline = require('readline');

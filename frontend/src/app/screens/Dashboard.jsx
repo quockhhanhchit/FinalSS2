@@ -12,6 +12,7 @@ import {
 import { Button } from "../components/ui/button";
 import { useNavigate } from "react-router";
 import { apiGet } from "../lib/api";
+import { DashboardAnalytics } from "../components/DashboardAnalytics";
 
 function DashboardSkeleton() {
   return (
@@ -58,6 +59,7 @@ function ChartEmptyState({ onClick }) {
 export function Dashboard() {
   const navigate = useNavigate();
   const [dashboard, setDashboard] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -65,10 +67,14 @@ export function Dashboard() {
 
     async function loadDashboard() {
       try {
-        const data = await apiGet("/api/dashboard/summary");
+        const [data, analyticsData] = await Promise.all([
+          apiGet("/api/dashboard/summary"),
+          apiGet("/api/dashboard/analytics"),
+        ]);
 
         if (!ignore) {
           setDashboard(data);
+          setAnalytics(analyticsData);
         }
       } catch (requestError) {
         if (!ignore) {
@@ -202,6 +208,8 @@ export function Dashboard() {
           </div>
         </div>
       </div>
+
+      <DashboardAnalytics analytics={analytics} />
 
       <div className="grid grid-cols-2 gap-6">
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">

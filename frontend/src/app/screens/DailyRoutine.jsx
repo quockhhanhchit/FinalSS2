@@ -11,9 +11,12 @@ import {
   Dumbbell,
   Moon,
   Droplet,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { apiGet, apiPut } from "../lib/api";
+import { apiGet, apiPatch, apiPut } from "../lib/api";
+import { showToast } from "../components/ui/toast";
 
 function getMealSection(meal, index) {
   const value = `${meal.meal_time || ""} ${meal.meal_name || ""}`.toLowerCase();
@@ -38,6 +41,8 @@ function MealGroup({
   meals,
   checkedItems,
   onToggle,
+  onSwap,
+  swappingId,
   disabled = false,
 }) {
   if (meals.length === 0) {
@@ -59,27 +64,42 @@ function MealGroup({
         {meals.map((meal) => (
           <div key={meal.id} className="relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            <button
-              onClick={() => onToggle(meal.id)}
-              disabled={disabled}
-              className={`relative w-full flex items-start gap-4 p-4 rounded-xl border border-border ${disabled ? "cursor-not-allowed opacity-70" : hoverBorder} transition-all text-left`}
-            >
-              {checkedItems.has(meal.id) ? (
-                <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-              ) : (
-                <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1 min-w-0">
-                <div className="font-medium mb-1">{meal.name}</div>
-                <div className="text-sm text-muted-foreground">{meal.time}</div>
-              </div>
-              <div className="text-right flex-shrink-0">
-                <div className="font-semibold">{meal.calories} kcal</div>
-                <div className="text-sm text-muted-foreground">
-                  {meal.cost.toLocaleString("vi-VN")} VND
+            <div className={`relative flex items-start gap-3 rounded-xl border border-border p-4 ${disabled ? "opacity-70" : hoverBorder} transition-all`}>
+              <button
+                onClick={() => onToggle(meal.id)}
+                disabled={disabled}
+                className="flex flex-1 items-start gap-4 text-left disabled:cursor-not-allowed"
+              >
+                {checkedItems.has(meal.id) ? (
+                  <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                ) : (
+                  <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium mb-1">{meal.name}</div>
+                  <div className="text-sm text-muted-foreground">{meal.time}</div>
                 </div>
-              </div>
-            </button>
+                <div className="text-right flex-shrink-0">
+                  <div className="font-semibold">{meal.calories} kcal</div>
+                  <div className="text-sm text-muted-foreground">
+                    {meal.cost.toLocaleString("vi-VN")} VND
+                  </div>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => onSwap(meal.rawId)}
+                disabled={disabled || swappingId === meal.id}
+                className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                title="Đổi món"
+              >
+                {swappingId === meal.id ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -95,6 +115,9 @@ export function DailyRoutine() {
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
+  const [swappingId, setSwappingId] = useState("");
+  const [showActualCostPrompt, setShowActualCostPrompt] = useState(false);
+  const [actualCostInput, setActualCostInput] = useState("");
   const lastSavedSignatureRef = useRef("");
 
   const dayNumber = Number(dayId || 1);
@@ -158,6 +181,11 @@ export function DailyRoutine() {
       setSaveMessage(
         response?.completed ? "Đã hoàn thành và lưu ngày này." : "Đã lưu tiến độ.",
       );
+      if (response?.awardedBadges?.length) {
+        response.awardedBadges.forEach((badge) => {
+          showToast(`Bạn vừa mở khóa huy hiệu ${badge}.`, "success");
+        });
+      }
       setError("");
       return true;
     } catch (requestError) {
@@ -202,6 +230,7 @@ export function DailyRoutine() {
 
       groupedMeals[section].push({
         id: `meal-${meal.id}`,
+        rawId: meal.id,
         name: meal.meal_name,
         calories: Number(meal.calories),
         cost: Number(meal.cost),
@@ -211,6 +240,7 @@ export function DailyRoutine() {
 
     const workouts = (dayData?.workouts || []).map((workout) => ({
       id: `workout-${workout.id}`,
+      rawId: workout.id,
       name: workout.workout_name,
       duration: `${workout.duration_minutes} min`,
       durationMinutes: Number(workout.duration_minutes || 0),
@@ -223,6 +253,10 @@ export function DailyRoutine() {
       workout: dayData?.workout_type || "Bài tập",
       plannedCalories: Number(dayData?.planned_calories || 0),
       plannedCost: Number(dayData?.planned_cost || 0),
+      actualCost:
+        dayData?.actual_cost === null || dayData?.actual_cost === undefined
+          ? null
+          : Number(dayData.actual_cost),
       meals: groupedMeals,
       allMeals: [
         ...groupedMeals.breakfast,
@@ -272,9 +306,64 @@ export function DailyRoutine() {
     0,
   );
   const isReadOnly = Boolean(dayData?.is_locked);
+  const actualCostDelta =
+    normalizedDayData.actualCost === null
+      ? null
+      : normalizedDayData.plannedCost - normalizedDayData.actualCost;
+
+  const handleSwapMeal = async (mealId) => {
+    if (isReadOnly) return;
+
+    setSwappingId(`meal-${mealId}`);
+    setError("");
+
+    try {
+      const response = await apiPatch(`/api/plans/day/${dayNumber}/swap-meal/${mealId}`);
+      setDayData((current) => ({
+        ...current,
+        planned_cost: response.planned_cost ?? current.planned_cost,
+        meals: (current?.meals || []).map((meal) =>
+          meal.id === mealId ? response.meal : meal
+        ),
+      }));
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setSwappingId("");
+    }
+  };
+
+  const handleSwapWorkout = async (workoutId) => {
+    if (isReadOnly) return;
+
+    setSwappingId(`workout-${workoutId}`);
+    setError("");
+
+    try {
+      const response = await apiPatch(
+        `/api/plans/day/${dayNumber}/swap-workout/${workoutId}`
+      );
+      setDayData((current) => ({
+        ...current,
+        workouts: (current?.workouts || []).map((workout) =>
+          workout.id === workoutId ? response.workout : workout
+        ),
+      }));
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setSwappingId("");
+    }
+  };
 
   const handleFinishDay = async () => {
     if (isReadOnly) {
+      return;
+    }
+
+    if (completionPercentage === 100 && normalizedDayData.actualCost === null) {
+      setActualCostInput(String(normalizedDayData.plannedCost || ""));
+      setShowActualCostPrompt(true);
       return;
     }
 
@@ -282,6 +371,43 @@ export function DailyRoutine() {
 
     if (wasSaved) {
       navigate("/app/plan");
+    }
+  };
+
+  const handleSaveActualCost = async () => {
+    const actualCost = Number(actualCostInput);
+
+    if (!Number.isFinite(actualCost) || actualCost < 0) {
+      setError("Chi phí thực tế không hợp lệ.");
+      return;
+    }
+
+    const wasSaved = await saveProgress(checkedItems, { force: true });
+
+    if (!wasSaved) return;
+
+    setIsSaving(true);
+
+    try {
+      const response = await apiPatch(`/api/plans/day/${dayNumber}/actual-cost`, {
+        actual_cost: actualCost,
+      });
+
+      setDayData((current) => ({
+        ...current,
+        actual_cost: response.actual_cost,
+      }));
+      if (response?.awardedBadges?.length) {
+        response.awardedBadges.forEach((badge) => {
+          showToast(`Bạn vừa mở khóa huy hiệu ${badge}.`, "success");
+        });
+      }
+      setShowActualCostPrompt(false);
+      navigate("/app/plan");
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -363,6 +489,21 @@ export function DailyRoutine() {
         </div>
       </div>
 
+      {normalizedDayData.actualCost !== null ? (
+        <div
+          className={`rounded-xl border px-4 py-3 text-sm ${
+            actualCostDelta >= 0
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : "border-red-200 bg-red-50 text-red-700"
+          }`}
+        >
+          Thực chi: {normalizedDayData.actualCost.toLocaleString("vi-VN")} VND.
+          {actualCostDelta >= 0
+            ? ` Tiết kiệm ${actualCostDelta.toLocaleString("vi-VN")} VND so với kế hoạch.`
+            : ` Vượt ${Math.abs(actualCostDelta).toLocaleString("vi-VN")} VND so với kế hoạch.`}
+        </div>
+      ) : null}
+
       <div className={`bg-card rounded-2xl p-6 shadow-sm border border-border ${isReadOnly ? "grayscale opacity-80" : ""}`}>
         <div className="flex items-center gap-2 mb-6">
           <Cookie className="w-5 h-5 text-primary" />
@@ -381,6 +522,8 @@ export function DailyRoutine() {
             meals={normalizedDayData.meals.breakfast}
             checkedItems={checkedItems}
             onToggle={toggleCheck}
+            onSwap={handleSwapMeal}
+            swappingId={swappingId}
             disabled={isReadOnly}
           />
           <MealGroup
@@ -391,6 +534,8 @@ export function DailyRoutine() {
             meals={normalizedDayData.meals.lunch}
             checkedItems={checkedItems}
             onToggle={toggleCheck}
+            onSwap={handleSwapMeal}
+            swappingId={swappingId}
             disabled={isReadOnly}
           />
           <MealGroup
@@ -401,6 +546,8 @@ export function DailyRoutine() {
             meals={normalizedDayData.meals.dinner}
             checkedItems={checkedItems}
             onToggle={toggleCheck}
+            onSwap={handleSwapMeal}
+            swappingId={swappingId}
             disabled={isReadOnly}
           />
           <MealGroup
@@ -411,6 +558,8 @@ export function DailyRoutine() {
             meals={normalizedDayData.meals.snacks}
             checkedItems={checkedItems}
             onToggle={toggleCheck}
+            onSwap={handleSwapMeal}
+            swappingId={swappingId}
             disabled={isReadOnly}
           />
         </div>
@@ -426,25 +575,42 @@ export function DailyRoutine() {
         </div>
         <div className="space-y-3">
           {normalizedDayData.workouts.map((workout) => (
-            <button
+            <div
               key={workout.id}
-              onClick={() => toggleCheck(workout.id)}
-              disabled={isReadOnly}
-              className={`w-full flex items-center gap-4 p-4 rounded-xl border border-border transition-all text-left ${isReadOnly ? "cursor-not-allowed opacity-70" : "hover:border-primary/50"}`}
+              className={`w-full flex items-center gap-4 p-4 rounded-xl border border-border transition-all text-left ${isReadOnly ? "opacity-70" : "hover:border-primary/50"}`}
             >
-              {checkedItems.has(workout.id) ? (
-                <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-              ) : (
-                <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-              )}
-              <div className="flex-1">
-                <div className="font-medium mb-1">{workout.name}</div>
-                <div className="text-sm text-muted-foreground">{workout.description}</div>
-              </div>
-              <div className="text-right">
-                <div className="font-semibold">{workout.duration}</div>
-              </div>
-            </button>
+              <button
+                onClick={() => toggleCheck(workout.id)}
+                disabled={isReadOnly}
+                className="flex flex-1 items-center gap-4 text-left disabled:cursor-not-allowed"
+              >
+                {checkedItems.has(workout.id) ? (
+                  <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
+                ) : (
+                  <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                )}
+                <div className="flex-1">
+                  <div className="font-medium mb-1">{workout.name}</div>
+                  <div className="text-sm text-muted-foreground">{workout.description}</div>
+                </div>
+                <div className="text-right">
+                  <div className="font-semibold">{workout.duration}</div>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSwapWorkout(workout.rawId)}
+                disabled={isReadOnly || swappingId === workout.id}
+                className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                title="Đổi bài tập"
+              >
+                {swappingId === workout.id ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+              </button>
+            </div>
           ))}
         </div>
       </div>
@@ -496,6 +662,37 @@ export function DailyRoutine() {
           </button>
         </div>
       </div>
+
+      {showActualCostPrompt ? (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5">
+          <div className="mb-3">
+            <div className="font-semibold">Chi phí thực tế hôm nay</div>
+            <div className="text-sm text-emerald-800">
+              Bạn dự kiến chi {normalizedDayData.plannedCost.toLocaleString("vi-VN")} VND. Bạn đã chi bao nhiêu?
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <input
+              type="number"
+              min="0"
+              value={actualCostInput}
+              onChange={(event) => setActualCostInput(event.target.value)}
+              className="h-11 flex-1 rounded-lg border border-emerald-200 bg-white px-3 outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="Nhập chi phí thực tế"
+            />
+            <Button onClick={handleSaveActualCost} disabled={isSaving}>
+              {isSaving ? "Đang lưu..." : "Lưu chi phí"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowActualCostPrompt(false)}
+              disabled={isSaving}
+            >
+              Hủy
+            </Button>
+          </div>
+        </div>
+      ) : null}
 
       <Button
         onClick={handleFinishDay}

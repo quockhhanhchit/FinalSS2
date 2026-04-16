@@ -1,5 +1,6 @@
 const pool = require("../config/db");
 const {
+  calculateBudgetTier,
   generateBudgetBreakdown,
   generatePlanDays,
   calculateWorkoutDurationMinutes,
@@ -8,6 +9,24 @@ const {
   localizeWorkoutName,
   toLocalDateKey,
 } = require("../utils/plan-generator");
+
+function normalizeWorkoutType(value) {
+  const type = String(value || "").toLowerCase();
+
+  if (type === "hiit") return "hiit";
+  if (type === "strength") return "strength";
+  if (type === "cardio") return "cardio";
+  return "rest";
+}
+
+function getMealTypeFromMealTime(mealTime = "") {
+  const value = String(mealTime).toLowerCase();
+
+  if (value.includes("breakfast") || value.includes("sáng")) return "breakfast";
+  if (value.includes("lunch") || value.includes("trưa")) return "lunch";
+  if (value.includes("dinner") || value.includes("tối")) return "dinner";
+  return "snack";
+}
 
 async function getActivePlanForUser(executor, userId) {
   const [plans] = await executor.query(
@@ -90,6 +109,35 @@ async function getPlanDayDetails(executor, planDayId) {
     })),
     completedTasks,
   };
+}
+
+async function getProfileForUser(executor, userId) {
+  const [profiles] = await executor.query(
+    "SELECT * FROM user_profiles WHERE user_id = ?",
+    [userId]
+  );
+
+  if (profiles.length === 0) {
+    throw new Error("Profile not found. Complete onboarding first.");
+  }
+
+  return profiles[0];
+}
+
+async function getActivePlanDayForUser(executor, userId, dayNumber) {
+  const plan = await getActivePlanForUser(executor, userId);
+
+  if (!plan) {
+    throw new Error("Plan not found");
+  }
+
+  const day = await getPlanDayRecord(executor, plan.id, dayNumber);
+
+  if (!day) {
+    throw new Error("Plan day not found");
+  }
+
+  return { plan, day };
 }
 
 function toDateKey(value) {
@@ -204,6 +252,80 @@ async function syncFoodExpenseForCompletedDay(
      VALUES (?, CURDATE(), 'Food', ?, ?)`,
     [userId, foodAmount, description]
   );
+}
+
+async function recalculatePlanDayPlannedCost(executor, planDayId) {
+  const [[row]] = await executor.query(
+    `SELECT COALESCE(SUM(COALESCE(ml.estimated_cost, m.cost)), 0) AS plannedCost
+     FROM meals m
+     LEFT JOIN meal_library ml ON ml.id = m.meal_library_id
+     WHERE m.plan_day_id = ?`,
+    [planDayId]
+  );
+  const plannedCost = Number(row?.plannedCost || 0);
+
+  await executor.query(
+    "UPDATE plan_days SET planned_cost = ? WHERE id = ?",
+    [plannedCost, planDayId]
+  );
+
+  return plannedCost;
+}
+
+async function awardBadge(executor, userId, badgeName) {
+  const [result] = await executor.query(
+    `INSERT IGNORE INTO user_badges (user_id, badge_name)
+     VALUES (?, ?)`,
+    [userId, badgeName]
+  );
+
+  return result.affectedRows > 0 ? badgeName : null;
+}
+
+async function checkAndAwardBadges(executor, userId) {
+  const awardedBadges = [];
+
+  const [completedRows] = await executor.query(
+    `SELECT pd.completed
+     FROM plans p
+     JOIN plan_days pd ON pd.plan_id = p.id
+     WHERE p.user_id = ? AND p.status = 'active'
+       AND pd.plan_date <= CURDATE()
+     ORDER BY pd.plan_date DESC, pd.day_number DESC
+     LIMIT 3`,
+    [userId]
+  );
+
+  if (
+    completedRows.length >= 3 &&
+    completedRows.every((row) => Boolean(row.completed))
+  ) {
+    const badge = await awardBadge(executor, userId, "3-Day Streak");
+    if (badge) awardedBadges.push(badge);
+  }
+
+  const [budgetRows] = await executor.query(
+    `SELECT pd.actual_cost, pd.planned_cost
+     FROM plans p
+     JOIN plan_days pd ON pd.plan_id = p.id
+     WHERE p.user_id = ?
+       AND p.status = 'active'
+       AND pd.completed = true
+       AND pd.actual_cost IS NOT NULL
+     ORDER BY pd.plan_date DESC, pd.day_number DESC
+     LIMIT 3`,
+    [userId]
+  );
+
+  if (
+    budgetRows.length >= 3 &&
+    budgetRows.every((row) => Number(row.actual_cost) < Number(row.planned_cost))
+  ) {
+    const badge = await awardBadge(executor, userId, "Budget Master");
+    if (badge) awardedBadges.push(badge);
+  }
+
+  return awardedBadges;
 }
 
 async function insertPlanDayDetails(executor, planDayId, day) {
@@ -558,16 +680,228 @@ async function updatePlanDayCompletion(userId, dayNumber, completedTasks) {
       isCompleted
     );
 
+    const awardedBadges = isCompleted
+      ? await checkAndAwardBadges(connection, userId)
+      : [];
+
     await connection.commit();
 
     return {
       dayNumber,
       completed: isCompleted,
+      awardedBadges,
       completed_tasks: completionRecords.map((record) =>
         record.taskType === "sleep" || record.taskType === "water"
           ? record.taskType
           : `${record.taskType}-${record.taskRefId}`
       ),
+    };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
+async function swapMeal(userId, dayNumber, mealId) {
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const profile = await getProfileForUser(connection, userId);
+    const { day } = await getActivePlanDayForUser(connection, userId, dayNumber);
+    const lockState = getDayLockState(day);
+
+    if (lockState.isLocked) {
+      throw new Error(lockState.lockReason);
+    }
+
+    const [[currentMeal]] = await connection.query(
+      `SELECT m.*
+       FROM meals m
+       WHERE m.id = ? AND m.plan_day_id = ?
+       LIMIT 1`,
+      [mealId, day.id]
+    );
+
+    if (!currentMeal) {
+      throw new Error("Meal not found");
+    }
+
+    const mealType = getMealTypeFromMealTime(currentMeal.meal_time);
+    const budgetTier = calculateBudgetTier(profile.budget_total);
+    const goalType = ["lose", "maintain", "gain"].includes(profile.goal_type)
+      ? profile.goal_type
+      : "maintain";
+    const [libraryRows] = await connection.query(
+      `SELECT id, meal_name, calories, estimated_cost
+       FROM meal_library
+       WHERE is_active = true
+         AND goal_type = ?
+         AND budget_tier = ?
+         AND meal_type = ?
+         AND id <> COALESCE(?, 0)
+       ORDER BY RAND()
+       LIMIT 1`,
+      [goalType, budgetTier, mealType, currentMeal.meal_library_id]
+    );
+
+    if (libraryRows.length === 0) {
+      throw new Error("No replacement meal found");
+    }
+
+    const replacement = libraryRows[0];
+    await connection.query(
+      `UPDATE meals
+       SET meal_library_id = ?, meal_name = ?, calories = ?, cost = ?
+       WHERE id = ?`,
+      [
+        replacement.id,
+        replacement.meal_name,
+        replacement.calories,
+        replacement.estimated_cost,
+        currentMeal.id,
+      ]
+    );
+    const plannedCost = await recalculatePlanDayPlannedCost(connection, day.id);
+
+    await connection.commit();
+
+    return {
+      meal: {
+        id: currentMeal.id,
+        plan_day_id: day.id,
+        meal_library_id: replacement.id,
+        meal_name: localizeMealName(replacement.meal_name),
+        meal_time: currentMeal.meal_time,
+        calories: Number(replacement.calories),
+        cost: Number(replacement.estimated_cost),
+      },
+      planned_cost: plannedCost,
+    };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
+async function swapWorkout(userId, dayNumber, workoutId) {
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const profile = await getProfileForUser(connection, userId);
+    const { day } = await getActivePlanDayForUser(connection, userId, dayNumber);
+    const lockState = getDayLockState(day);
+
+    if (lockState.isLocked) {
+      throw new Error(lockState.lockReason);
+    }
+
+    const [[currentWorkout]] = await connection.query(
+      `SELECT w.*, wl.workout_type AS library_workout_type
+       FROM workouts w
+       LEFT JOIN workout_library wl ON wl.id = w.workout_library_id
+       WHERE w.id = ? AND w.plan_day_id = ?
+       LIMIT 1`,
+      [workoutId, day.id]
+    );
+
+    if (!currentWorkout) {
+      throw new Error("Workout not found");
+    }
+
+    const workoutType = normalizeWorkoutType(
+      currentWorkout.library_workout_type || day.workout_type
+    );
+    const gender = profile.gender === "female" ? "female" : "male";
+    const location = profile.workout_location === "gym" ? "gym" : "home";
+    const [libraryRows] = await connection.query(
+      `SELECT id, workout_type, workout_name, suggested_volume, notes
+       FROM workout_library
+       WHERE is_active = true
+         AND workout_type = ?
+         AND location = ?
+         AND (gender_target = ? OR gender_target = 'both')
+         AND id <> COALESCE(?, 0)
+       ORDER BY RAND()
+       LIMIT 1`,
+      [workoutType, location, gender, currentWorkout.workout_library_id]
+    );
+
+    if (libraryRows.length === 0) {
+      throw new Error("No replacement workout found");
+    }
+
+    const replacement = libraryRows[0];
+    const durationMinutes = calculateWorkoutDurationMinutes(
+      replacement.workout_type,
+      replacement.suggested_volume
+    );
+
+    await connection.query(
+      `UPDATE workouts
+       SET workout_library_id = ?,
+           workout_name = ?,
+           duration_minutes = ?,
+           description = ?
+       WHERE id = ?`,
+      [
+        replacement.id,
+        replacement.workout_name,
+        durationMinutes,
+        replacement.suggested_volume || replacement.notes || replacement.workout_type,
+        currentWorkout.id,
+      ]
+    );
+
+    await connection.commit();
+
+    return {
+      workout: {
+        id: currentWorkout.id,
+        plan_day_id: day.id,
+        workout_library_id: replacement.id,
+        workout_name: localizeWorkoutName(replacement.workout_name),
+        duration_minutes: durationMinutes,
+        description: localizeWorkoutDescription(
+          replacement.suggested_volume || replacement.notes || replacement.workout_type
+        ),
+      },
+    };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
+async function updateActualCost(userId, dayNumber, actualCost) {
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const { day } = await getActivePlanDayForUser(connection, userId, dayNumber);
+    await connection.query(
+      "UPDATE plan_days SET actual_cost = ? WHERE id = ?",
+      [actualCost, day.id]
+    );
+    const awardedBadges = await checkAndAwardBadges(connection, userId);
+
+    await connection.commit();
+
+    return {
+      dayNumber,
+      actual_cost: Number(actualCost),
+      planned_cost: Number(day.planned_cost || 0),
+      awardedBadges,
     };
   } catch (error) {
     await connection.rollback();
@@ -583,4 +917,7 @@ module.exports = {
   getPlanDay,
   updatePlanDayCompletion,
   syncActivePlanBudgetForUser,
+  swapMeal,
+  swapWorkout,
+  updateActualCost,
 };

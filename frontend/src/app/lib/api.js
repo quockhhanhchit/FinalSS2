@@ -142,6 +142,13 @@ export function apiPut(path, data) {
   });
 }
 
+export function apiPatch(path, data) {
+  return request(path, {
+    method: "PATCH",
+    body: data === undefined ? undefined : JSON.stringify(data),
+  });
+}
+
 export function apiDelete(path) {
   return request(path, {
     method: "DELETE",
