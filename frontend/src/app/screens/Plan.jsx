@@ -2,12 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
   CheckCircle2,
   Circle,
   List,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { apiGet } from "../lib/api";
+import { apiGet, apiPost } from "../lib/api";
 
 function toDateKey(value) {
   const date = new Date(value);
@@ -18,16 +20,15 @@ function toDateKey(value) {
   return `${year}-${month}-${day}`;
 }
 
-function buildMonthCalendar(planDays) {
-  const firstPlanDate = planDays[0]?.date || new Date();
+function buildMonthCalendar(planDays, targetDate) {
   const monthStart = new Date(
-    firstPlanDate.getFullYear(),
-    firstPlanDate.getMonth(),
+    targetDate.getFullYear(),
+    targetDate.getMonth(),
     1,
   );
   const monthEnd = new Date(
-    firstPlanDate.getFullYear(),
-    firstPlanDate.getMonth() + 1,
+    targetDate.getFullYear(),
+    targetDate.getMonth() + 1,
     0,
   );
   const planDayByDate = new Map(
@@ -41,8 +42,8 @@ function buildMonthCalendar(planDays) {
 
   for (let date = 1; date <= monthEnd.getDate(); date += 1) {
     const currentDate = new Date(
-      firstPlanDate.getFullYear(),
-      firstPlanDate.getMonth(),
+      targetDate.getFullYear(),
+      targetDate.getMonth(),
       date,
     );
     const key = toDateKey(currentDate);
@@ -67,11 +68,22 @@ export function Plan() {
   const [viewMode, setViewMode] = useState("calendar");
   const [plan, setPlan] = useState(null);
   const [error, setError] = useState("");
+  const [displayDate, setDisplayDate] = useState(new Date());
+  const [isContinuingPlan, setIsContinuingPlan] = useState(false);
+
+  const loadPlan = async () => {
+    const data = await apiGet("/api/plans/current");
+
+    setPlan(data);
+    setError("");
+
+    return data;
+  };
 
   useEffect(() => {
     let ignore = false;
 
-    async function loadPlan() {
+    async function loadCurrentPlan() {
       try {
         const data = await apiGet("/api/plans/current");
 
@@ -86,12 +98,12 @@ export function Plan() {
       }
     }
 
-    loadPlan();
-    window.addEventListener("budgetfit:budget-updated", loadPlan);
+    loadCurrentPlan();
+    window.addEventListener("budgetfit:budget-updated", loadCurrentPlan);
 
     return () => {
       ignore = true;
-      window.removeEventListener("budgetfit:budget-updated", loadPlan);
+      window.removeEventListener("budgetfit:budget-updated", loadCurrentPlan);
     };
   }, []);
 
@@ -110,7 +122,25 @@ export function Plan() {
     [plan],
   );
 
-  const calendarCells = useMemo(() => buildMonthCalendar(planDays), [planDays]);
+  useEffect(() => {
+    if (planDays[0]?.date) {
+      setDisplayDate(new Date(planDays[0].date));
+    }
+  }, [planDays]);
+
+  const calendarCells = useMemo(
+    () => buildMonthCalendar(planDays, displayDate),
+    [planDays, displayDate],
+  );
+  const visiblePlanDays = useMemo(
+    () =>
+      planDays.filter(
+        (day) =>
+          day.date.getMonth() === displayDate.getMonth() &&
+          day.date.getFullYear() === displayDate.getFullYear(),
+      ),
+    [planDays, displayDate],
+  );
   const completedDays = planDays.filter((day) => day.completed).length;
   const dailyBudget = Number(plan?.budget?.daily_budget || 0);
   const averageDailyCost =
@@ -137,8 +167,89 @@ export function Plan() {
     }
   };
 
+  const handlePrevMonth = () => {
+    setDisplayDate(
+      (currentDate) =>
+        new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1),
+    );
+  };
+
+  const handleNextMonth = () => {
+    setDisplayDate(
+      (currentDate) =>
+        new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
+    );
+  };
+
+  const handleContinuePlan = async (startFromToday = false) => {
+    setIsContinuingPlan(true);
+    setError("");
+
+    try {
+      const result = await apiPost("/api/plans/current/continue", {
+        startFromToday,
+      });
+      await loadPlan();
+      if (result?.startDate) {
+        setDisplayDate(new Date(result.startDate));
+      }
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsContinuingPlan(false);
+    }
+  };
+
+  const handleDeclineContinuation = async () => {
+    setIsContinuingPlan(true);
+    setError("");
+
+    try {
+      await apiPost("/api/plans/current/decline-continuation", {});
+      await loadPlan();
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsContinuingPlan(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {plan?.can_prompt_continue ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl">
+            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-rose-500 text-white shadow-lg">
+              <CheckCircle2 className="h-6 w-6" />
+            </div>
+            <h2 className="mb-2 text-2xl font-semibold">
+              Bạn đã hoàn thành kế hoạch 30 ngày
+            </h2>
+            <p className="mb-6 text-sm text-muted-foreground">
+              Bạn có muốn tiếp tục thêm 30 ngày nữa không? Nếu chọn có, hệ thống sẽ tạo tiếp bữa ăn và bài tập từ ngày kế tiếp sau khi kế hoạch hiện tại kết thúc.
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleDeclineContinuation}
+                disabled={isContinuingPlan}
+              >
+                Không, giữ như hiện tại
+              </Button>
+              <Button
+                type="button"
+                onClick={() => handleContinuePlan(false)}
+                disabled={isContinuingPlan}
+                className="bg-gradient-to-r from-orange-500 to-rose-500 text-white"
+              >
+                {isContinuingPlan ? "Đang xử lý..." : "Có, tiếp tục 30 ngày"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-semibold mb-2">Kế hoạch 30 ngày</h1>
@@ -228,13 +339,35 @@ export function Plan() {
 
       {viewMode === "calendar" && (
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
-          <div className="mb-4">
+          <div className="mb-4 flex items-center justify-between gap-4">
             <h3 className="text-lg font-semibold">
-              {planDays[0]?.date.toLocaleDateString("vi-VN", {
+              {displayDate.toLocaleDateString("vi-VN", {
                 month: "long",
                 year: "numeric",
               }) || "Kế hoạch hiện tại"}
             </h3>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handlePrevMonth}
+                className="h-9 w-9 rounded-full"
+                aria-label="Tháng trước"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleNextMonth}
+                className="h-9 w-9 rounded-full"
+                aria-label="Tháng sau"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-7 gap-3">
@@ -256,7 +389,7 @@ export function Plan() {
                 return (
                   <div
                     key={cell.key}
-                    className="min-h-[112px] rounded-xl border border-dashed border-slate-200 bg-slate-50 p-3 text-slate-400"
+                    className="pointer-events-none min-h-[112px] cursor-not-allowed rounded-xl border border-dashed border-slate-200 bg-slate-50 p-3 text-slate-400 opacity-60 dark:border-slate-700 dark:bg-slate-800/55 dark:text-slate-500"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-semibold">
@@ -289,14 +422,9 @@ export function Plan() {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <span className="text-sm font-semibold">
-                        {cell.date.getDate()}
-                      </span>
-                      <span className="ml-1 text-xs text-muted-foreground">
-                        Ngày {day.day}
-                      </span>
-                    </div>
+                    <span className="text-sm font-semibold">
+                      {cell.date.getDate()}
+                    </span>
                     {day.completed ? (
                       <CheckCircle2 className="w-4 h-4 text-primary" />
                     ) : (
@@ -327,7 +455,13 @@ export function Plan() {
 
       {viewMode === "list" && (
         <div className="space-y-3">
-          {planDays.map((day) => (
+          {visiblePlanDays.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800/55 dark:text-slate-400">
+              Không có ngày kế hoạch nào trong tháng này.
+            </div>
+          ) : null}
+
+          {visiblePlanDays.map((day) => (
             <button
               key={day.day}
               onClick={() => navigate(`/app/plan/day/${day.day}`)}
@@ -347,10 +481,13 @@ export function Plan() {
                       <Circle className="w-5 h-5 text-muted-foreground" />
                     )}
                     <div>
-                      <div className="font-semibold">Ngày {day.day}</div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="font-semibold">
                         {day.date.toLocaleDateString("vi-VN", {
                           weekday: "long",
+                        })}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {day.date.toLocaleDateString("vi-VN", {
                           month: "short",
                           day: "numeric",
                         })}

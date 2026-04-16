@@ -32,6 +32,12 @@ function getMealSection(meal, index) {
   return "snacks";
 }
 
+function formatMealTime(mealTime) {
+  return String(mealTime || "")
+    .replace("7:00 PM", "19:00")
+    .replace("07:00 PM", "19:00");
+}
+
 function MealGroup({
   title,
   subtitle,
@@ -234,7 +240,7 @@ export function DailyRoutine() {
         name: meal.meal_name,
         calories: Number(meal.calories),
         cost: Number(meal.cost),
-        time: meal.meal_time,
+        time: formatMealTime(meal.meal_time),
       });
     });
 

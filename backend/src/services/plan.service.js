@@ -360,6 +360,33 @@ async function insertPlanDayDetails(executor, planDayId, day) {
   }
 }
 
+async function generateAdditionalPlanDaysForUser(
+  executor,
+  userId,
+  { startDate, startDayNumber }
+) {
+  const profile = await getProfileForUser(executor, userId);
+  const budget = generateBudgetBreakdown(
+    Number(profile.budget_total),
+    profile.budget_style,
+    profile.workout_location
+  );
+  const planDays = await generatePlanDays(
+    executor,
+    startDate,
+    {
+      ...profile,
+      duration_days: 30,
+    },
+    budget
+  );
+
+  return planDays.map((day, index) => ({
+    ...day,
+    dayNumber: startDayNumber + index,
+  }));
+}
+
 async function createPlanForUser(userId) {
   const [profiles] = await pool.query(
     "SELECT * FROM user_profiles WHERE user_id = ?",
@@ -576,6 +603,15 @@ async function getCurrentPlan(userId) {
   return {
     ...plan,
     budget: budgets[0] || null,
+    can_prompt_continue:
+      days.length > 0 &&
+      days.length % 30 === 0 &&
+      days.every((day) => Boolean(day.completed)) &&
+      Number(plan.continuation_declined_after_day || 0) !==
+        Number(days[days.length - 1]?.day_number || 0),
+    has_declined_continuation:
+      Number(plan.continuation_declined_after_day || 0) ===
+      Number(days[days.length - 1]?.day_number || 0),
     days: days.map((day) => {
       const lockState = getDayLockState(day);
 
@@ -586,6 +622,128 @@ async function getCurrentPlan(userId) {
       };
     }),
   };
+}
+
+async function continueCurrentPlan(userId, options = {}) {
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const plan = await getActivePlanForUser(connection, userId);
+
+    if (!plan) {
+      throw new Error("Plan not found");
+    }
+
+    const [[summary]] = await connection.query(
+      `SELECT
+         COALESCE(MAX(day_number), 0) AS maxDayNumber,
+         MAX(plan_date) AS lastPlanDate
+       FROM plan_days
+       WHERE plan_id = ?`,
+      [plan.id]
+    );
+
+    const startDayNumber = Number(summary?.maxDayNumber || 0) + 1;
+    const startDate =
+      options.startFromToday === true || !summary?.lastPlanDate
+        ? new Date()
+        : new Date(summary.lastPlanDate);
+
+    if (options.startFromToday !== true && summary?.lastPlanDate) {
+      startDate.setDate(startDate.getDate() + 1);
+    }
+
+    const generatedDays = await generateAdditionalPlanDaysForUser(
+      connection,
+      userId,
+      {
+        startDate,
+        startDayNumber,
+      }
+    );
+
+    for (const day of generatedDays) {
+      const [dayResult] = await connection.query(
+        `INSERT INTO plan_days
+         (plan_id, day_number, plan_date, workout_type, planned_calories, planned_cost, completed)
+         VALUES (?, ?, ?, ?, ?, ?, false)`,
+        [
+          plan.id,
+          day.dayNumber,
+          day.planDate,
+          day.workoutType,
+          day.plannedCalories,
+          day.plannedCost,
+        ]
+      );
+
+      await insertPlanDayDetails(connection, dayResult.insertId, day);
+    }
+
+    await connection.query(
+      `UPDATE plans
+       SET duration_days = duration_days + 30,
+           continuation_declined_after_day = NULL
+       WHERE id = ?`,
+      [plan.id]
+    );
+
+    await connection.commit();
+
+    return {
+      addedDays: generatedDays.length,
+      startDayNumber,
+      endDayNumber: startDayNumber + generatedDays.length - 1,
+      startDate: toLocalDateKey(startDate),
+    };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
+async function declineCurrentPlanContinuation(userId) {
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const plan = await getActivePlanForUser(connection, userId);
+
+    if (!plan) {
+      throw new Error("Plan not found");
+    }
+
+    const [[summary]] = await connection.query(
+      `SELECT COALESCE(MAX(day_number), 0) AS maxDayNumber
+       FROM plan_days
+       WHERE plan_id = ?`,
+      [plan.id]
+    );
+    const maxDayNumber = Number(summary?.maxDayNumber || 0);
+
+    await connection.query(
+      `UPDATE plans
+       SET continuation_declined_after_day = ?
+       WHERE id = ?`,
+      [maxDayNumber, plan.id]
+    );
+
+    await connection.commit();
+
+    return {
+      declinedAfterDay: maxDayNumber,
+    };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 }
 
 async function getPlanDay(userId, dayNumber) {
@@ -917,6 +1075,8 @@ module.exports = {
   getPlanDay,
   updatePlanDayCompletion,
   syncActivePlanBudgetForUser,
+  continueCurrentPlan,
+  declineCurrentPlanContinuation,
   swapMeal,
   swapWorkout,
   updateActualCost,
