@@ -21,7 +21,7 @@ export function ForgotPassword() {
         <div className="absolute inset-0 flex items-center justify-center p-10 bg-gradient-to-br from-primary/10 to-accent/10">
           <img
             src={fitnessIllustration}
-            alt="Reset password illustration"
+            alt="Minh họa đặt lại mật khẩu"
             className="w-full h-full object-contain"
           />
         </div>
@@ -31,11 +31,11 @@ export function ForgotPassword() {
         <div className="relative z-10 flex flex-col justify-end w-full h-full p-16">
           <div className="max-w-[500px] bg-black/10 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
             <h2 className="text-5xl font-bold mb-4 text-white drop-shadow-lg">
-              We&apos;ve Got You Covered
+              Chúng tôi sẽ hỗ trợ bạn
             </h2>
             <p className="text-white/95 text-lg leading-relaxed drop-shadow-md">
-              Reset your password and get back to your plan. Your progress stays
-              here while you recover access.
+              Đặt lại mật khẩu để quay lại kế hoạch. Tiến độ của bạn vẫn được
+              giữ nguyên trong khi khôi phục truy cập.
             </p>
           </div>
         </div>
@@ -47,11 +47,11 @@ export function ForgotPassword() {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#22c55e] via-[#34d399] to-[#8b5cf6] rounded-3xl mb-5 shadow-lg">
               <Activity className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Reset Password</h1>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">Đặt lại mật khẩu</h1>
             <p className="text-lg text-muted-foreground">
               {isSubmitted
-                ? "Check your email for reset instructions"
-                : "Enter your email to receive reset instructions"}
+                ? "Kiểm tra email để xem hướng dẫn đặt lại mật khẩu"
+                : "Nhập email để nhận hướng dẫn đặt lại mật khẩu"}
             </p>
           </div>
 
@@ -59,7 +59,7 @@ export function ForgotPassword() {
             {!isSubmitted ? (
               <form onSubmit={handleSubmit} className="space-y-8">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email address</Label>
+                  <Label htmlFor="email">Địa chỉ email</Label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
@@ -73,7 +73,7 @@ export function ForgotPassword() {
                     />
                   </div>
                   <p className="text-sm text-muted-foreground mt-2">
-                    We&apos;ll send you a link to reset your password.
+                    Chúng tôi sẽ gửi liên kết đặt lại mật khẩu cho bạn.
                   </p>
                 </div>
 
@@ -81,13 +81,13 @@ export function ForgotPassword() {
                   type="submit"
                   className="w-full h-16 text-xl font-semibold rounded-xl shadow-lg"
                 >
-                  Send Reset Link
+                  Gửi liên kết đặt lại
                 </Button>
 
                 <div className="flex items-center justify-center gap-2 text-base">
                   <ArrowLeft className="w-4 h-4" />
                   <Link to="/" className="text-primary hover:underline font-medium">
-                    Back to login
+                    Quay lại đăng nhập
                   </Link>
                 </div>
               </form>
@@ -98,20 +98,20 @@ export function ForgotPassword() {
                     <CheckCircle2 className="w-8 h-8 text-primary" />
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-2xl font-semibold">Check Your Email</h3>
+                    <h3 className="text-2xl font-semibold">Kiểm tra email</h3>
                     <p className="text-muted-foreground">
-                      We&apos;ve sent password reset instructions to:
+                      Chúng tôi đã gửi hướng dẫn đặt lại mật khẩu đến:
                     </p>
                     <p className="font-medium text-foreground text-lg">{email}</p>
                   </div>
                   <div className="bg-muted/50 rounded-xl p-4 text-sm text-muted-foreground">
-                    Didn&apos;t receive the email? Check spam or{" "}
+                    Chưa nhận được email? Hãy kiểm tra thư rác hoặc{" "}
                     <button
                       type="button"
                       onClick={() => setIsSubmitted(false)}
                       className="text-primary hover:underline font-medium"
                     >
-                      try again
+                      thử lại
                     </button>
                     .
                   </div>
@@ -124,13 +124,13 @@ export function ForgotPassword() {
                     window.location.href = "mailto:";
                   }}
                 >
-                  Open Email App
+                  Mở ứng dụng email
                 </Button>
 
                 <div className="flex items-center justify-center gap-2 text-base">
                   <ArrowLeft className="w-4 h-4" />
                   <Link to="/" className="text-primary hover:underline font-medium">
-                    Back to login
+                    Quay lại đăng nhập
                   </Link>
                 </div>
               </div>
@@ -140,9 +140,9 @@ export function ForgotPassword() {
           {!isSubmitted ? (
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
-                Remember your password?{" "}
+                Nhớ mật khẩu rồi?{" "}
                 <Link to="/" className="text-primary font-medium hover:underline">
-                  Sign in
+                  Đăng nhập
                 </Link>
               </p>
             </div>

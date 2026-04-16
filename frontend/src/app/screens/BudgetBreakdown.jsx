@@ -38,10 +38,10 @@ export function BudgetBreakdown() {
   const budgetData = useMemo(
     () => {
       const items = [
-        { name: "Food", value: Number(budget?.food_amount || 0), color: "#10b981" },
-        { name: "Workout", value: Number(budget?.workout_amount || 0), color: "#3b82f6" },
-        { name: "Wellness", value: Number(budget?.wellness_amount || 0), color: "#f59e0b" },
-        { name: "Buffer", value: Number(budget?.buffer_amount || 0), color: "#6b7280" },
+        { name: "Ăn uống", value: Number(budget?.food_amount || 0), color: "#10b981" },
+        { name: "Tập luyện", value: Number(budget?.workout_amount || 0), color: "#3b82f6" },
+        { name: "Sức khỏe", value: Number(budget?.wellness_amount || 0), color: "#f59e0b" },
+        { name: "Dự phòng", value: Number(budget?.buffer_amount || 0), color: "#6b7280" },
       ];
       const total = items.reduce((sum, item) => sum + item.value, 0);
 
@@ -76,14 +76,14 @@ export function BudgetBreakdown() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold mb-2">Budget Breakdown</h1>
+          <h1 className="text-3xl font-semibold mb-2">Phân bổ ngân sách</h1>
           <p className="text-muted-foreground">
-            Your personalized 30-day budget allocation
+            Cách phân bổ ngân sách cá nhân hóa cho kế hoạch 30 ngày
           </p>
         </div>
         <Button className="gap-2" onClick={handleRegeneratePlan} disabled={isRegenerating}>
           <RefreshCw className="w-4 h-4" />
-          {isRegenerating ? "Regenerating..." : "Regenerate Plan"}
+          {isRegenerating ? "Đang tạo lại..." : "Tạo lại kế hoạch"}
         </Button>
       </div>
 
@@ -95,14 +95,14 @@ export function BudgetBreakdown() {
 
       {isHomeWorkoutBudget ? (
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-          Home workout selected: workout budget is set to 0 VND and reallocated
-          to food, wellness, and buffer with priority on food.
+          Bạn đã chọn tập tại nhà: ngân sách tập luyện được đặt là 0 VND và
+          phân bổ lại cho ăn uống, sức khỏe và dự phòng, ưu tiên phần ăn uống.
         </div>
       ) : null}
 
       <div className="grid grid-cols-2 gap-6">
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
-          <h3 className="text-lg font-semibold mb-6">Monthly Allocation</h3>
+          <h3 className="text-lg font-semibold mb-6">Phân bổ hàng tháng</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -145,7 +145,7 @@ export function BudgetBreakdown() {
 
         <div className="space-y-6">
           <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
-            <h3 className="text-lg font-semibold mb-4">Budget Summary</h3>
+            <h3 className="text-lg font-semibold mb-4">Tóm tắt ngân sách</h3>
             <div className="space-y-4">
               {budgetData.map((item) => (
                 <div key={item.name} className="space-y-2">
@@ -165,8 +165,8 @@ export function BudgetBreakdown() {
                     />
                   </div>
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>{item.percentage}% of total</span>
-                    <span>~{Math.round(item.value / 30).toLocaleString("vi-VN")} VND/day</span>
+                    <span>{item.percentage}% tổng ngân sách</span>
+                    <span>~{Math.round(item.value / 30).toLocaleString("vi-VN")} VND/ngày</span>
                   </div>
                 </div>
               ))}
@@ -177,7 +177,7 @@ export function BudgetBreakdown() {
             <div className="space-y-4">
               <div>
                 <div className="text-sm text-muted-foreground mb-1">
-                  Total Monthly Budget
+                  Tổng ngân sách hàng tháng
                 </div>
                 <div className="text-3xl font-bold">
                   {totalBudget.toLocaleString("vi-VN")} VND
@@ -186,7 +186,7 @@ export function BudgetBreakdown() {
               <div className="h-px bg-border" />
               <div>
                 <div className="text-sm text-muted-foreground mb-1">
-                  Daily Budget
+                  Ngân sách mỗi ngày
                 </div>
                 <div className="text-2xl font-semibold">
                   {dailyBudget.toLocaleString("vi-VN")} VND
@@ -199,7 +199,7 @@ export function BudgetBreakdown() {
             onClick={() => navigate("/app/plan")}
             className="w-full h-12 gap-2"
           >
-            View 30-Day Plan
+            Xem kế hoạch 30 ngày
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
@@ -226,9 +226,9 @@ export function BudgetBreakdown() {
             <div className="text-2xl font-bold mb-1">
               {item.value.toLocaleString("vi-VN")}
             </div>
-            <div className="text-xs text-muted-foreground">VND / month</div>
+            <div className="text-xs text-muted-foreground">VND / tháng</div>
             <div className="mt-3 pt-3 border-t border-border">
-              <div className="text-sm text-muted-foreground">Daily avg.</div>
+              <div className="text-sm text-muted-foreground">Trung bình/ngày</div>
               <div className="font-semibold">
                 {Math.round(item.value / 30).toLocaleString("vi-VN")} VND
               </div>
@@ -238,16 +238,16 @@ export function BudgetBreakdown() {
       </div>
 
       <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-        <h3 className="font-semibold mb-3">Budget Tips</h3>
+        <h3 className="font-semibold mb-3">Mẹo tiết kiệm ngân sách</h3>
         <div className="grid grid-cols-2 gap-4">
           <div className="flex gap-3">
             <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
               <span className="text-primary">1</span>
             </div>
             <div>
-              <div className="font-medium text-sm mb-1">Cook at home</div>
+              <div className="font-medium text-sm mb-1">Tự nấu ăn tại nhà</div>
               <div className="text-sm text-muted-foreground">
-                Preparing meals at home can save up to 40% on food costs
+                Chuẩn bị bữa ăn tại nhà có thể giúp tiết kiệm tới 40% chi phí ăn uống
               </div>
             </div>
           </div>
@@ -256,9 +256,9 @@ export function BudgetBreakdown() {
               <span className="text-primary">2</span>
             </div>
             <div>
-              <div className="font-medium text-sm mb-1">Home workouts</div>
+              <div className="font-medium text-sm mb-1">Tập luyện tại nhà</div>
               <div className="text-sm text-muted-foreground">
-                No gym membership needed with bodyweight exercises
+                Không cần thẻ phòng gym khi dùng các bài tập với trọng lượng cơ thể
               </div>
             </div>
           </div>

@@ -3,8 +3,8 @@ import { Languages } from "lucide-react";
 
 const STORAGE_KEY = "budgetfit-language";
 const LANGUAGES = [
-  { value: "en", shortLabel: "EN", label: "English" },
   { value: "vi", shortLabel: "VI", label: "Tiếng Việt" },
+  { value: "en", shortLabel: "EN", label: "English" },
 ];
 
 function getInitialLanguage() {
@@ -14,7 +14,7 @@ function getInitialLanguage() {
     return savedLanguage;
   }
 
-  return "en";
+  return "vi";
 }
 
 export function LanguageToggle() {
@@ -35,7 +35,7 @@ export function LanguageToggle() {
       <div className="flex items-center gap-2">
         <div className="hidden sm:flex items-center gap-2 px-2 text-sm font-medium text-muted-foreground">
           <Languages className="w-4 h-4" />
-          Language
+          Ngôn ngữ
         </div>
         <div className="flex rounded-xl bg-secondary p-1">
           {LANGUAGES.map((item) => {
@@ -46,7 +46,7 @@ export function LanguageToggle() {
                 key={item.value}
                 type="button"
                 aria-pressed={isActive}
-                aria-label={`Switch language to ${item.label}`}
+                aria-label={`Chuyển ngôn ngữ sang ${item.label}`}
                 onClick={() => setLanguage(item.value)}
                 className={`rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
                   isActive

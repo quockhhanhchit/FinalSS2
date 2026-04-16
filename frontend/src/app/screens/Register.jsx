@@ -11,18 +11,18 @@ import { apiPost } from "../lib/api";
 
 const registerSchema = z
   .object({
-    name: z.string().trim().min(2, "Full name must be at least 2 characters long"),
-    email: z.string().trim().email("Enter a valid email address"),
+    name: z.string().trim().min(2, "Họ tên phải có ít nhất 2 ký tự"),
+    email: z.string().trim().email("Vui lòng nhập email hợp lệ"),
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters long")
-      .regex(/[A-Z]/, "Password must include at least one uppercase letter")
-      .regex(/[a-z]/, "Password must include at least one lowercase letter")
-      .regex(/[0-9]/, "Password must include at least one number"),
+      .min(8, "Mật khẩu phải có ít nhất 8 ký tự")
+      .regex(/[A-Z]/, "Mật khẩu phải có ít nhất một chữ hoa")
+      .regex(/[a-z]/, "Mật khẩu phải có ít nhất một chữ thường")
+      .regex(/[0-9]/, "Mật khẩu phải có ít nhất một số"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "Mật khẩu xác nhận không khớp",
     path: ["confirmPassword"],
   });
 
@@ -95,7 +95,7 @@ export function Register() {
         <div className="absolute inset-0 flex items-center justify-center p-10">
           <img
             src={runnerIllustration}
-            alt="Runner illustration"
+            alt="Minh họa người chạy bộ"
             className="w-full h-full object-contain"
           />
         </div>
@@ -106,11 +106,11 @@ export function Register() {
           <div className="max-w-[500px]">
             <div className="bg-black/10 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
               <h2 className="text-5xl font-bold mb-4 text-white drop-shadow-lg">
-                Track Every Step
+                Theo dõi từng bước tiến
               </h2>
               <p className="text-white/95 text-lg leading-relaxed drop-shadow-md">
-                Monitor your progress with real-time metrics. Stay motivated
-                with personalized goals and achievements.
+                Theo dõi tiến độ bằng số liệu thực tế. Giữ động lực với mục tiêu
+                cá nhân hóa và các thành tựu.
               </p>
             </div>
           </div>
@@ -123,9 +123,9 @@ export function Register() {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#22c55e] via-[#34d399] to-[#8b5cf6] rounded-3xl mb-5 shadow-lg">
               <Activity className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Create Account</h1>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">Tạo tài khoản</h1>
             <p className="text-lg text-muted-foreground">
-              Start your health journey today
+              Bắt đầu hành trình sức khỏe ngay hôm nay
             </p>
           </div>
 
@@ -138,13 +138,13 @@ export function Register() {
               ) : null}
 
               <div className="space-y-2">
-                <Label htmlFor="name">Full name</Label>
+                <Label htmlFor="name">Họ và tên</Label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
                     id="name"
                     type="text"
-                    placeholder="John Smith"
+                    placeholder="Nguyễn Văn A"
                     value={formData.name}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
@@ -159,7 +159,7 @@ export function Register() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email address</Label>
+                <Label htmlFor="email">Địa chỉ email</Label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
@@ -180,7 +180,7 @@ export function Register() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Mật khẩu</Label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
@@ -212,7 +212,7 @@ export function Register() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm password</Label>
+                <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
@@ -253,14 +253,14 @@ export function Register() {
                 disabled={isSubmitting}
                 className="w-full h-16 text-xl font-semibold rounded-xl shadow-lg"
               >
-                {isSubmitting ? "Creating account..." : "Sign up"}
+                {isSubmitting ? "Đang tạo tài khoản..." : "Đăng ký"}
               </Button>
             </form>
 
             <p className="text-center text-lg text-muted-foreground mt-10">
-              Already have an account?{" "}
+              Đã có tài khoản?{" "}
               <Link to="/" className="text-primary text-xl font-semibold hover:underline">
-                Sign in
+                Đăng nhập
               </Link>
             </p>
           </div>

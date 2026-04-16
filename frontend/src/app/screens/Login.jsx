@@ -76,7 +76,7 @@ export function Login() {
         size: "large",
         shape: "pill",
         text: "continue_with",
-        locale: "en",
+        locale: "vi",
         width: 200,
       });
 
@@ -124,7 +124,7 @@ export function Login() {
         <div className="absolute inset-0 flex items-center justify-center p-10">
           <img
             src={fitnessIllustration}
-            alt="Fitness illustration"
+            alt="Minh họa tập luyện"
             className="w-full h-full object-contain"
           />
         </div>
@@ -135,11 +135,11 @@ export function Login() {
           <div className="max-w-[500px]">
             <div className="bg-black/10 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
               <h2 className="text-5xl font-bold mb-4 text-white drop-shadow-lg">
-                Start Your Health Journey
+                Bắt đầu hành trình sức khỏe
               </h2>
               <p className="text-white/95 text-lg leading-relaxed drop-shadow-md">
-                Achieve your weight goals while staying within budget. Track
-                meals, workouts, and expenses all in one place.
+                Đạt mục tiêu cân nặng trong ngân sách của bạn. Theo dõi bữa ăn,
+                bài tập và chi tiêu ở cùng một nơi.
               </p>
             </div>
           </div>
@@ -152,9 +152,9 @@ export function Login() {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#22c55e] via-[#34d399] to-[#8b5cf6] rounded-3xl mb-5 shadow-lg">
               <Activity className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Welcome Back!</h1>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">Chào mừng trở lại!</h1>
             <p className="text-lg text-muted-foreground">
-              Sign in to continue your health journey
+              Đăng nhập để tiếp tục hành trình sức khỏe của bạn
             </p>
           </div>
 
@@ -167,7 +167,7 @@ export function Login() {
               ) : null}
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email address</Label>
+                <Label htmlFor="email">Địa chỉ email</Label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
@@ -183,7 +183,7 @@ export function Login() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Mật khẩu</Label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
@@ -215,13 +215,13 @@ export function Login() {
                     type="checkbox"
                     className="w-4 h-4 rounded border-border"
                   />
-                  <span className="text-muted-foreground">Remember me</span>
+                  <span className="text-muted-foreground">Ghi nhớ đăng nhập</span>
                 </label>
                 <Link
                   to="/forgot-password"
                   className="text-primary hover:underline font-medium"
                 >
-                  Forgot password?
+                  Quên mật khẩu?
                 </Link>
               </div>
 
@@ -230,7 +230,7 @@ export function Login() {
                 disabled={isSubmitting || isGoogleSubmitting}
                 className="w-full h-16 text-xl font-semibold rounded-xl shadow-lg"
               >
-                {isSubmitting ? "Signing in..." : "Sign in"}
+                {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
               </Button>
 
               <div className="relative">
@@ -239,7 +239,7 @@ export function Login() {
                 </div>
                 <div className="relative flex justify-center text-sm uppercase">
                   <span className="bg-card px-3 text-muted-foreground">
-                    Or continue with
+                    Hoặc tiếp tục với
                   </span>
                 </div>
               </div>
@@ -253,18 +253,18 @@ export function Login() {
                 </div>
               ) : (
                 <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-                  Google Sign-In is unavailable until <code>VITE_GOOGLE_CLIENT_ID</code> is set.
+                  Chưa thể đăng nhập Google vì chưa cấu hình <code>VITE_GOOGLE_CLIENT_ID</code>.
                 </div>
               )}
             </form>
 
             <p className="text-center text-lg text-muted-foreground mt-10">
-              Don&apos;t have an account?{" "}
+              Chưa có tài khoản?{" "}
               <Link
                 to="/register"
                 className="text-primary text-xl font-semibold hover:underline"
               >
-                Sign up
+                Đăng ký
               </Link>
             </p>
           </div>

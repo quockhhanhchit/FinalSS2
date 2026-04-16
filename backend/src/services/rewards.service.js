@@ -3,72 +3,94 @@ const pool = require("../config/db");
 
 const ACHIEVEMENT_RULES = [
   {
+    key: "streak_7",
     type: "streak",
     level: 7,
-    title: "7-Day Streak",
-    description: "Completed 7 days in a row",
+    title: "Chuỗi 7 ngày",
+    description: "Hoàn thành 7 ngày liên tiếp",
+    legacyTitles: ["7-Day Streak"],
     points: 100,
   },
   {
+    key: "streak_14",
     type: "streak",
     level: 14,
-    title: "14-Day Streak",
-    description: "Completed 14 days in a row",
+    title: "Chuỗi 14 ngày",
+    description: "Hoàn thành 14 ngày liên tiếp",
+    legacyTitles: ["14-Day Streak"],
     points: 200,
   },
   {
+    key: "streak_30",
     type: "streak",
     level: 30,
-    title: "30-Day Streak",
-    description: "Completed 30 days in a row",
+    title: "Chuỗi 30 ngày",
+    description: "Hoàn thành 30 ngày liên tiếp",
+    legacyTitles: ["30-Day Streak"],
     points: 500,
   },
   {
+    key: "weight_1kg",
     type: "weight",
-    title: "First 1kg Lost",
-    description: "Lost your first kilogram",
+    title: "Giảm 1kg đầu tiên",
+    description: "Bạn đã giảm được kilogram đầu tiên",
+    legacyTitles: ["First 1kg Lost"],
     points: 100,
   },
   {
+    key: "weight_5kg",
     type: "weight",
-    title: "5kg Milestone",
-    description: "Lost 5 kilograms",
+    title: "Cột mốc giảm 5kg",
+    description: "Bạn đã giảm được 5kg",
+    legacyTitles: ["5kg Milestone"],
     points: 300,
   },
   {
+    key: "budget_master",
     type: "budget",
-    title: "Budget Master",
-    description: "Stayed under budget",
+    title: "Bậc thầy ngân sách",
+    description: "Giữ chi tiêu trong ngân sách",
+    legacyTitles: ["Budget Master"],
     points: 150,
   },
   {
+    key: "week_1_complete",
     type: "complete",
-    title: "Week 1 Complete",
-    description: "Finished first week",
+    title: "Hoàn thành tuần 1",
+    description: "Hoàn thành tuần đầu tiên",
+    legacyTitles: ["Week 1 Complete"],
     points: 150,
   },
   {
+    key: "week_2_complete",
     type: "complete",
-    title: "Week 2 Complete",
-    description: "Finished second week",
+    title: "Hoàn thành tuần 2",
+    description: "Hoàn thành tuần thứ hai",
+    legacyTitles: ["Week 2 Complete"],
     points: 250,
   },
   {
+    key: "perfect_day",
     type: "milestone",
-    title: "Perfect Day",
-    description: "100% completion on a day",
+    title: "Ngày hoàn hảo",
+    description: "Hoàn thành 100% nhiệm vụ trong một ngày",
+    legacyTitles: ["Perfect Day"],
     points: 100,
   },
   {
+    key: "fitness_champion",
     type: "special",
-    title: "Fitness Champion",
-    description: "Completed 20 workouts",
+    title: "Nhà vô địch tập luyện",
+    description: "Hoàn thành 20 bài tập",
+    legacyTitles: ["Fitness Champion"],
     points: 300,
   },
   {
+    key: "hydration_hero",
     type: "special",
-    title: "Hydration Hero",
-    description: "Hit water goal 14 days",
+    title: "Anh hùng uống nước",
+    description: "Đạt mục tiêu uống nước trong 14 ngày",
+    legacyTitles: ["Hydration Hero"],
     points: 200,
   },
 ];
@@ -150,19 +172,34 @@ async function getRewardMetrics(userId) {
 }
 
 function isAchievementEarned(rule, metrics) {
-  if (rule.type === "streak") return metrics.bestStreak >= Number(rule.level || 0);
-  if (rule.title === "First 1kg Lost") return metrics.weightLost >= 1;
-  if (rule.title === "5kg Milestone") return metrics.weightLost >= 5;
-  if (rule.title === "Budget Master") {
-    return metrics.budgetTotal > 0 && metrics.totalSpent > 0 && metrics.totalSpent <= metrics.budgetTotal;
+  switch (rule.key) {
+    case "streak_7":
+    case "streak_14":
+    case "streak_30":
+      return metrics.bestStreak >= Number(rule.level || 0);
+    case "weight_1kg":
+      return metrics.weightLost >= 1;
+    case "weight_5kg":
+      return metrics.weightLost >= 5;
+    case "budget_master":
+      return (
+        metrics.budgetTotal > 0 &&
+        metrics.totalSpent > 0 &&
+        metrics.totalSpent <= metrics.budgetTotal
+      );
+    case "week_1_complete":
+      return metrics.daysCompleted >= 7;
+    case "week_2_complete":
+      return metrics.daysCompleted >= 14;
+    case "perfect_day":
+      return metrics.daysCompleted >= 1;
+    case "fitness_champion":
+      return metrics.workoutsDone >= 20;
+    case "hydration_hero":
+      return metrics.waterDone >= 14;
+    default:
+      return false;
   }
-  if (rule.title === "Week 1 Complete") return metrics.daysCompleted >= 7;
-  if (rule.title === "Week 2 Complete") return metrics.daysCompleted >= 14;
-  if (rule.title === "Perfect Day") return metrics.daysCompleted >= 1;
-  if (rule.title === "Fitness Champion") return metrics.workoutsDone >= 20;
-  if (rule.title === "Hydration Hero") return metrics.waterDone >= 14;
-
-  return false;
 }
 
 async function syncAchievements(userId) {
@@ -171,9 +208,13 @@ async function syncAchievements(userId) {
 
   for (const rule of ACHIEVEMENT_RULES) {
     const earned = isAchievementEarned(rule, metrics);
+    const lookupTitles = [rule.title, ...(rule.legacyTitles || [])];
+    const placeholders = lookupTitles.map(() => "?").join(", ");
     const [existing] = await pool.query(
-      "SELECT * FROM user_achievements WHERE user_id = ? AND title = ? LIMIT 1",
-      [userId, rule.title]
+      `SELECT * FROM user_achievements
+       WHERE user_id = ? AND title IN (${placeholders})
+       LIMIT 1`,
+      [userId, ...lookupTitles]
     );
     const finalEarned = Boolean(existing[0]?.earned) || earned;
 
@@ -196,13 +237,29 @@ async function syncAchievements(userId) {
     } else if (earned && !existing[0].earned) {
       await pool.query(
         `UPDATE user_achievements
-         SET earned = true, points_awarded = ?, earned_at = COALESCE(earned_at, CURRENT_TIMESTAMP)
+         SET title = ?,
+             description = ?,
+             earned = true,
+             points_awarded = ?,
+             earned_at = COALESCE(earned_at, CURRENT_TIMESTAMP)
          WHERE id = ?`,
-        [rule.points, existing[0].id]
+        [rule.title, rule.description, rule.points, existing[0].id]
+      );
+    } else if (
+      existing[0].title !== rule.title ||
+      existing[0].description !== rule.description ||
+      Number(existing[0].points_awarded || 0) !== rule.points
+    ) {
+      await pool.query(
+        `UPDATE user_achievements
+         SET title = ?, description = ?, points_awarded = ?
+         WHERE id = ?`,
+        [rule.title, rule.description, rule.points, existing[0].id]
       );
     }
 
     achievements.push({
+      key: rule.key,
       type: rule.type,
       level: rule.level || null,
       title: rule.title,

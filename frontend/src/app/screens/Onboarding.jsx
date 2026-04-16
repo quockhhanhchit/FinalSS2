@@ -106,31 +106,31 @@ export function Onboarding() {
 
     if (step === 1) {
       if (!hasValidPositiveNumber(formData.age)) {
-        setError("Age is required and must be greater than 0.");
+        setError("Tuổi là bắt buộc và phải lớn hơn 0.");
         return;
       }
 
       if (!hasValidPositiveNumber(formData.height)) {
-        setError("Height is required and must be greater than 0.");
+        setError("Chiều cao là bắt buộc và phải lớn hơn 0.");
         return;
       }
 
       if (!hasValidPositiveNumber(formData.weight)) {
-        setError("Weight is required and must be greater than 0.");
+        setError("Cân nặng là bắt buộc và phải lớn hơn 0.");
         return;
       }
     }
 
     if (step < totalSteps) {
       if (step === 2 && Number(formData.budget) < 3000000) {
-        setError("Ngân sách tối thiểu là 3,000,000 VND.");
+        setError("Ngân sách tối thiểu là 3.000.000 VND.");
         return;
       }
 
       setStep(step + 1);
     } else {
       if (Number(formData.budget) < 3000000) {
-        setError("Ngân sách tối thiểu là 3,000,000 VND.");
+        setError("Ngân sách tối thiểu là 3.000.000 VND.");
         return;
       }
 
@@ -178,15 +178,15 @@ export function Onboarding() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl mb-4">
             <span className="text-white text-2xl font-bold">B</span>
           </div>
-          <h1 className="text-3xl font-semibold mb-2">Let's get to know you</h1>
+          <h1 className="text-3xl font-semibold mb-2">Hãy cho chúng tôi biết về bạn</h1>
           <p className="text-muted-foreground">
-            We'll use this information to create your personalized plan
+            Thông tin này sẽ được dùng để tạo kế hoạch cá nhân hóa cho bạn
           </p>
         </div>
 
         <div className="mb-8">
           <div className="flex justify-between text-sm text-muted-foreground mb-2">
-            <span>Step {step} of {totalSteps}</span>
+            <span>Bước {step} / {totalSteps}</span>
             <span>{Math.round(progress)}%</span>
           </div>
           <Progress value={progress} className="h-2" />
@@ -202,15 +202,15 @@ export function Onboarding() {
           {step === 1 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl font-semibold mb-1">Personal Information</h2>
+                <h2 className="text-xl font-semibold mb-1">Thông tin cá nhân</h2>
                 <p className="text-sm text-muted-foreground">
-                  Tell us about yourself
+                  Nhập các chỉ số cơ bản của bạn
                 </p>
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="age">Age</Label>
+                  <Label htmlFor="age">Tuổi</Label>
                   <Input
                     id="age"
                     type="number"
@@ -222,11 +222,11 @@ export function Onboarding() {
                     className="h-12"
                     required
                   />
-                  <p className="text-xs text-muted-foreground">years</p>
+                  <p className="text-xs text-muted-foreground">tuổi</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="height">Height</Label>
+                  <Label htmlFor="height">Chiều cao</Label>
                   <Input
                     id="height"
                     type="number"
@@ -242,7 +242,7 @@ export function Onboarding() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="weight">Weight</Label>
+                  <Label htmlFor="weight">Cân nặng</Label>
                   <Input
                     id="weight"
                     type="number"
@@ -259,12 +259,12 @@ export function Onboarding() {
               </div>
 
               <div className="space-y-2">
-                <Label>Gender</Label>
+                <Label>Giới tính</Label>
                 <div className="grid grid-cols-3 gap-3">
                   {[
                     { value: "male", label: "Nam" },
-                    { value: "female", label: "Nu" },
-                    { value: "other", label: "Khac" },
+                    { value: "female", label: "Nữ" },
+                    { value: "other", label: "Khác" },
                   ].map((gender) => (
                     <button
                       key={gender.value}
@@ -285,12 +285,12 @@ export function Onboarding() {
               </div>
 
               <div className="space-y-2">
-                <Label>What's your goal?</Label>
+                <Label>Mục tiêu của bạn là gì?</Label>
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { value: "lose", label: "Lose weight" },
-                    { value: "maintain", label: "Maintain" },
-                    { value: "gain", label: "Gain weight" },
+                    { value: "lose", label: "Giảm cân" },
+                    { value: "maintain", label: "Giữ cân" },
+                    { value: "gain", label: "Tăng cân" },
                   ].map((goal) => (
                     <button
                       key={goal.value}
@@ -311,7 +311,7 @@ export function Onboarding() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="duration">Duration</Label>
+                <Label htmlFor="duration">Thời lượng kế hoạch</Label>
                 <Input
                   id="duration"
                   type="number"
@@ -323,7 +323,7 @@ export function Onboarding() {
                   className="h-12"
                   required
                 />
-                <p className="text-xs text-muted-foreground">days</p>
+                <p className="text-xs text-muted-foreground">ngày</p>
               </div>
             </div>
           )}
@@ -331,14 +331,14 @@ export function Onboarding() {
           {step === 2 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl font-semibold mb-1">Budget Planning</h2>
+                <h2 className="text-xl font-semibold mb-1">Lập ngân sách</h2>
                 <p className="text-sm text-muted-foreground">
-                  Set your monthly budget for this plan
+                  Thiết lập ngân sách hàng tháng cho kế hoạch này
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="budget">Monthly Budget</Label>
+                <Label htmlFor="budget">Ngân sách hàng tháng</Label>
                 <div className="relative">
                   <Input
                     id="budget"
@@ -360,24 +360,24 @@ export function Onboarding() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Minimum 3,000,000 VND -{" "}
+                  Tối thiểu 3.000.000 VND -{" "}
                   {parseInt(formData.budget || "0", 10).toLocaleString("vi-VN")} VND
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label>Budget Style</Label>
+                <Label>Phong cách chi tiêu</Label>
                 <div className="grid grid-cols-2 gap-3">
                   {[
                     {
                       value: "saving",
-                      label: "Saving",
-                      desc: "Minimize costs",
+                      label: "Tiết kiệm",
+                      desc: "Tối ưu chi phí",
                     },
                     {
                       value: "normal",
-                      label: "Normal",
-                      desc: "Balanced approach",
+                      label: "Cân bằng",
+                      desc: "Phân bổ hợp lý",
                     },
                   ].map((style) => (
                     <button
@@ -403,7 +403,7 @@ export function Onboarding() {
 
               <div className="bg-secondary/50 rounded-xl p-4">
                 <div className="text-sm text-muted-foreground mb-2">
-                  Estimated daily budget
+                  Ngân sách ước tính mỗi ngày
                 </div>
                 <div className="text-2xl font-semibold">
                   {Math.round(
@@ -419,24 +419,24 @@ export function Onboarding() {
           {step === 3 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl font-semibold mb-1">Your Preferences</h2>
+                <h2 className="text-xl font-semibold mb-1">Sở thích của bạn</h2>
                 <p className="text-sm text-muted-foreground">
-                  Customize your plan to fit your lifestyle
+                  Tùy chỉnh kế hoạch theo lối sống của bạn
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label>Workout Location</Label>
+                <Label>Địa điểm tập luyện</Label>
                 <div className="grid grid-cols-2 gap-3">
                   {[
                     {
                       value: "home",
-                      label: "Home Workouts",
+                      label: "Tập tại nhà",
                       icon: Home,
                     },
                     {
                       value: "gym",
-                      label: "Gym Workouts",
+                      label: "Tập tại phòng gym",
                       icon: Dumbbell,
                     },
                   ].map((location) => {
@@ -463,7 +463,7 @@ export function Onboarding() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="mealsPerDay">Meals per day</Label>
+                <Label htmlFor="mealsPerDay">Số bữa mỗi ngày</Label>
                 <Input
                   id="mealsPerDay"
                   type="number"
@@ -478,7 +478,7 @@ export function Onboarding() {
                   required
                 />
                 <p className="text-xs text-muted-foreground">
-                  Recommended: 3-4 meals per day
+                  Khuyến nghị: 3-4 bữa mỗi ngày
                 </p>
               </div>
 
@@ -488,10 +488,10 @@ export function Onboarding() {
                     <span className="text-white text-sm">✓</span>
                   </div>
                   <div>
-                    <div className="font-medium mb-1">Ready to start!</div>
+                    <div className="font-medium mb-1">Sẵn sàng bắt đầu!</div>
                     <div className="text-sm text-muted-foreground">
-                      We'll generate a personalized 30-day plan based on your
-                      preferences and budget.
+                      Chúng tôi sẽ tạo kế hoạch 30 ngày dựa trên sở thích và
+                      ngân sách của bạn.
                     </div>
                   </div>
                 </div>
@@ -507,7 +507,7 @@ export function Onboarding() {
                 onClick={handleBack}
                 className="h-12 px-6"
               >
-                Back
+                Quay lại
               </Button>
             )}
             <Button
@@ -518,9 +518,9 @@ export function Onboarding() {
             >
               {step === totalSteps
                 ? isSubmitting
-                  ? "Generating..."
-                  : "Generate Plan"
-                : "Continue"}
+                  ? "Đang tạo..."
+                  : "Tạo kế hoạch"
+                : "Tiếp tục"}
               <ChevronRight className="w-5 h-5 ml-1" />
             </Button>
           </div>

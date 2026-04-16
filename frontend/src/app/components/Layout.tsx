@@ -27,11 +27,11 @@ export function Layout() {
   const session = getAuthSession();
 
   const navigation = [
-    { name: "Dashboard", href: "/app", icon: LayoutDashboard },
-    { name: "Plan", href: "/app/plan", icon: Calendar },
-    { name: "Tracking", href: "/app/tracking", icon: TrendingUp },
-    { name: "Rewards", href: "/app/rewards", icon: Trophy },
-    { name: "Settings", href: "/app/settings", icon: Settings },
+    { name: "Tổng quan", href: "/app", icon: LayoutDashboard },
+    { name: "Kế hoạch", href: "/app/plan", icon: Calendar },
+    { name: "Theo dõi", href: "/app/tracking", icon: TrendingUp },
+    { name: "Phần thưởng", href: "/app/rewards", icon: Trophy },
+    { name: "Cài đặt", href: "/app/settings", icon: Settings },
   ];
 
   const isActive = (href) => {
@@ -41,7 +41,7 @@ export function Layout() {
     return location.pathname.startsWith(href);
   };
 
-  const userName = session?.user?.fullName || session?.name || "BudgetFit User";
+  const userName = session?.user?.fullName || session?.name || "Người dùng BudgetFit";
   const userInitials = userName
     .split(" ")
     .map((part) => part[0])
@@ -79,7 +79,7 @@ export function Layout() {
                     BudgetFit
                   </span>
                   <div className="text-xs text-muted-foreground -mt-0.5">
-                    Health & Budget Planner
+                    Sức khỏe & Ngân sách
                   </div>
                 </div>
               </Link>
@@ -125,7 +125,7 @@ export function Layout() {
                     className="cursor-pointer"
                   >
                     <UserCircle className="w-4 h-4" />
-                    Settings
+                    Cài đặt
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
@@ -135,7 +135,7 @@ export function Layout() {
                     className="cursor-pointer text-red-600 focus:text-red-600"
                   >
                     <LogOut className="w-4 h-4" />
-                    Log out
+                    Đăng xuất
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

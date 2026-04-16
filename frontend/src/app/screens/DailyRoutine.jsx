@@ -38,6 +38,7 @@ function MealGroup({
   meals,
   checkedItems,
   onToggle,
+  disabled = false,
 }) {
   if (meals.length === 0) {
     return null;
@@ -60,7 +61,8 @@ function MealGroup({
             <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
             <button
               onClick={() => onToggle(meal.id)}
-              className={`relative w-full flex items-start gap-4 p-4 rounded-xl border border-border ${hoverBorder} transition-all text-left`}
+              disabled={disabled}
+              className={`relative w-full flex items-start gap-4 p-4 rounded-xl border border-border ${disabled ? "cursor-not-allowed opacity-70" : hoverBorder} transition-all text-left`}
             >
               {checkedItems.has(meal.id) ? (
                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
@@ -123,14 +125,16 @@ export function DailyRoutine() {
     }
 
     loadDay();
+    window.addEventListener("budgetfit:budget-updated", loadDay);
 
     return () => {
       ignore = true;
+      window.removeEventListener("budgetfit:budget-updated", loadDay);
     };
   }, [dayNumber]);
 
   async function saveProgress(taskIds, options = {}) {
-    if (!dayData) {
+    if (!dayData || dayData.is_locked) {
       return false;
     }
 
@@ -152,7 +156,7 @@ export function DailyRoutine() {
         [...(response?.completed_tasks || sortedTaskIds)].sort(),
       );
       setSaveMessage(
-        response?.completed ? "Day completed and saved." : "Progress saved.",
+        response?.completed ? "Đã hoàn thành và lưu ngày này." : "Đã lưu tiến độ.",
       );
       setError("");
       return true;
@@ -165,7 +169,7 @@ export function DailyRoutine() {
   }
 
   useEffect(() => {
-    if (!dayData) {
+    if (!dayData || dayData.is_locked) {
       return undefined;
     }
 
@@ -178,7 +182,7 @@ export function DailyRoutine() {
 
   const formattedDate = useMemo(() => {
     const date = dayData?.plan_date ? new Date(dayData.plan_date) : new Date();
-    return date.toLocaleDateString("en-US", {
+    return date.toLocaleDateString("vi-VN", {
       month: "long",
       day: "numeric",
       year: "numeric",
@@ -216,7 +220,7 @@ export function DailyRoutine() {
     return {
       day: dayData?.day_number || dayNumber,
       date: formattedDate,
-      workout: dayData?.workout_type || "Workout",
+      workout: dayData?.workout_type || "Bài tập",
       plannedCalories: Number(dayData?.planned_calories || 0),
       plannedCost: Number(dayData?.planned_cost || 0),
       meals: groupedMeals,
@@ -229,16 +233,20 @@ export function DailyRoutine() {
       workouts,
       sleep: {
         id: "sleep",
-        ...(dayData?.sleep || { target: "8 hours", time: "10:00 PM - 6:00 AM" }),
+        ...(dayData?.sleep || { target: "8 giờ", time: "22:00 - 06:00" }),
       },
       water: {
         id: "water",
-        ...(dayData?.water || { target: "2.5 liters", glasses: 10 }),
+        ...(dayData?.water || { target: "2,5 lít", glasses: 10 }),
       },
     };
   }, [dayData, dayNumber, formattedDate]);
 
   const toggleCheck = (id) => {
+    if (dayData?.is_locked) {
+      return;
+    }
+
     setSaveMessage("");
     setCheckedItems((currentChecked) => {
       const newChecked = new Set(currentChecked);
@@ -263,8 +271,13 @@ export function DailyRoutine() {
     (sum, workout) => sum + workout.durationMinutes,
     0,
   );
+  const isReadOnly = Boolean(dayData?.is_locked);
 
   const handleFinishDay = async () => {
+    if (isReadOnly) {
+      return;
+    }
+
     const wasSaved = await saveProgress(checkedItems, { force: true });
 
     if (wasSaved) {
@@ -284,7 +297,7 @@ export function DailyRoutine() {
           <ChevronLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-3xl font-semibold mb-1">Day {normalizedDayData.day}</h1>
+          <h1 className="text-3xl font-semibold mb-1">Ngày {normalizedDayData.day}</h1>
           <p className="text-muted-foreground">{normalizedDayData.date}</p>
         </div>
       </div>
@@ -301,14 +314,20 @@ export function DailyRoutine() {
         </div>
       ) : null}
 
-      <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20">
+      {isReadOnly ? (
+        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+          {dayData?.lock_reason || "Ngày này đã bị khóa, bạn chỉ có thể xem lại tiến độ."}
+        </div>
+      ) : null}
+
+      <div className={`bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20 ${isReadOnly ? "grayscale opacity-80" : ""}`}>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="text-sm text-muted-foreground mb-1">Daily Progress</div>
+            <div className="text-sm text-muted-foreground mb-1">Tiến độ trong ngày</div>
             <div className="text-3xl font-bold">{completionPercentage}%</div>
           </div>
           <div className="text-right">
-            <div className="text-sm text-muted-foreground mb-1">Tasks Completed</div>
+            <div className="text-sm text-muted-foreground mb-1">Nhiệm vụ đã hoàn thành</div>
             <div className="text-2xl font-semibold">
               {totalChecked} / {totalItems}
             </div>
@@ -322,32 +341,32 @@ export function DailyRoutine() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className={`grid grid-cols-3 gap-4 ${isReadOnly ? "grayscale opacity-80" : ""}`}>
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
-          <div className="text-sm text-muted-foreground mb-1">Planned Calories</div>
+          <div className="text-sm text-muted-foreground mb-1">Calo dự kiến</div>
           <div className="text-2xl font-bold">{normalizedDayData.plannedCalories}</div>
           <div className="text-xs text-muted-foreground mt-1">kcal</div>
         </div>
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
-          <div className="text-sm text-muted-foreground mb-1">Planned Cost</div>
+          <div className="text-sm text-muted-foreground mb-1">Chi phí dự kiến</div>
           <div className="text-2xl font-bold">
             {Math.round(normalizedDayData.plannedCost / 1000)}k
           </div>
           <div className="text-xs text-muted-foreground mt-1">VND</div>
         </div>
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
-          <div className="text-sm text-muted-foreground mb-1">Workout Type</div>
+          <div className="text-sm text-muted-foreground mb-1">Loại bài tập</div>
           <div className="text-lg font-bold">{normalizedDayData.workout}</div>
           <div className="text-xs text-muted-foreground mt-1">
-            {workoutDuration} min total
+            Tổng {workoutDuration} phút
           </div>
         </div>
       </div>
 
-      <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
+      <div className={`bg-card rounded-2xl p-6 shadow-sm border border-border ${isReadOnly ? "grayscale opacity-80" : ""}`}>
         <div className="flex items-center gap-2 mb-6">
           <Cookie className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">Nutrition Plan</h3>
+          <h3 className="text-lg font-semibold">Kế hoạch dinh dưỡng</h3>
           <span className="text-sm text-muted-foreground">
             ({normalizedDayData.allMeals.filter((meal) => checkedItems.has(meal.id)).length}/{normalizedDayData.allMeals.length} meals)
           </span>
@@ -355,48 +374,52 @@ export function DailyRoutine() {
 
         <div className="space-y-6">
           <MealGroup
-            title="Breakfast"
+            title="Bữa sáng"
             icon={Sunrise}
             gradient="from-amber-400 to-orange-500"
             hoverBorder="hover:border-amber-500/50"
             meals={normalizedDayData.meals.breakfast}
             checkedItems={checkedItems}
             onToggle={toggleCheck}
+            disabled={isReadOnly}
           />
           <MealGroup
-            title="Lunch"
+            title="Bữa trưa"
             icon={Sun}
             gradient="from-emerald-400 to-teal-500"
             hoverBorder="hover:border-teal-500/50"
             meals={normalizedDayData.meals.lunch}
             checkedItems={checkedItems}
             onToggle={toggleCheck}
+            disabled={isReadOnly}
           />
           <MealGroup
-            title="Dinner"
+            title="Bữa tối"
             icon={Sunset}
             gradient="from-purple-400 to-violet-500"
             hoverBorder="hover:border-purple-500/50"
             meals={normalizedDayData.meals.dinner}
             checkedItems={checkedItems}
             onToggle={toggleCheck}
+            disabled={isReadOnly}
           />
           <MealGroup
-            title="Snacks"
+            title="Bữa phụ"
             icon={Cookie}
             gradient="from-pink-400 to-rose-500"
             hoverBorder="hover:border-pink-500/50"
             meals={normalizedDayData.meals.snacks}
             checkedItems={checkedItems}
             onToggle={toggleCheck}
+            disabled={isReadOnly}
           />
         </div>
       </div>
 
-      <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
+      <div className={`bg-card rounded-2xl p-6 shadow-sm border border-border ${isReadOnly ? "grayscale opacity-80" : ""}`}>
         <div className="flex items-center gap-2 mb-4">
           <Dumbbell className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">Workout</h3>
+          <h3 className="text-lg font-semibold">Tập luyện</h3>
           <span className="text-sm text-muted-foreground">
             ({normalizedDayData.workouts.filter((workout) => checkedItems.has(workout.id)).length}/{normalizedDayData.workouts.length})
           </span>
@@ -406,7 +429,8 @@ export function DailyRoutine() {
             <button
               key={workout.id}
               onClick={() => toggleCheck(workout.id)}
-              className="w-full flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary/50 transition-all text-left"
+              disabled={isReadOnly}
+              className={`w-full flex items-center gap-4 p-4 rounded-xl border border-border transition-all text-left ${isReadOnly ? "cursor-not-allowed opacity-70" : "hover:border-primary/50"}`}
             >
               {checkedItems.has(workout.id) ? (
                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
@@ -425,15 +449,16 @@ export function DailyRoutine() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className={`grid grid-cols-2 gap-4 ${isReadOnly ? "grayscale opacity-80" : ""}`}>
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
           <div className="flex items-center gap-2 mb-4">
             <Moon className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold">Sleep</h3>
+            <h3 className="text-lg font-semibold">Giấc ngủ</h3>
           </div>
           <button
             onClick={() => toggleCheck(normalizedDayData.sleep.id)}
-            className="w-full flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary/50 transition-all text-left"
+            disabled={isReadOnly}
+            className={`w-full flex items-center gap-4 p-4 rounded-xl border border-border transition-all text-left ${isReadOnly ? "cursor-not-allowed opacity-70" : "hover:border-primary/50"}`}
           >
             {checkedItems.has(normalizedDayData.sleep.id) ? (
               <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
@@ -450,11 +475,12 @@ export function DailyRoutine() {
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
           <div className="flex items-center gap-2 mb-4">
             <Droplet className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold">Water</h3>
+            <h3 className="text-lg font-semibold">Uống nước</h3>
           </div>
           <button
             onClick={() => toggleCheck(normalizedDayData.water.id)}
-            className="w-full flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary/50 transition-all text-left"
+            disabled={isReadOnly}
+            className={`w-full flex items-center gap-4 p-4 rounded-xl border border-border transition-all text-left ${isReadOnly ? "cursor-not-allowed opacity-70" : "hover:border-primary/50"}`}
           >
             {checkedItems.has(normalizedDayData.water.id) ? (
               <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
@@ -464,7 +490,7 @@ export function DailyRoutine() {
             <div className="flex-1">
               <div className="font-medium mb-1">{normalizedDayData.water.target}</div>
               <div className="text-sm text-muted-foreground">
-                {normalizedDayData.water.glasses} glasses
+                {normalizedDayData.water.glasses} ly
               </div>
             </div>
           </button>
@@ -474,13 +500,13 @@ export function DailyRoutine() {
       <Button
         onClick={handleFinishDay}
         className="w-full h-12"
-        disabled={isSaving}
+        disabled={isSaving || isReadOnly}
       >
-        {isSaving
-          ? "Saving..."
+        {isReadOnly ? "Ngày này đã bị khóa" : isSaving
+          ? "Đang lưu..."
           : completionPercentage === 100
-            ? "Day Complete!"
-            : "Save & Return to Plan"}
+            ? "Đã hoàn thành ngày này!"
+            : "Lưu và quay lại kế hoạch"}
       </Button>
     </div>
   );

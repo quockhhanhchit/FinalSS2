@@ -5,7 +5,7 @@ export function formatCurrency(value) {
 export function formatShortDate(dateString) {
   if (!dateString) return "";
 
-  return new Date(dateString).toLocaleDateString("en-US", {
+  return new Date(dateString).toLocaleDateString("vi-VN", {
     month: "short",
     day: "numeric",
   });

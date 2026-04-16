@@ -46,10 +46,10 @@ function ChartEmptyState({ onClick }) {
     <div className="h-[300px] rounded-xl border border-dashed border-border bg-secondary/30 flex flex-col items-center justify-center text-center px-8">
       <div className="font-semibold mb-2">Bạn chưa có dữ liệu biểu đồ.</div>
       <p className="text-sm text-muted-foreground mb-4">
-        Bấm vào đây để khai báo Tracking và xem biểu đồ tiến độ.
+        Bấm vào đây để khai báo theo dõi và xem biểu đồ tiến độ.
       </p>
       <Button size="sm" onClick={onClick}>
-        Go to Tracking
+        Đến trang theo dõi
       </Button>
     </div>
   );
@@ -88,7 +88,7 @@ export function Dashboard() {
     const logs = dashboard?.weightLogs || [];
 
     return logs.map((entry, index) => ({
-      day: `Day ${index + 1}`,
+      day: `Ngày ${index + 1}`,
       weight: Number(entry.weight_kg),
     }));
   }, [dashboard]);
@@ -99,7 +99,7 @@ export function Dashboard() {
 
     for (const entry of dashboard?.spendingLogs || dashboard?.expenseLogs || []) {
       const date = new Date(entry.log_date);
-      const weekKey = `Week ${Math.floor(date.getDate() / 7) + 1}`;
+      const weekKey = `Tuần ${Math.floor(date.getDate() / 7) + 1}`;
       weeklyTotals.set(weekKey, (weeklyTotals.get(weekKey) || 0) + Number(entry.amount));
     }
 
@@ -133,9 +133,9 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold mb-2">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Track your progress and stay on target
+          <h1 className="text-3xl font-semibold mb-2">Tổng quan</h1>
+          <p className="text-muted-foreground">
+          Theo dõi tiến độ và bám sát mục tiêu của bạn
         </p>
       </div>
 
@@ -151,13 +151,13 @@ export function Dashboard() {
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
               <TrendingDown className="w-5 h-5 text-white" />
             </div>
-            <div className="text-sm text-muted-foreground">Current Weight</div>
+            <div className="text-sm text-muted-foreground">Cân nặng hiện tại</div>
           </div>
           <div className="text-3xl font-bold mb-1">{currentWeight || "--"} kg</div>
           <div className="text-sm text-primary">
             {startWeight && currentWeight
-              ? `${(currentWeight - startWeight).toFixed(1)} kg from start`
-              : "No data yet"}
+              ? `${(currentWeight - startWeight).toFixed(1)} kg so với ban đầu`
+              : "Chưa có dữ liệu"}
           </div>
         </div>
 
@@ -166,13 +166,13 @@ export function Dashboard() {
             <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
               <Target className="w-5 h-5 text-orange-600" />
             </div>
-            <div className="text-sm text-muted-foreground">Goal Progress</div>
+            <div className="text-sm text-muted-foreground">Tiến độ mục tiêu</div>
           </div>
           <div className="text-3xl font-bold mb-1">{Math.round(weightProgress)}%</div>
           <div className="text-sm text-muted-foreground">
             {currentWeight && startWeight
-              ? `${Math.abs(goalWeight - currentWeight).toFixed(1)} kg to goal`
-              : "Complete onboarding first"}
+              ? `Còn ${Math.abs(goalWeight - currentWeight).toFixed(1)} kg tới mục tiêu`
+              : "Hoàn thành onboarding trước"}
           </div>
         </div>
 
@@ -181,10 +181,10 @@ export function Dashboard() {
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <CheckCircle className="w-5 h-5 text-blue-600" />
             </div>
-            <div className="text-sm text-muted-foreground">Weekly Adherence</div>
+            <div className="text-sm text-muted-foreground">Mức bám sát tuần</div>
           </div>
           <div className="text-3xl font-bold mb-1">{adherenceRate}%</div>
-          <div className="text-sm text-primary">{daysCompleted} plan days completed</div>
+          <div className="text-sm text-primary">{daysCompleted} ngày đã hoàn thành</div>
         </div>
 
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
@@ -192,7 +192,7 @@ export function Dashboard() {
             <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
               <Wallet className="w-5 h-5 text-purple-600" />
             </div>
-            <div className="text-sm text-muted-foreground">Budget Used</div>
+            <div className="text-sm text-muted-foreground">Ngân sách đã dùng</div>
           </div>
           <div className="text-3xl font-bold mb-1">{Math.round(budgetProgress)}%</div>
           <div className="text-sm text-primary">
@@ -207,11 +207,11 @@ export function Dashboard() {
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-semibold mb-1">Weight Progress</h3>
-              <p className="text-sm text-muted-foreground">Your weight over time</p>
+              <h3 className="text-lg font-semibold mb-1">Tiến độ cân nặng</h3>
+              <p className="text-sm text-muted-foreground">Cân nặng của bạn theo thời gian</p>
             </div>
             <Button variant="outline" size="sm" onClick={() => navigate("/app/tracking")}>
-              View Details
+              Xem chi tiết
             </Button>
           </div>
           {weightData.length === 0 ? (
@@ -243,15 +243,15 @@ export function Dashboard() {
           )}
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
             <div>
-              <div className="text-xs text-muted-foreground">Start</div>
+              <div className="text-xs text-muted-foreground">Ban đầu</div>
               <div className="font-semibold">{startWeight || "--"} kg</div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">Current</div>
+              <div className="text-xs text-muted-foreground">Hiện tại</div>
               <div className="font-semibold text-primary">{currentWeight || "--"} kg</div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">Goal</div>
+              <div className="text-xs text-muted-foreground">Mục tiêu</div>
               <div className="font-semibold">{goalWeight || "--"} kg</div>
             </div>
           </div>
@@ -260,13 +260,13 @@ export function Dashboard() {
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-semibold mb-1">Spending vs Budget</h3>
+              <h3 className="text-lg font-semibold mb-1">Chi tiêu so với ngân sách</h3>
               <p className="text-sm text-muted-foreground">
-                Tracking expenses + completed daily plan tasks
+                Chi tiêu tracking và các ngày đã hoàn thành trong kế hoạch
               </p>
             </div>
             <Button variant="outline" size="sm" onClick={() => navigate("/app/tracking")}>
-              View Details
+              Xem chi tiết
             </Button>
           </div>
           {spendingData.length === 0 ? (
@@ -292,7 +292,7 @@ export function Dashboard() {
                     stroke="#10b981"
                     strokeWidth={3}
                     dot={{ fill: "#10b981", r: 4 }}
-                    name="Spent"
+                    name="Đã chi"
                   />
                   <Line
                     type="monotone"
@@ -301,7 +301,7 @@ export function Dashboard() {
                     strokeWidth={2}
                     strokeDasharray="5 5"
                     dot={{ fill: "#6b7280", r: 3 }}
-                    name="Budget"
+                    name="Ngân sách"
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -309,11 +309,11 @@ export function Dashboard() {
           )}
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
             <div>
-              <div className="text-xs text-muted-foreground">Total Spent</div>
+              <div className="text-xs text-muted-foreground">Tổng đã chi</div>
               <div className="font-semibold">{Math.round(totalSpent / 1000)}k VND</div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">Weekly Avg</div>
+              <div className="text-xs text-muted-foreground">TB mỗi tuần</div>
               <div className="font-semibold">
                 {spendingData.length
                   ? `${Math.round(totalSpent / spendingData.length / 1000)}k VND`
@@ -321,7 +321,7 @@ export function Dashboard() {
               </div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">Remaining</div>
+              <div className="text-xs text-muted-foreground">Còn lại</div>
               <div className="font-semibold text-primary">
                 {Math.round((totalBudget - totalSpent) / 1000)}k VND
               </div>
@@ -332,22 +332,22 @@ export function Dashboard() {
 
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-          <h4 className="font-semibold mb-4">This Week</h4>
+          <h4 className="font-semibold mb-4">Tuần này</h4>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Days completed</span>
+              <span className="text-sm text-muted-foreground">Ngày hoàn thành</span>
               <span className="font-semibold">
                 {Number(weeklyStats.daysCompletedThisWeek || 0)}/7
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Workouts done</span>
+              <span className="text-sm text-muted-foreground">Bài tập đã làm</span>
               <span className="font-semibold">
                 {Number(weeklyStats.workoutsDoneThisWeek || 0)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Meals logged</span>
+              <span className="text-sm text-muted-foreground">Bữa ăn đã ghi nhận</span>
               <span className="font-semibold">
                 {Number(weeklyStats.mealsLoggedThisWeek || 0)}
               </span>
@@ -356,29 +356,29 @@ export function Dashboard() {
         </div>
 
         <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-          <h4 className="font-semibold mb-4">Overall Progress</h4>
+          <h4 className="font-semibold mb-4">Tiến độ tổng thể</h4>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Total days</span>
+              <span className="text-sm text-muted-foreground">Tổng số ngày</span>
               <span className="font-semibold">{daysCompleted}/30</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Current streak</span>
-              <span className="font-semibold">{currentStreak} days</span>
+              <span className="text-sm text-muted-foreground">Chuỗi hiện tại</span>
+              <span className="font-semibold">{currentStreak} ngày</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Best streak</span>
-              <span className="font-semibold">{bestStreak} days</span>
+              <span className="text-sm text-muted-foreground">Chuỗi tốt nhất</span>
+              <span className="font-semibold">{bestStreak} ngày</span>
             </div>
           </div>
         </div>
 
         <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-          <h4 className="font-semibold mb-4">Achievements</h4>
+          <h4 className="font-semibold mb-4">Thành tựu</h4>
           <div className="space-y-3">
             {achievements.length === 0 ? (
               <div className="text-sm text-muted-foreground">
-                Complete tracking or daily routine tasks to unlock achievements.
+                Hoàn thành tracking hoặc nhiệm vụ hằng ngày để mở khóa thành tựu.
               </div>
             ) : null}
             {achievements.map((achievement) => (
@@ -403,12 +403,12 @@ export function Dashboard() {
           onClick={() => navigate("/app/plan")}
           className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-6 text-white cursor-pointer hover:shadow-lg transition-all"
         >
-          <h3 className="text-xl font-semibold mb-2">View Your 30-Day Plan</h3>
+          <h3 className="text-xl font-semibold mb-2">Xem kế hoạch 30 ngày</h3>
           <p className="text-white/90 mb-4">
-            See your upcoming workouts and meals
+            Xem các bài tập và bữa ăn sắp tới
           </p>
           <Button variant="secondary" size="sm">
-            Go to Plan
+            Đến kế hoạch
           </Button>
         </div>
 
@@ -416,12 +416,12 @@ export function Dashboard() {
           onClick={() => navigate("/app/budget-breakdown")}
           className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white cursor-pointer hover:shadow-lg transition-all"
         >
-          <h3 className="text-xl font-semibold mb-2">Review Budget Breakdown</h3>
+          <h3 className="text-xl font-semibold mb-2">Xem phân bổ ngân sách</h3>
           <p className="text-white/90 mb-4">
-            Optimize your spending allocation
+            Tối ưu cách phân bổ chi tiêu của bạn
           </p>
           <Button variant="secondary" size="sm">
-            View Budget
+            Xem ngân sách
           </Button>
         </div>
       </div>

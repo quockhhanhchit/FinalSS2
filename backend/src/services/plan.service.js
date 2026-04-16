@@ -2,6 +2,11 @@ const pool = require("../config/db");
 const {
   generateBudgetBreakdown,
   generatePlanDays,
+  calculateWorkoutDurationMinutes,
+  localizeMealName,
+  localizeWorkoutDescription,
+  localizeWorkoutName,
+  toLocalDateKey,
 } = require("../utils/plan-generator");
 
 async function getActivePlanForUser(executor, userId) {
@@ -28,11 +33,28 @@ async function getPlanDayRecord(executor, planId, dayNumber) {
 
 async function getPlanDayDetails(executor, planDayId) {
   const [meals] = await executor.query(
-    `SELECT * FROM meals WHERE plan_day_id = ? ORDER BY id ASC`,
+    `SELECT
+       m.*,
+       COALESCE(ml.meal_name, m.meal_name) AS meal_name,
+       COALESCE(ml.calories, m.calories) AS calories,
+       COALESCE(ml.estimated_cost, m.cost) AS cost
+     FROM meals m
+     LEFT JOIN meal_library ml ON ml.id = m.meal_library_id
+     WHERE m.plan_day_id = ?
+     ORDER BY m.id ASC`,
     [planDayId]
   );
   const [workouts] = await executor.query(
-    `SELECT * FROM workouts WHERE plan_day_id = ? ORDER BY id ASC`,
+    `SELECT
+       w.*,
+       COALESCE(wl.workout_name, w.workout_name) AS workout_name,
+       COALESCE(wl.suggested_volume, w.description) AS description,
+       wl.suggested_volume AS library_suggested_volume,
+       wl.workout_type AS library_workout_type
+     FROM workouts w
+     LEFT JOIN workout_library wl ON wl.id = w.workout_library_id
+     WHERE w.plan_day_id = ?
+     ORDER BY w.id ASC`,
     [planDayId]
   );
   const [completions] = await executor.query(
@@ -51,9 +73,48 @@ async function getPlanDayDetails(executor, planDayId) {
   });
 
   return {
-    meals,
-    workouts,
+    meals: meals.map((meal) => ({
+      ...meal,
+      meal_name: localizeMealName(meal.meal_name),
+    })),
+    workouts: workouts.map((workout) => ({
+      ...workout,
+      workout_name: localizeWorkoutName(workout.workout_name),
+      duration_minutes: workout.library_workout_type
+        ? calculateWorkoutDurationMinutes(
+            workout.library_workout_type,
+            workout.library_suggested_volume
+          )
+        : workout.duration_minutes,
+      description: localizeWorkoutDescription(workout.description),
+    })),
     completedTasks,
+  };
+}
+
+function toDateKey(value) {
+  return toLocalDateKey(value);
+}
+
+function getTodayKey() {
+  return toLocalDateKey(new Date());
+}
+
+function getDayLockState(day) {
+  const isPastDay = toDateKey(day.plan_date) < getTodayKey();
+
+  if (!isPastDay) {
+    return {
+      isLocked: false,
+      lockReason: null,
+    };
+  }
+
+  return {
+    isLocked: true,
+    lockReason: day.completed
+      ? "Ngày này đã hoàn thành và đã bị khóa."
+      : "Ngày này đã qua hạn và không thể cập nhật.",
   };
 }
 
@@ -145,6 +206,38 @@ async function syncFoodExpenseForCompletedDay(
   );
 }
 
+async function insertPlanDayDetails(executor, planDayId, day) {
+  for (const meal of day.meals) {
+    await executor.query(
+      `INSERT INTO meals (plan_day_id, meal_library_id, meal_name, meal_time, calories, cost)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        planDayId,
+        meal.mealLibraryId || null,
+        meal.mealName,
+        meal.mealTime,
+        meal.calories,
+        meal.cost,
+      ]
+    );
+  }
+
+  for (const workout of day.workouts) {
+    await executor.query(
+      `INSERT INTO workouts
+       (plan_day_id, workout_library_id, workout_name, duration_minutes, description)
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        planDayId,
+        workout.workoutLibraryId || null,
+        workout.workoutName,
+        workout.durationMinutes,
+        workout.description,
+      ]
+    );
+  }
+}
+
 async function createPlanForUser(userId) {
   const [profiles] = await pool.query(
     "SELECT * FROM user_profiles WHERE user_id = ?",
@@ -179,7 +272,7 @@ async function createPlanForUser(userId) {
     const [planResult] = await connection.query(
       `INSERT INTO plans (user_id, duration_days, start_date, status)
        VALUES (?, ?, ?, 'active')`,
-      [userId, durationDays, startDate.toISOString().split("T")[0]]
+      [userId, durationDays, toLocalDateKey(startDate)]
     );
 
     const planId = planResult.insertId;
@@ -199,7 +292,7 @@ async function createPlanForUser(userId) {
       ]
     );
 
-    const planDays = generatePlanDays(startDate, profile, budget);
+    const planDays = await generatePlanDays(connection, startDate, profile, budget);
 
     for (const day of planDays) {
       const [dayResult] = await connection.query(
@@ -218,31 +311,111 @@ async function createPlanForUser(userId) {
 
       const planDayId = dayResult.insertId;
 
-      for (const meal of day.meals) {
-        await connection.query(
-          `INSERT INTO meals (plan_day_id, meal_name, meal_time, calories, cost)
-           VALUES (?, ?, ?, ?, ?)`,
-          [planDayId, meal.mealName, meal.mealTime, meal.calories, meal.cost]
-        );
-      }
-
-      for (const workout of day.workouts) {
-        await connection.query(
-          `INSERT INTO workouts (plan_day_id, workout_name, duration_minutes, description)
-           VALUES (?, ?, ?, ?)`,
-          [
-            planDayId,
-            workout.workoutName,
-            workout.durationMinutes,
-            workout.description,
-          ]
-        );
-      }
+      await insertPlanDayDetails(connection, planDayId, day);
     }
 
     await connection.commit();
 
     return { planId, budget };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
+async function syncActivePlanBudgetForUser(userId) {
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const [profiles] = await connection.query(
+      "SELECT * FROM user_profiles WHERE user_id = ?",
+      [userId]
+    );
+
+    if (profiles.length === 0) {
+      throw new Error("Profile not found. Complete onboarding first.");
+    }
+
+    const profile = profiles[0];
+    const plan = await getActivePlanForUser(connection, userId);
+
+    if (!plan) {
+      await connection.commit();
+      return null;
+    }
+
+    const budget = generateBudgetBreakdown(
+      Number(profile.budget_total),
+      profile.budget_style,
+      profile.workout_location
+    );
+
+    await connection.query(
+      `UPDATE budget_breakdowns
+       SET food_amount = ?,
+           workout_amount = ?,
+           wellness_amount = ?,
+           buffer_amount = ?,
+           total_budget = ?,
+           daily_budget = ?
+       WHERE plan_id = ?`,
+      [
+        budget.food,
+        budget.workout,
+        budget.wellness,
+        budget.buffer,
+        budget.totalBudget,
+        budget.dailyBudget,
+        plan.id,
+      ]
+    );
+
+    const planDays = await generatePlanDays(
+      connection,
+      new Date(plan.start_date),
+      profile,
+      budget
+    );
+
+    for (const generatedDay of planDays) {
+      const day = await getPlanDayRecord(
+        connection,
+        plan.id,
+        generatedDay.dayNumber
+      );
+
+      if (!day || day.completed) {
+        continue;
+      }
+
+      await connection.query(
+        `UPDATE plan_days
+         SET workout_type = ?, planned_calories = ?, planned_cost = ?
+         WHERE id = ?`,
+        [
+          generatedDay.workoutType,
+          generatedDay.plannedCalories,
+          generatedDay.plannedCost,
+          day.id,
+        ]
+      );
+      await connection.query(
+        "DELETE FROM daily_task_completions WHERE plan_day_id = ?",
+        [day.id]
+      );
+      await connection.query("DELETE FROM meals WHERE plan_day_id = ?", [day.id]);
+      await connection.query("DELETE FROM workouts WHERE plan_day_id = ?", [
+        day.id,
+      ]);
+      await insertPlanDayDetails(connection, day.id, generatedDay);
+    }
+
+    await connection.commit();
+    return budget;
   } catch (error) {
     await connection.rollback();
     throw error;
@@ -257,13 +430,39 @@ async function getCurrentPlan(userId) {
   if (!plan) return null;
 
   const [days] = await pool.query(
-    `SELECT * FROM plan_days WHERE plan_id = ? ORDER BY day_number ASC`,
+    `SELECT
+       pd.*,
+       COALESCE(
+         (
+           SELECT SUM(COALESCE(ml.estimated_cost, m.cost))
+           FROM meals m
+           LEFT JOIN meal_library ml ON ml.id = m.meal_library_id
+           WHERE m.plan_day_id = pd.id
+         ),
+         pd.planned_cost
+       ) AS planned_cost
+     FROM plan_days pd
+     WHERE pd.plan_id = ?
+     ORDER BY pd.day_number ASC`,
+    [plan.id]
+  );
+  const [budgets] = await pool.query(
+    "SELECT * FROM budget_breakdowns WHERE plan_id = ? LIMIT 1",
     [plan.id]
   );
 
   return {
     ...plan,
-    days,
+    budget: budgets[0] || null,
+    days: days.map((day) => {
+      const lockState = getDayLockState(day);
+
+      return {
+        ...day,
+        is_locked: lockState.isLocked,
+        lock_reason: lockState.lockReason,
+      };
+    }),
   };
 }
 
@@ -280,14 +479,17 @@ async function getPlanDay(userId, dayNumber) {
     throw new Error("Plan day not found");
   }
   const { meals, workouts, completedTasks } = await getPlanDayDetails(pool, day.id);
+  const lockState = getDayLockState(day);
 
   return {
     ...day,
+    is_locked: lockState.isLocked,
+    lock_reason: lockState.lockReason,
     meals,
     workouts,
     completed_tasks: completedTasks,
-    sleep: { target: "8 hours", time: "10:00 PM - 6:00 AM" },
-    water: { target: "2.5 liters", glasses: 10 },
+    sleep: { target: "8 giờ", time: "22:00 - 06:00" },
+    water: { target: "2.5 lít", glasses: 10 },
   };
 }
 
@@ -307,6 +509,12 @@ async function updatePlanDayCompletion(userId, dayNumber, completedTasks) {
 
     if (!day) {
       throw new Error("Plan day not found");
+    }
+
+    const lockState = getDayLockState(day);
+
+    if (lockState.isLocked) {
+      throw new Error(lockState.lockReason);
     }
 
     const { meals, workouts } = await getPlanDayDetails(connection, day.id);
@@ -374,4 +582,5 @@ module.exports = {
   getCurrentPlan,
   getPlanDay,
   updatePlanDayCompletion,
+  syncActivePlanBudgetForUser,
 };

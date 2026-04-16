@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const planService = require("./plan.service");
 
 async function saveProfile(userId, payload) {
   const {
@@ -88,7 +89,7 @@ async function updateBodyGoals(userId, payload) {
     throw new Error("Profile not found. Complete onboarding first.");
   }
 
-  return saveProfile(userId, {
+  const profile = await saveProfile(userId, {
     age: payload.age,
     gender: payload.gender,
     height: payload.height,
@@ -100,6 +101,10 @@ async function updateBodyGoals(userId, payload) {
     mealsPerDay: current.meals_per_day,
     budgetStyle: current.budget_style,
   });
+
+  await planService.syncActivePlanBudgetForUser(userId);
+
+  return profile;
 }
 
 async function updateBudgetPreferences(userId, payload) {
@@ -109,7 +114,7 @@ async function updateBudgetPreferences(userId, payload) {
     throw new Error("Profile not found. Complete onboarding first.");
   }
 
-  return saveProfile(userId, {
+  const profile = await saveProfile(userId, {
     age: current.age,
     gender: current.gender || "male",
     height: current.height_cm,
@@ -121,6 +126,10 @@ async function updateBudgetPreferences(userId, payload) {
     mealsPerDay: payload.mealsPerDay,
     budgetStyle: payload.budgetStyle,
   });
+
+  await planService.syncActivePlanBudgetForUser(userId);
+
+  return profile;
 }
 
 async function getNotificationSettings(userId) {

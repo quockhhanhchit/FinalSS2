@@ -60,7 +60,7 @@ export function Rewards() {
 
       setSummary(response.summary);
       setCelebrationReward({
-        type: `${voucher.brand} Voucher`,
+        type: `Voucher ${voucher.brand}`,
         value: voucher.discount,
         code: response.redeemCode,
       });
@@ -95,8 +95,8 @@ export function Rewards() {
               <Trophy className="w-7 h-7" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">Rewards & Achievements</h1>
-              <p className="text-white/90">Earn points and unlock exclusive perks</p>
+              <h1 className="text-3xl font-bold">Phần thưởng & thành tựu</h1>
+              <p className="text-white/90">Tích điểm và mở khóa các ưu đãi riêng</p>
             </div>
           </div>
         </div>
@@ -114,7 +114,7 @@ export function Rewards() {
         <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20">
           <div className="flex items-center gap-3 mb-2">
             <Star className="w-6 h-6 text-primary" />
-            <span className="text-sm font-medium text-muted-foreground">Total Points</span>
+            <span className="text-sm font-medium text-muted-foreground">Tổng điểm</span>
           </div>
           <div className="text-3xl font-bold text-primary">
             {totalPoints.toLocaleString()}
@@ -124,18 +124,18 @@ export function Rewards() {
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 border border-purple-200">
           <div className="flex items-center gap-3 mb-2">
             <Crown className="w-6 h-6 text-purple-600" />
-            <span className="text-sm font-medium text-purple-900">Current Level</span>
+            <span className="text-sm font-medium text-purple-900">Cấp hiện tại</span>
           </div>
-          <div className="text-3xl font-bold text-purple-600">Level {currentLevel}</div>
+          <div className="text-3xl font-bold text-purple-600">Cấp {currentLevel}</div>
         </div>
 
         <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-6 border border-orange-200">
           <div className="flex items-center gap-3 mb-2">
             <Zap className="w-6 h-6 text-orange-600" />
-            <span className="text-sm font-medium text-orange-900">Next Level</span>
+            <span className="text-sm font-medium text-orange-900">Cấp tiếp theo</span>
           </div>
           <div className="text-3xl font-bold text-orange-600">
-            {pointsToNextLevel} pts
+            {pointsToNextLevel} điểm
           </div>
         </div>
       </div>
@@ -144,10 +144,10 @@ export function Rewards() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            <h3 className="font-semibold">Progress to Level {currentLevel + 1}</h3>
+            <h3 className="font-semibold">Tiến độ tới cấp {currentLevel + 1}</h3>
           </div>
           <span className="text-sm text-muted-foreground">
-            {totalPoints} / {nextLevelPoints} points
+            {totalPoints} / {nextLevelPoints} điểm
           </span>
         </div>
         <div className="h-3 bg-muted rounded-full overflow-hidden">
@@ -162,10 +162,10 @@ export function Rewards() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Award className="w-6 h-6 text-primary" />
-            <h3 className="text-lg font-semibold">Your Achievements</h3>
+            <h3 className="text-lg font-semibold">Thành tựu của bạn</h3>
           </div>
           <Badge variant="purple">
-            {earnedCount}/{achievements.length} Earned
+            {earnedCount}/{achievements.length} đã đạt
           </Badge>
         </div>
         <div className="grid grid-cols-6 gap-4">
@@ -187,10 +187,10 @@ export function Rewards() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Gift className="w-6 h-6 text-primary" />
-            <h3 className="text-lg font-semibold">Redeem Vouchers</h3>
+            <h3 className="text-lg font-semibold">Đổi voucher</h3>
           </div>
           <Button variant="outline" size="sm" onClick={loadRewards}>
-            Refresh
+            Làm mới
           </Button>
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -205,7 +205,7 @@ export function Rewards() {
                 <img src={voucher.image} alt={voucher.brand} className="w-full h-full object-cover" />
                 {voucher.claimed ? (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <Badge variant="success">Claimed</Badge>
+                    <Badge variant="success">Đã nhận</Badge>
                   </div>
                 ) : null}
               </div>
@@ -219,7 +219,7 @@ export function Rewards() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Star className="w-4 h-4 fill-current text-primary" />
-                    <span className="font-medium">{voucher.points} points</span>
+                    <span className="font-medium">{voucher.points} điểm</span>
                   </div>
                   {!voucher.claimed ? (
                     <Button
@@ -231,12 +231,12 @@ export function Rewards() {
                       }
                       onClick={() => handleRedeem(voucher)}
                     >
-                      {redeemingId === voucher.id ? "Redeeming..." : "Redeem"}
+                      {redeemingId === voucher.id ? "Đang đổi..." : "Đổi"}
                     </Button>
                   ) : null}
                 </div>
                 <div className="text-xs text-muted-foreground mt-2">
-                  {voucher.available} available
+                  Còn {voucher.available}
                 </div>
               </div>
             </div>
@@ -247,12 +247,12 @@ export function Rewards() {
       <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
         <div className="flex items-center gap-3 mb-6">
           <Trophy className="w-6 h-6 text-primary" />
-          <h3 className="text-lg font-semibold">Recent Rewards</h3>
+          <h3 className="text-lg font-semibold">Lịch sử phần thưởng</h3>
         </div>
         <div className="space-y-3">
           {recentRewards.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-              No rewards history yet. Complete achievements or redeem vouchers to see it here.
+              Chưa có lịch sử phần thưởng. Hoàn thành thành tựu hoặc đổi voucher để xem tại đây.
             </div>
           ) : null}
           {recentRewards.map((item, index) => (
@@ -268,7 +268,7 @@ export function Rewards() {
                 icon={<Star className="w-3 h-3 fill-current" />}
               >
                 {Number(item.points) >= 0 ? "+" : ""}
-                {item.points} pts
+                {item.points} điểm
               </Badge>
             </div>
           ))}
@@ -278,7 +278,7 @@ export function Rewards() {
       <SuccessCelebration
         isOpen={showCelebration}
         onClose={() => setShowCelebration(false)}
-        achievement="Voucher Redeemed"
+        achievement="Đã đổi voucher"
         reward={celebrationReward || {
           type: "Voucher",
           value: "",

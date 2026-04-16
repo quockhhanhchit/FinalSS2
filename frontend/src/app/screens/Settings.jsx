@@ -138,7 +138,7 @@ export function Settings() {
 
     try {
       await apiPut("/api/profile/notifications", nextNotificationData);
-      showToast("Notification preferences saved.", "success");
+      showToast("Đã lưu tùy chọn thông báo.", "success");
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -162,17 +162,17 @@ export function Settings() {
     setError("");
 
     if (!hasValidPositiveNumber(bodyGoalsData.age)) {
-      setError("Age is required and must be greater than 0.");
+      setError("Tuổi là bắt buộc và phải lớn hơn 0.");
       return;
     }
 
     if (!hasValidPositiveNumber(bodyGoalsData.height)) {
-      setError("Height is required and must be greater than 0.");
+      setError("Chiều cao là bắt buộc và phải lớn hơn 0.");
       return;
     }
 
     if (!hasValidPositiveNumber(bodyGoalsData.weight)) {
-      setError("Weight is required and must be greater than 0.");
+      setError("Cân nặng là bắt buộc và phải lớn hơn 0.");
       return;
     }
 
@@ -189,7 +189,7 @@ export function Settings() {
       });
       setSavedBodyGoalsData(bodyGoalsData);
       setIsBodyGoalsEditing(false);
-      showToast("Body & Goals saved to database.", "success");
+      showToast("Đã lưu chỉ số cơ thể và mục tiêu.", "success");
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -201,12 +201,12 @@ export function Settings() {
     setError("");
 
     if (!hasValidPositiveNumber(budgetData.budget)) {
-      setError("Budget is required and must be greater than 0.");
+      setError("Ngân sách là bắt buộc và phải lớn hơn 0.");
       return;
     }
 
     if (Number(budgetData.budget) < 3000000) {
-      setError("Ngân sách tối thiểu là 3,000,000 VND.");
+      setError("Ngân sách tối thiểu là 3.000.000 VND.");
       return;
     }
 
@@ -219,9 +219,23 @@ export function Settings() {
         mealsPerDay: Number(budgetData.mealsPerDay),
         budgetStyle: budgetData.budgetStyle,
       });
+      window.localStorage.setItem(
+        "budgetfit:budget-updated-at",
+        String(Date.now())
+      );
+      window.dispatchEvent(
+        new CustomEvent("budgetfit:budget-updated", {
+          detail: {
+            budget: Number(budgetData.budget),
+            location: budgetData.location,
+            mealsPerDay: Number(budgetData.mealsPerDay),
+            budgetStyle: budgetData.budgetStyle,
+          },
+        })
+      );
       setSavedBudgetData(budgetData);
       setIsBudgetEditing(false);
-      showToast("Budget & Preferences saved to database.", "success");
+      showToast("Đã lưu ngân sách và tùy chọn.", "success");
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -234,7 +248,7 @@ export function Settings() {
     setError("");
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setError("New password and confirm password do not match.");
+      setError("Mật khẩu mới và xác nhận mật khẩu không khớp.");
       return;
     }
 
@@ -244,7 +258,7 @@ export function Settings() {
       await apiPut("/api/auth/change-password", passwordData);
       setPasswordData(initialPasswordData);
       setShowPasswordForm(false);
-      showToast("Password changed successfully. Please sign in again later if needed.", "success");
+      showToast("Đã đổi mật khẩu thành công.", "success");
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -255,9 +269,9 @@ export function Settings() {
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-3xl font-semibold mb-2">Settings</h1>
+        <h1 className="text-3xl font-semibold mb-2">Cài đặt</h1>
         <p className="text-muted-foreground">
-          Review and update the information you entered during onboarding
+          Xem lại và cập nhật thông tin bạn đã nhập trong onboarding
         </p>
       </div>
 
@@ -273,15 +287,15 @@ export function Settings() {
             <User className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold">Account Information</h3>
+            <h3 className="text-lg font-semibold">Thông tin tài khoản</h3>
             <p className="text-sm text-muted-foreground">
-              Your account identity comes from authentication
+              Thông tin tài khoản được lấy từ hệ thống đăng nhập
             </p>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">Full Name</label>
+            <label className="text-sm font-medium mb-2 block">Họ và tên</label>
             <input
               type="text"
               value={session?.user?.fullName || session?.name || ""}
@@ -307,9 +321,9 @@ export function Settings() {
             <Target className="w-5 h-5 text-orange-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold">Body & Goals</h3>
+            <h3 className="text-lg font-semibold">Cơ thể & mục tiêu</h3>
             <p className="text-sm text-muted-foreground">
-              These values are loaded from your onboarding profile
+              Các giá trị này được lấy từ hồ sơ onboarding của bạn
             </p>
           </div>
           <Button
@@ -318,14 +332,14 @@ export function Settings() {
             disabled={isLoading || isSavingBodyGoals || isSavingBudget}
             className="ml-auto"
           >
-            {isBodyGoalsEditing ? "Stop Editing" : "Edit"}
+            {isBodyGoalsEditing ? "Dừng sửa" : "Sửa"}
           </Button>
         </div>
 
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Age</label>
+              <label className="text-sm font-medium mb-2 block">Tuổi</label>
               <input
                 type="number"
                 value={bodyGoalsData.age}
@@ -335,7 +349,7 @@ export function Settings() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Height (cm)</label>
+              <label className="text-sm font-medium mb-2 block">Chiều cao (cm)</label>
               <input
                 type="number"
                 value={bodyGoalsData.height}
@@ -345,7 +359,7 @@ export function Settings() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Weight (kg)</label>
+              <label className="text-sm font-medium mb-2 block">Cân nặng (kg)</label>
               <input
                 type="number"
                 value={bodyGoalsData.weight}
@@ -357,7 +371,7 @@ export function Settings() {
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">Gender</label>
+            <label className="text-sm font-medium mb-2 block">Giới tính</label>
             <select
               value={bodyGoalsData.gender}
               onChange={(e) => handleBodyGoalsChange("gender", e.target.value)}
@@ -365,27 +379,27 @@ export function Settings() {
               disabled={isLoading || isSavingBodyGoals || isSavingBudget || !isBodyGoalsEditing}
             >
               <option value="male">Nam</option>
-              <option value="female">Nu</option>
-              <option value="other">Khac</option>
+              <option value="female">Nữ</option>
+              <option value="other">Khác</option>
             </select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Goal Type</label>
+              <label className="text-sm font-medium mb-2 block">Mục tiêu</label>
               <select
                 value={bodyGoalsData.goal}
                 onChange={(e) => handleBodyGoalsChange("goal", e.target.value)}
                 className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary"
                 disabled={isLoading || isSavingBodyGoals || isSavingBudget || !isBodyGoalsEditing}
               >
-                <option value="lose">Lose Weight</option>
-                <option value="maintain">Maintain Weight</option>
-                <option value="gain">Gain Weight</option>
+                <option value="lose">Giảm cân</option>
+                <option value="maintain">Giữ cân</option>
+                <option value="gain">Tăng cân</option>
               </select>
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Duration (days)</label>
+              <label className="text-sm font-medium mb-2 block">Thời lượng (ngày)</label>
               <input
                 type="number"
                 value={bodyGoalsData.duration}
@@ -404,13 +418,13 @@ export function Settings() {
               onClick={handleCancelBodyGoals}
               disabled={isLoading || isSavingBodyGoals || isSavingBudget}
             >
-              Cancel
+              Hủy
             </Button>
             <Button
               onClick={handleSaveBodyGoals}
               disabled={isLoading || isSavingBodyGoals || isSavingBudget}
             >
-              {isSavingBodyGoals ? "Saving..." : "Save Changes"}
+              {isSavingBodyGoals ? "Đang lưu..." : "Lưu thay đổi"}
             </Button>
           </div>
         ) : null}
@@ -422,9 +436,9 @@ export function Settings() {
             <Wallet className="w-5 h-5 text-purple-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold">Budget & Preferences</h3>
+            <h3 className="text-lg font-semibold">Ngân sách & tùy chọn</h3>
             <p className="text-sm text-muted-foreground">
-              Adjust the same budget preferences used to generate your plan
+              Điều chỉnh các tùy chọn ngân sách dùng để tạo kế hoạch
             </p>
           </div>
           <Button
@@ -433,13 +447,13 @@ export function Settings() {
             disabled={isLoading || isSavingBodyGoals || isSavingBudget}
             className="ml-auto"
           >
-            {isBudgetEditing ? "Stop Editing" : "Edit"}
+            {isBudgetEditing ? "Dừng sửa" : "Sửa"}
           </Button>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">Monthly Budget (VND)</label>
+            <label className="text-sm font-medium mb-2 block">Ngân sách hàng tháng (VND)</label>
             <input
               type="number"
               step="100000"
@@ -453,19 +467,19 @@ export function Settings() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Workout Location</label>
+              <label className="text-sm font-medium mb-2 block">Địa điểm tập luyện</label>
               <select
                 value={budgetData.location}
                 onChange={(e) => handleBudgetChange("location", e.target.value)}
                 className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary"
                 disabled={isLoading || isSavingBodyGoals || isSavingBudget || !isBudgetEditing}
               >
-                <option value="home">Home</option>
-                <option value="gym">Gym</option>
+                <option value="home">Tại nhà</option>
+                <option value="gym">Phòng gym</option>
               </select>
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Meals Per Day</label>
+              <label className="text-sm font-medium mb-2 block">Số bữa mỗi ngày</label>
               <input
                 type="number"
                 min="2"
@@ -479,15 +493,15 @@ export function Settings() {
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">Budget Style</label>
+            <label className="text-sm font-medium mb-2 block">Phong cách chi tiêu</label>
             <select
               value={budgetData.budgetStyle}
               onChange={(e) => handleBudgetChange("budgetStyle", e.target.value)}
               className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary"
               disabled={isLoading || isSavingBodyGoals || isSavingBudget || !isBudgetEditing}
             >
-              <option value="saving">Saving</option>
-              <option value="normal">Normal</option>
+              <option value="saving">Tiết kiệm</option>
+              <option value="normal">Cân bằng</option>
             </select>
           </div>
         </div>
@@ -499,13 +513,13 @@ export function Settings() {
               onClick={handleCancelBudget}
               disabled={isLoading || isSavingBodyGoals || isSavingBudget}
             >
-              Cancel
+              Hủy
             </Button>
             <Button
               onClick={handleSaveBudget}
               disabled={isLoading || isSavingBodyGoals || isSavingBudget}
             >
-              {isSavingBudget ? "Saving..." : "Save Changes"}
+              {isSavingBudget ? "Đang lưu..." : "Lưu thay đổi"}
             </Button>
           </div>
         ) : null}
@@ -517,17 +531,17 @@ export function Settings() {
             <Bell className="w-5 h-5 text-blue-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold">Notifications</h3>
+            <h3 className="text-lg font-semibold">Thông báo</h3>
             <p className="text-sm text-muted-foreground">
-              Preferences are saved to your account
+              Tùy chọn sẽ được lưu vào tài khoản của bạn
             </p>
           </div>
         </div>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-medium">Daily Reminders</div>
-              <div className="text-sm text-muted-foreground">Get notified about your daily tasks</div>
+              <div className="font-medium">Nhắc nhở hằng ngày</div>
+              <div className="text-sm text-muted-foreground">Nhận thông báo về nhiệm vụ trong ngày</div>
             </div>
             <input
               type="checkbox"
@@ -541,8 +555,8 @@ export function Settings() {
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-medium">Weight Tracking</div>
-              <div className="text-sm text-muted-foreground">Reminders to log your weight</div>
+              <div className="font-medium">Theo dõi cân nặng</div>
+              <div className="text-sm text-muted-foreground">Nhắc bạn ghi nhận cân nặng</div>
             </div>
             <input
               type="checkbox"
@@ -559,8 +573,8 @@ export function Settings() {
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-medium">Budget Alerts</div>
-              <div className="text-sm text-muted-foreground">Notifications when approaching budget limit</div>
+              <div className="font-medium">Cảnh báo ngân sách</div>
+              <div className="text-sm text-muted-foreground">Thông báo khi gần chạm giới hạn ngân sách</div>
             </div>
             <input
               type="checkbox"
@@ -581,8 +595,8 @@ export function Settings() {
             <Lock className="w-5 h-5 text-red-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold">Security</h3>
-            <p className="text-sm text-muted-foreground">Manage account security</p>
+            <h3 className="text-lg font-semibold">Bảo mật</h3>
+            <p className="text-sm text-muted-foreground">Quản lý bảo mật tài khoản</p>
           </div>
         </div>
         <div className="space-y-4">
@@ -591,7 +605,7 @@ export function Settings() {
             className="w-full justify-start"
             onClick={() => setShowPasswordForm((current) => !current)}
           >
-            Change Password
+            Đổi mật khẩu
           </Button>
 
           {showPasswordForm ? (
@@ -600,7 +614,7 @@ export function Settings() {
               className="rounded-xl border border-border bg-secondary/40 p-4 space-y-4"
             >
               <div>
-                <label className="text-sm font-medium mb-2 block">Current Password</label>
+                <label className="text-sm font-medium mb-2 block">Mật khẩu hiện tại</label>
                 <input
                   type="password"
                   value={passwordData.currentPassword}
@@ -615,7 +629,7 @@ export function Settings() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">New Password</label>
+                <label className="text-sm font-medium mb-2 block">Mật khẩu mới</label>
                 <input
                   type="password"
                   value={passwordData.newPassword}
@@ -630,7 +644,7 @@ export function Settings() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Confirm New Password</label>
+                <label className="text-sm font-medium mb-2 block">Xác nhận mật khẩu mới</label>
                 <input
                   type="password"
                   value={passwordData.confirmPassword}
@@ -654,10 +668,10 @@ export function Settings() {
                     setPasswordData(initialPasswordData);
                   }}
                 >
-                  Cancel
+                  Hủy
                 </Button>
                 <Button type="submit" disabled={isChangingPassword}>
-                  {isChangingPassword ? "Changing..." : "Update Password"}
+                  {isChangingPassword ? "Đang đổi..." : "Cập nhật mật khẩu"}
                 </Button>
               </div>
             </form>
@@ -668,10 +682,10 @@ export function Settings() {
             disabled
             className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
           >
-            Delete Account
+            Xóa tài khoản
           </Button>
           <p className="text-xs text-muted-foreground">
-            Delete Account is disabled until a safe account deletion flow is added.
+            Chức năng xóa tài khoản đang tắt cho đến khi có quy trình xóa an toàn.
           </p>
         </div>
       </div>
