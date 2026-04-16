@@ -1,0 +1,901 @@
+﻿meal_name,meal_type,budget_tier,goal_type,calories,estimated_cost,is_active
+Yến mạch nấu chuối và 1 trứng luộc,breakfast,saving,lose,340,12000,1
+Bánh mì trứng + dưa leo,breakfast,saving,lose,360,15000,1
+Khoai lang luộc + sữa đậu nành không đường,breakfast,saving,lose,320,14000,1
+Cháo yến mạch thịt bằm,breakfast,saving,lose,350,18000,1
+Bún gà xé ít bún nhiều rau,breakfast,saving,lose,390,22000,1
+Cơm gạo lứt + ức gà áp chảo + cà chua,breakfast,saving,lose,420,24000,1
+2 trứng luộc + chuối + sữa chua không đường,breakfast,saving,lose,330,18000,1
+Bánh mì ức gà xé sốt sữa chua,breakfast,saving,lose,380,22000,1
+Miến gà nấm ít dầu,breakfast,saving,lose,370,23000,1
+Phở gà phần nhỏ thêm rau,breakfast,saving,lose,400,25000,1
+Bún cá phần nhỏ,breakfast,saving,lose,390,24000,1
+Yến mạch qua đêm với táo,breakfast,saving,lose,310,16000,1
+Sữa chua trái cây ít ngọt + hạt chia,breakfast,saving,lose,300,18000,1
+Bánh mì cá hộp ngâm nước + xà lách,breakfast,saving,lose,390,22000,1
+Cơm + trứng ốp la + rau luộc,breakfast,saving,lose,410,17000,1
+Cháo đậu xanh ức gà xé,breakfast,saving,lose,360,19000,1
+Khoai lang nướng + 2 lòng trắng trứng + 1 lòng đỏ,breakfast,saving,lose,300,15000,1
+Bún riêu phần nhỏ,breakfast,saving,lose,380,22000,1
+Hủ tiếu thịt nạc phần nhỏ,breakfast,saving,lose,400,25000,1
+Yến mạch sữa tươi không đường + dâu,breakfast,saving,lose,320,18000,1
+Bắp luộc + trứng luộc + sữa chua,breakfast,saving,lose,310,16000,1
+Bánh cuốn ít chả + rau sống,breakfast,saving,lose,390,23000,1
+Cháo cá và rau thì là,breakfast,saving,lose,350,22000,1
+Bún thịt nạc nướng ít bún nhiều rau,breakfast,saving,lose,420,25000,1
+Cơm nắm gạo lứt + cá ngừ,breakfast,saving,lose,340,20000,1
+Cơm gạo lứt + ức gà luộc + bông cải,lunch,saving,lose,520,28000,1
+Cơm trắng vừa phải + cá basa hấp + rau luộc,lunch,saving,lose,500,26000,1
+Cơm + thịt nạc heo luộc + bí xanh,lunch,saving,lose,510,27000,1
+Salad ức gà + khoai lang,lunch,saving,lose,450,30000,1
+Cơm gạo lứt + trứng cuộn + cải ngọt,lunch,saving,lose,480,22000,1
+Canh rau ngót thịt bằm + cơm ít,lunch,saving,lose,460,23000,1
+Cơm + đậu hũ sốt cà + ức gà xé,lunch,saving,lose,500,25000,1
+Cá nục kho cà + rau muống luộc + cơm,lunch,saving,lose,530,26000,1
+Ức gà áp chảo + đậu que + cơm,lunch,saving,lose,510,29000,1
+Bún cá ít bún nhiều rau,lunch,saving,lose,430,26000,1
+Miến gà nấm + dưa leo,lunch,saving,lose,440,27000,1
+Cơm + thịt bò xào cần tây ít dầu,lunch,saving,lose,560,35000,1
+Cơm gạo lứt + cá rô phi áp chảo,lunch,saving,lose,500,30000,1
+Tôm hấp + rau luộc + khoai lang,lunch,saving,lose,470,34000,1
+Cơm + thịt nạc rang gừng + cải thìa,lunch,saving,lose,520,28000,1
+Salad đậu hũ trứng luộc,lunch,saving,lose,420,24000,1
+Cơm + ức gà xào nấm,lunch,saving,lose,500,30000,1
+Canh chua cá + cơm vừa phải,lunch,saving,lose,480,28000,1
+Bún thịt nướng nạc nhiều rau,lunch,saving,lose,520,32000,1
+Cơm + cá hộp sốt cà + bắp cải luộc,lunch,saving,lose,490,24000,1
+Đậu hũ non hấp thịt bằm + cơm,lunch,saving,lose,460,25000,1
+Cơm + gà kho gừng bỏ da + canh cải,lunch,saving,lose,530,29000,1
+Cá basa nướng giấy bạc + rau củ,lunch,saving,lose,450,30000,1
+Cơm + trứng chiên cà chua + ức gà xé,lunch,saving,lose,500,24000,1
+Salad cá ngừ + bánh mì nguyên cám 2 lát,lunch,saving,lose,430,32000,1
+Canh bí đỏ ức gà + cơm ít,dinner,saving,lose,430,24000,1
+Cơm gạo lứt + cá hấp + rau cải,dinner,saving,lose,450,26000,1
+Salad đậu hũ non + trứng luộc,dinner,saving,lose,360,22000,1
+Miến gà rau củ,dinner,saving,lose,390,24000,1
+Khoai lang + cá ngừ trộn sữa chua,dinner,saving,lose,350,23000,1
+Cháo yến mạch tôm,dinner,saving,lose,380,26000,1
+Cơm + thịt nạc luộc + dưa leo,dinner,saving,lose,420,25000,1
+Soup rau củ + ức gà xé,dinner,saving,lose,340,22000,1
+Bún cá phần nhỏ,dinner,saving,lose,370,24000,1
+Đậu hũ sốt nấm + rau luộc + cơm ít,dinner,saving,lose,400,22000,1
+Ức gà áp chảo + salad dưa leo cà chua,dinner,saving,lose,360,26000,1
+Canh chua cá + rau luộc,dinner,saving,lose,330,25000,1
+Cơm ít + trứng hấp thịt bằm,dinner,saving,lose,410,22000,1
+Cá basa áp chảo + măng tây,dinner,saving,lose,350,28000,1
+Salad gà xé bắp cải,dinner,saving,lose,340,22000,1
+Cơm gạo lứt + đậu que xào thịt nạc,dinner,saving,lose,430,24000,1
+Tôm luộc + bí xanh hấp,dinner,saving,lose,320,30000,1
+Yến mạch mặn với trứng và nấm,dinner,saving,lose,360,18000,1
+Hủ tiếu thịt nạc phần nhỏ,dinner,saving,lose,390,24000,1
+Rau củ hấp + ức gà sốt tiêu,dinner,saving,lose,350,25000,1
+Cá nục kho nhạt + rau muống luộc,dinner,saving,lose,400,23000,1
+Canh cải thịt bằm + khoai lang nhỏ,dinner,saving,lose,370,21000,1
+Cơm + đậu hũ trứng non sốt cà,dinner,saving,lose,410,20000,1
+Salad cá hộp + ngô ngọt,dinner,saving,lose,360,21000,1
+Miến trộn gà xé,dinner,saving,lose,400,25000,1
+Sữa chua không đường + 1 quả táo,snack,saving,lose,140,12000,1
+Chuối + 5 hạt hạnh nhân,snack,saving,lose,150,10000,1
+Khoai lang nhỏ luộc,snack,saving,lose,120,8000,1
+1 quả trứng luộc + dưa leo,snack,saving,lose,90,7000,1
+Sữa đậu nành không đường,snack,saving,lose,100,7000,1
+Cam + sữa chua,snack,saving,lose,130,13000,1
+Bắp luộc nửa trái,snack,saving,lose,110,7000,1
+Táo + trà xanh,snack,saving,lose,95,12000,1
+Dưa hấu 1 phần,snack,saving,lose,80,8000,1
+Ổi + muối ớt nhẹ,snack,saving,lose,90,10000,1
+Sữa chua + hạt chia,snack,saving,lose,120,13000,1
+2 bánh gạo lứt,snack,saving,lose,100,8000,1
+Chuối nhỏ,snack,saving,lose,90,5000,1
+Lê 1 quả,snack,saving,lose,100,12000,1
+1 ly sữa tươi không đường,snack,saving,lose,110,9000,1
+Cà rốt luộc + chấm sữa chua,snack,saving,lose,85,8000,1
+Trứng gà luộc,snack,saving,lose,70,6000,1
+Nho 1 chén nhỏ,snack,saving,lose,100,15000,1
+Dưa leo cuộn cá ngừ,snack,saving,lose,130,14000,1
+Táo + 1 thìa bơ đậu phộng,snack,saving,lose,160,13000,1
+Sữa chua uống ít đường,snack,saving,lose,100,9000,1
+Thanh yến mạch homemade nhỏ,snack,saving,lose,150,10000,1
+Bưởi 1 phần,snack,saving,lose,80,10000,1
+Ngô luộc + trà thảo mộc,snack,saving,lose,120,9000,1
+Đậu edamame luộc phần nhỏ,snack,saving,lose,140,15000,1
+Phở gà phần nhỏ thêm rau,breakfast,normal,lose,420,30000,1
+Bánh mì ức gà áp chảo + salad,breakfast,normal,lose,430,32000,1
+Greek yogurt + granola ít đường + berries,breakfast,normal,lose,380,35000,1
+Yến mạch protein với chuối,breakfast,normal,lose,400,28000,1
+Bún bò phần nhỏ ít béo,breakfast,normal,lose,450,35000,1
+Cơm gạo lứt + cá hồi vụn + trứng,breakfast,normal,lose,460,38000,1
+Bánh cuốn thịt nạc + rau,breakfast,normal,lose,410,28000,1
+Miến gà nấm phần vừa,breakfast,normal,lose,390,30000,1
+Overnight oats xoài hạt chia,breakfast,normal,lose,360,30000,1
+Trứng scramble + bánh mì nguyên cám,breakfast,normal,lose,370,25000,1
+Bún thịt nướng nạc nhiều rau,breakfast,normal,lose,450,35000,1
+Smoothie bowl bơ chuối yogurt,breakfast,normal,lose,390,32000,1
+Hủ tiếu nam vang phần nhỏ,breakfast,normal,lose,440,35000,1
+Cháo yến mạch cá hồi,breakfast,normal,lose,380,34000,1
+Khoai lang + ức gà xé + dưa leo,breakfast,normal,lose,350,26000,1
+Bánh mì cá ngừ ngâm nước,breakfast,normal,lose,400,30000,1
+Sữa chua Hy Lạp + táo + hạt,breakfast,normal,lose,350,32000,1
+Pancake yến mạch chuối,breakfast,normal,lose,370,28000,1
+Bún cá hồi thì là phần nhỏ,breakfast,normal,lose,420,38000,1
+Cơm nắm gạo lứt + gà teriyaki nhẹ,breakfast,normal,lose,430,32000,1
+Phở cuốn bò rau sống,breakfast,normal,lose,410,35000,1
+Nui gà rau củ,breakfast,normal,lose,390,30000,1
+Bánh mì trứng bơ nhẹ,breakfast,normal,lose,420,28000,1
+Yến mạch sữa hạnh nhân + dâu,breakfast,normal,lose,330,30000,1
+Bún riêu cua phần nhỏ,breakfast,normal,lose,430,32000,1
+Cơm gạo lứt + ức gà sốt nấm + salad,lunch,normal,lose,540,42000,1
+Cá hồi áp chảo + rau củ + khoai lang,lunch,normal,lose,560,48000,1
+Bò xào bông cải + cơm vừa phải,lunch,normal,lose,590,45000,1
+Tôm hấp + cơm gạo lứt + măng tây,lunch,normal,lose,520,46000,1
+Salad cá ngừ áp chảo + bánh mì nguyên cám,lunch,normal,lose,480,43000,1
+Cơm + thịt thăn heo áp chảo + canh rau,lunch,normal,lose,550,40000,1
+Bún chả nạc nhiều rau,lunch,normal,lose,560,42000,1
+Miến trộn gà xé,lunch,normal,lose,470,36000,1
+Cơm + cá thu nướng + rau luộc,lunch,normal,lose,560,44000,1
+Đậu hũ non sốt bò bằm + cơm,lunch,normal,lose,510,38000,1
+Pasta sốt cà ức gà,lunch,normal,lose,570,43000,1
+Cơm + cá saba nướng + salad,lunch,normal,lose,550,46000,1
+Bún bò ít bún nhiều thịt nạc và rau,lunch,normal,lose,580,42000,1
+Cơm + tôm xào nấm + bí xanh,lunch,normal,lose,530,45000,1
+Salad gà áp chảo + ngô ngọt,lunch,normal,lose,470,39000,1
+Cơm gạo lứt + trứng hấp + thịt nạc,lunch,normal,lose,500,35000,1
+Cá ngừ áp chảo + khoai tây luộc + salad,lunch,normal,lose,520,45000,1
+Cơm + bò cuộn nấm kim châm,lunch,normal,lose,570,47000,1
+Bún cá + rau sống,lunch,normal,lose,460,38000,1
+Cơm + gà nướng thảo mộc + bông cải,lunch,normal,lose,550,43000,1
+Canh chua cá hồi + cơm ít,lunch,normal,lose,480,42000,1
+Poke bowl cá ngừ kiểu Việt,lunch,normal,lose,500,48000,1
+Cơm + thịt viên sốt cà + rau củ,lunch,normal,lose,560,39000,1
+Salad tôm bơ,lunch,normal,lose,450,46000,1
+Cơm + cá rô phi sốt chanh + rau,lunch,normal,lose,520,40000,1
+Salad cá hồi xông khói + khoai lang,dinner,normal,lose,430,45000,1
+Soup bí đỏ + ức gà sous vide,dinner,normal,lose,390,36000,1
+Cơm gạo lứt + tôm áp chảo + rau,dinner,normal,lose,450,42000,1
+Cá saba nướng + dưa leo + canh rau,dinner,normal,lose,420,43000,1
+Pasta gà sốt cà phần nhỏ,dinner,normal,lose,460,39000,1
+Bún cá phần nhỏ,dinner,normal,lose,380,35000,1
+Ức gà nướng + bí ngòi + cà rốt,dinner,normal,lose,370,38000,1
+Đậu hũ non sốt nấm + salad,dinner,normal,lose,340,32000,1
+Cơm ít + bò xào rau cần,dinner,normal,lose,470,42000,1
+Miến gà rau củ,dinner,normal,lose,390,34000,1
+Cá hồi áp chảo + măng tây,dinner,normal,lose,410,45000,1
+Canh chua tôm + rau luộc,dinner,normal,lose,350,38000,1
+Cháo yến mạch thịt gà,dinner,normal,lose,360,28000,1
+Tuna salad bowl,dinner,normal,lose,370,40000,1
+Cơm + trứng hấp nấm + rau,dinner,normal,lose,400,30000,1
+Hủ tiếu gà phần nhỏ,dinner,normal,lose,390,35000,1
+Gà cuộn rau củ hấp,dinner,normal,lose,360,39000,1
+Khoai lang + cá ngừ,dinner,normal,lose,340,30000,1
+Salad bò áp chảo,dinner,normal,lose,420,43000,1
+Cơm gạo lứt + cá basa nướng,dinner,normal,lose,410,34000,1
+Soup nấm kem nhẹ + gà xé,dinner,normal,lose,350,32000,1
+Bún thịt nướng nạc phần nhỏ,dinner,normal,lose,430,39000,1
+Đậu hũ áp chảo + rau củ hấp,dinner,normal,lose,330,30000,1
+Cơm + tôm rim nhạt + bầu luộc,dinner,normal,lose,420,38000,1
+Cháo cá hồi bí đỏ,dinner,normal,lose,380,39000,1
+Greek yogurt không đường,snack,normal,lose,120,18000,1
+Táo + 1 thìa bơ hạnh nhân,snack,normal,lose,170,22000,1
+Chuối + whey nửa muỗng pha nước,snack,normal,lose,180,25000,1
+Dâu tây + sữa chua,snack,normal,lose,130,20000,1
+Edamame luộc,snack,normal,lose,150,18000,1
+Cam vàng + trà thảo mộc,snack,normal,lose,90,15000,1
+Protein pudding nhỏ,snack,normal,lose,170,25000,1
+2 bánh quy yến mạch ít đường,snack,normal,lose,140,16000,1
+Nho + phô mai viên nhỏ,snack,normal,lose,160,22000,1
+Sữa tươi protein cao,snack,normal,lose,140,22000,1
+Bưởi 1 phần lớn,snack,normal,lose,90,16000,1
+Bánh gạo lứt + cá ngừ,snack,normal,lose,150,22000,1
+Dưa leo + hummus,snack,normal,lose,130,25000,1
+Lê + sữa chua Hy Lạp,snack,normal,lose,150,22000,1
+Thanh granola ít đường,snack,normal,lose,160,20000,1
+Kiwi 2 quả,snack,normal,lose,100,22000,1
+Táo xanh + quế,snack,normal,lose,90,18000,1
+Sữa hạnh nhân không đường,snack,normal,lose,80,18000,1
+Chuối + hạt mix nhỏ,snack,normal,lose,180,20000,1
+Pudding chia seed,snack,normal,lose,160,25000,1
+Trứng luộc + cà chua bi,snack,normal,lose,100,12000,1
+Sữa chua uống probiotic,snack,normal,lose,100,15000,1
+Dưa hấu + hạt bí,snack,normal,lose,130,18000,1
+Yến mạch qua đêm mini,snack,normal,lose,170,22000,1
+Bắp ngọt luộc phần nhỏ,snack,normal,lose,110,12000,1
+Overnight oats protein berries,breakfast,premium,lose,380,45000,1
+Greek yogurt bowl granola hạt chia,breakfast,premium,lose,400,50000,1
+Sandwich nguyên cám ức gà avocado,breakfast,premium,lose,430,55000,1
+Smoothie bowl xoài chuối whey,breakfast,premium,lose,390,52000,1
+Phở bò nạc premium phần nhỏ,breakfast,premium,lose,460,60000,1
+Bagel trứng cá hồi xông khói,breakfast,premium,lose,470,65000,1
+Pancake yến mạch protein + dâu,breakfast,premium,lose,410,50000,1
+Cơm gạo lứt + cá hồi + trứng lòng đào,breakfast,premium,lose,480,65000,1
+Cháo yến mạch tôm hữu cơ,breakfast,premium,lose,370,52000,1
+Burrito gà avocado kiểu healthy,breakfast,premium,lose,450,58000,1
+Bánh mì sourdough cá ngừ salad,breakfast,premium,lose,420,55000,1
+Sữa chua Hy Lạp hữu cơ + quả mọng,breakfast,premium,lose,350,48000,1
+Bún cá hồi thì là premium,breakfast,premium,lose,440,62000,1
+Trứng benedict kiểu healthy,breakfast,premium,lose,430,60000,1
+Nui gà sốt pesto nhẹ,breakfast,premium,lose,420,56000,1
+Smoothie xanh spinach chuối whey,breakfast,premium,lose,360,50000,1
+Wrap gà nướng trứng,breakfast,premium,lose,430,54000,1
+Poke breakfast bowl cá hồi,breakfast,premium,lose,450,62000,1
+Granola homemade cao đạm + sữa hạt,breakfast,premium,lose,390,47000,1
+Toasts bơ avocado + trứng poached,breakfast,premium,lose,410,55000,1
+Chia pudding xoài yogurt,breakfast,premium,lose,340,46000,1
+Hủ tiếu hải sản premium phần nhỏ,breakfast,premium,lose,450,62000,1
+Phở cuốn bò wagyu lean,breakfast,premium,lose,470,68000,1
+Croissant trứng gà xé salad,breakfast,premium,lose,430,58000,1
+Oatmeal cacao chuối bơ hạt,breakfast,premium,lose,400,48000,1
+Meal prep ức gà sous vide + quinoa + rau củ,lunch,premium,lose,520,75000,1
+Meal prep cá hồi Na Uy + măng tây + khoai,lunch,premium,lose,560,95000,1
+Steak bò Úc lean + salad + khoai nghiền,lunch,premium,lose,620,110000,1
+Poke bowl cá hồi avocado,lunch,premium,lose,540,95000,1
+Tôm sú áp chảo + gạo lứt + rau nướng,lunch,premium,lose,530,90000,1
+Cá tuyết áp chảo + bí ngòi + khoai lang,lunch,premium,lose,500,105000,1
+Gà hữu cơ nướng thảo mộc + salad,lunch,premium,lose,520,82000,1
+Bún bò premium chọn nạc,lunch,premium,lose,580,70000,1
+Salad bò Mỹ áp chảo,lunch,premium,lose,490,85000,1
+Pasta nguyên cám ức gà sốt cà,lunch,premium,lose,560,78000,1
+Cơm gạo lứt + cá saba Nhật nướng,lunch,premium,lose,550,85000,1
+Tuna steak + salad + ngô nướng,lunch,premium,lose,520,92000,1
+Meal prep turkey meatballs + pasta,lunch,premium,lose,570,88000,1
+Salad tôm bơ hữu cơ,lunch,premium,lose,470,90000,1
+Bowl đậu gà gà nướng kiểu Địa Trung Hải,lunch,premium,lose,500,78000,1
+Cơm + bò sốt tiêu đen lean + broccoli,lunch,premium,lose,600,92000,1
+Gà pesto + quinoa + rau củ,lunch,premium,lose,530,82000,1
+Cá hồi teriyaki nhẹ + cơm + salad,lunch,premium,lose,560,94000,1
+Bibimbap bò healthy,lunch,premium,lose,580,85000,1
+Salad cá ngừ tataki,lunch,premium,lose,460,88000,1
+Hủ tiếu hải sản cao cấp phần vừa,lunch,premium,lose,540,78000,1
+Cơm + heo Iberico nạc + rau củ hấp,lunch,premium,lose,590,98000,1
+Bún chả nạc premium nhiều rau,lunch,premium,lose,570,72000,1
+Meal prep tofu steak + nấm + quinoa,lunch,premium,lose,480,70000,1
+Sushi bowl cá hồi trứng,lunch,premium,lose,550,92000,1
+Meal prep cá hồi + salad kale,dinner,premium,lose,420,90000,1
+Ức gà sous vide + bí ngòi nướng,dinner,premium,lose,360,72000,1
+Soup bí đỏ organic + shrimp,dinner,premium,lose,350,68000,1
+Salad cá ngừ avocado,dinner,premium,lose,390,82000,1
+Pasta nguyên cám hải sản phần nhỏ,dinner,premium,lose,450,78000,1
+Cá tuyết hấp + măng tây,dinner,premium,lose,370,98000,1
+Gà cuộn spinach phô mai nhẹ,dinner,premium,lose,400,76000,1
+Cơm gạo lứt + bò áp chảo lean,dinner,premium,lose,470,85000,1
+Poke bowl mini cá hồi,dinner,premium,lose,410,80000,1
+Đậu hũ Nhật sốt nấm + rau củ,dinner,premium,lose,330,62000,1
+Canh miso cá hồi + salad,dinner,premium,lose,340,70000,1
+Tôm áp chảo bơ tỏi nhẹ + rau,dinner,premium,lose,380,82000,1
+Salad gà nướng hữu cơ,dinner,premium,lose,350,72000,1
+Cháo yến mạch hải sản,dinner,premium,lose,360,65000,1
+Cơm ít + cá saba Nhật nướng,dinner,premium,lose,420,78000,1
+Soup nấm truffle nhẹ + gà xé,dinner,premium,lose,340,70000,1
+Tuna bowl low carb,dinner,premium,lose,390,80000,1
+Cơm gạo lứt + tôm hấp + bí đỏ,dinner,premium,lose,430,76000,1
+Bò cuộn măng tây,dinner,premium,lose,400,86000,1
+Salad quinoa đậu gà,dinner,premium,lose,350,68000,1
+Hủ tiếu gà premium phần nhỏ,dinner,premium,lose,400,68000,1
+Bún cá hồi phần nhỏ,dinner,premium,lose,410,76000,1
+Ức gà sốt chanh dây nhẹ + salad,dinner,premium,lose,370,74000,1
+Salad burrata cà chua + gà xé,dinner,premium,lose,390,82000,1
+Cá hồi miso nhẹ + rau củ hấp,dinner,premium,lose,420,92000,1
+Greek yogurt hữu cơ,snack,premium,lose,120,25000,1
+Protein shake pha nước,snack,premium,lose,130,35000,1
+Blueberries + yogurt,snack,premium,lose,110,30000,1
+Táo Envy + bơ hạnh nhân,snack,premium,lose,170,32000,1
+Hạt mix cao cấp phần nhỏ,snack,premium,lose,180,30000,1
+Pudding chia coconut không đường,snack,premium,lose,160,32000,1
+Kiwi vàng 2 quả,snack,premium,lose,110,35000,1
+Protein bar ít đường,snack,premium,lose,180,40000,1
+Edamame hữu cơ,snack,premium,lose,140,25000,1
+Dưa leo + hummus premium,snack,premium,lose,130,32000,1
+Sữa hạt protein,snack,premium,lose,120,30000,1
+Dâu tây nhập khẩu 1 phần nhỏ,snack,premium,lose,100,35000,1
+Trứng luộc lòng đào 2 quả,snack,premium,lose,140,18000,1
+Granola cup mini,snack,premium,lose,170,28000,1
+Sữa chua Hy Lạp + matcha,snack,premium,lose,130,28000,1
+Cottage cheese + dứa,snack,premium,lose,140,32000,1
+Avocado half + muối tiêu,snack,premium,lose,160,30000,1
+Chocolate đen 70% + hạnh nhân,snack,premium,lose,170,30000,1
+Cherry tomato + mozzarella mini,snack,premium,lose,130,32000,1
+Poke snack cá hồi mini,snack,premium,lose,180,45000,1
+Nho xanh không hạt,snack,premium,lose,100,30000,1
+Rice cake + peanut butter mỏng,snack,premium,lose,150,22000,1
+Smoothie xanh mini,snack,premium,lose,140,35000,1
+Yogurt drink probiotic premium,snack,premium,lose,100,25000,1
+Bưởi hồng + trà thảo mộc,snack,premium,lose,90,22000,1
+Cơm trắng + 2 trứng ốp la + chuối,breakfast,saving,gain,620,18000,1
+Cơm trắng + trứng chiên + thịt bằm,breakfast,saving,gain,680,22000,1
+Bánh mì trứng + sữa đậu nành,breakfast,saving,gain,560,18000,1
+Bánh mì bơ đậu phộng + chuối,breakfast,saving,gain,590,17000,1
+Xôi đậu xanh + 2 trứng luộc,breakfast,saving,gain,700,20000,1
+Xôi trứng chả lụa,breakfast,saving,gain,720,22000,1
+Cháo thịt bằm + 2 trứng,breakfast,saving,gain,610,22000,1
+Cháo gà xé + bánh mì nhỏ,breakfast,saving,gain,580,22000,1
+Nui thịt bằm trứng,breakfast,saving,gain,640,24000,1
+Mì trứng rau cải + 2 trứng,breakfast,saving,gain,600,18000,1
+Miến gà xé + chuối,breakfast,saving,gain,560,22000,1
+Hủ tiếu thịt bằm,breakfast,saving,gain,550,25000,1
+Bún thịt bằm + trứng,breakfast,saving,gain,620,25000,1
+Cơm rang trứng,breakfast,saving,gain,650,20000,1
+Cơm rang gà xé,breakfast,saving,gain,690,25000,1
+Khoai lang + 3 trứng luộc + sữa,breakfast,saving,gain,630,22000,1
+Yến mạch nấu sữa + chuối + đậu phộng,breakfast,saving,gain,610,20000,1
+Yến mạch mặn thịt bằm,breakfast,saving,gain,580,23000,1
+Bánh mì trứng phô mai,breakfast,saving,gain,650,24000,1
+Cơm + cá nục kho + dưa leo,breakfast,saving,gain,670,24000,1
+Cơm + thịt kho trứng,breakfast,saving,gain,760,28000,1
+Bún cá,breakfast,saving,gain,540,25000,1
+Cháo đậu xanh thịt nạc,breakfast,saving,gain,570,22000,1
+Cơm + đậu hũ sốt thịt bằm,breakfast,saving,gain,620,22000,1
+Bánh mì chả trứng + sữa tươi,breakfast,saving,gain,680,25000,1
+Cơm + ức gà áp chảo + rau muống luộc,lunch,saving,gain,760,30000,1
+Cơm + đùi gà nướng + canh bí,lunch,saving,gain,810,32000,1
+Cơm + thịt heo nạc rang + cải luộc,lunch,saving,gain,780,32000,1
+Cơm + thịt bằm sốt cà + trứng,lunch,saving,gain,820,30000,1
+Cơm + cá basa kho + rau luộc,lunch,saving,gain,740,30000,1
+Cơm + cá nục sốt cà + canh cải,lunch,saving,gain,770,32000,1
+Cơm + trứng chiên thịt bằm + bí luộc,lunch,saving,gain,760,28000,1
+Cơm + đậu hũ chiên + thịt bằm + rau,lunch,saving,gain,790,28000,1
+Cơm + gà kho gừng + rau lang,lunch,saving,gain,800,32000,1
+Cơm + heo nạc kho trứng cút,lunch,saving,gain,850,35000,1
+Cơm + cá diêu hồng chiên nhẹ + canh rau,lunch,saving,gain,780,35000,1
+Bún thịt nạc xào rau,lunch,saving,gain,700,30000,1
+Mì xào gà rau cải,lunch,saving,gain,760,32000,1
+Cơm + trứng kho thịt,lunch,saving,gain,830,30000,1
+Cơm + đậu hũ non sốt cà thịt bằm,lunch,saving,gain,730,28000,1
+Cơm + ức gà xào hành tây,lunch,saving,gain,770,32000,1
+Cơm + thịt heo xào đậu que,lunch,saving,gain,760,32000,1
+Cơm + cá basa áp chảo + canh chua,lunch,saving,gain,740,32000,1
+Cơm + gà xào sả ớt nhẹ,lunch,saving,gain,790,32000,1
+Cơm + trứng cuộn thịt + bắp cải luộc,lunch,saving,gain,750,30000,1
+Phở gà thêm thịt,lunch,saving,gain,720,35000,1
+Hủ tiếu gà,lunch,saving,gain,690,30000,1
+Bún chả nạc tự làm,lunch,saving,gain,760,32000,1
+Cơm + chả lá lốt thịt bằm + rau,lunch,saving,gain,810,33000,1
+Cơm + cá khô rim mè + trứng + rau,lunch,saving,gain,800,28000,1
+Cơm + cá hấp + rau luộc,dinner,saving,gain,690,28000,1
+Cơm + gà luộc xé + canh rau,dinner,saving,gain,720,30000,1
+Cơm + heo nạc luộc + bí xanh,dinner,saving,gain,700,30000,1
+Cháo thịt bằm + trứng + sữa,dinner,saving,gain,650,25000,1
+Miến gà nấm,dinner,saving,gain,620,28000,1
+Nui gà rau củ,dinner,saving,gain,680,28000,1
+Cơm + tôm rim ít dầu + cải thìa,dinner,saving,gain,730,35000,1
+Cơm + bò viên sốt cà + rau,dinner,saving,gain,760,35000,1
+Cơm + đậu hũ sốt thịt + canh cải,dinner,saving,gain,710,28000,1
+Cơm + trứng hấp thịt bằm,dinner,saving,gain,740,28000,1
+Cơm + gà kho nghệ + rau dền,dinner,saving,gain,760,30000,1
+Bún cá + chuối,dinner,saving,gain,650,30000,1
+Phở gà thêm trứng,dinner,saving,gain,690,35000,1
+Hủ tiếu thịt nạc,dinner,saving,gain,660,30000,1
+Cơm + thịt heo xào bắp cải,dinner,saving,gain,730,30000,1
+Cơm + cá nục kho + canh bí đỏ,dinner,saving,gain,740,30000,1
+Khoai lang + gà áp chảo + sữa,dinner,saving,gain,670,30000,1
+Yến mạch mặn thịt bằm + trứng,dinner,saving,gain,620,25000,1
+Salad gà + khoai luộc,dinner,saving,gain,650,32000,1
+Súp bí đỏ gà xé + bánh mì,dinner,saving,gain,690,30000,1
+Cơm + chả trứng hấp + rau luộc,dinner,saving,gain,730,30000,1
+Cơm + thịt viên sốt cà,dinner,saving,gain,760,32000,1
+Cháo cá lóc + trứng,dinner,saving,gain,630,30000,1
+Cơm + đậu que xào thịt nạc,dinner,saving,gain,720,30000,1
+Cơm + cá basa sốt gừng,dinner,saving,gain,710,30000,1
+Chuối + sữa tươi,snack,saving,gain,280,12000,1
+2 quả chuối + sữa đậu nành,snack,saving,gain,320,12000,1
+Sữa chua + chuối,snack,saving,gain,250,12000,1
+Sữa chua + yến mạch,snack,saving,gain,290,15000,1
+Khoai lang luộc + sữa,snack,saving,gain,300,15000,1
+Bánh mì trứng nhỏ,snack,saving,gain,340,15000,1
+Bánh mì bơ đậu phộng,snack,saving,gain,360,15000,1
+3 trứng luộc,snack,saving,gain,240,15000,1
+1 trứng vịt lộn + sữa,snack,saving,gain,260,17000,1
+Chuối + đậu phộng rang,snack,saving,gain,310,12000,1
+Sữa tươi + bánh mì,snack,saving,gain,290,15000,1
+Táo + sữa chua,snack,saving,gain,220,18000,1
+Sinh tố chuối sữa,snack,saving,gain,330,18000,1
+Sinh tố bơ sữa đơn giản,snack,saving,gain,380,25000,1
+Đậu phộng rang + chuối,snack,saving,gain,320,12000,1
+Ngô luộc + sữa,snack,saving,gain,270,15000,1
+Yến mạch ngâm sữa,snack,saving,gain,300,15000,1
+Khoai tây luộc + 2 trứng,snack,saving,gain,310,18000,1
+Bánh mì chả lụa nhỏ,snack,saving,gain,320,18000,1
+Sữa đậu nành + xôi nhỏ,snack,saving,gain,340,15000,1
+Chuối + 2 trứng luộc,snack,saving,gain,250,15000,1
+Sữa chua + đậu phộng,snack,saving,gain,260,15000,1
+Khoai lang + chuối,snack,saving,gain,280,12000,1
+Bánh mì phô mai,snack,saving,gain,330,18000,1
+Yến mạch + chuối + sữa,snack,saving,gain,350,18000,1
+Phở bò tái + sữa tươi,breakfast,normal,gain,720,45000,1
+Phở gà + chuối,breakfast,normal,gain,650,38000,1
+Bún bò Huế ít cay,breakfast,normal,gain,700,40000,1
+Bún thịt nướng + chả giò nhỏ,breakfast,normal,gain,760,45000,1
+Hủ tiếu nam vang,breakfast,normal,gain,740,45000,1
+Bánh mì bò né,breakfast,normal,gain,780,45000,1
+Bánh mì ốp la 2 trứng + phô mai,breakfast,normal,gain,720,32000,1
+Cơm tấm sườn trứng,breakfast,normal,gain,850,50000,1
+Xôi gà xé,breakfast,normal,gain,730,30000,1
+Xôi mặn,breakfast,normal,gain,780,35000,1
+Cháo sườn + quẩy + trứng,breakfast,normal,gain,690,35000,1
+Nui bò bằm,breakfast,normal,gain,700,35000,1
+Miến gà nấm + sữa chua,breakfast,normal,gain,620,35000,1
+Bún cá + trứng luộc,breakfast,normal,gain,650,38000,1
+Bánh cuốn chả + sữa đậu nành,breakfast,normal,gain,680,35000,1
+Bánh ướt thịt nướng,breakfast,normal,gain,700,38000,1
+Yến mạch sữa chua chuối hạnh nhân,breakfast,normal,gain,620,30000,1
+Yến mạch nấu sữa + xoài,breakfast,normal,gain,590,28000,1
+Khoai lang + 3 trứng + sữa,breakfast,normal,gain,650,30000,1
+Bánh mì bơ đậu phộng + sữa chua,breakfast,normal,gain,560,25000,1
+Cơm rang bò,breakfast,normal,gain,760,45000,1
+Cơm gà xé trứng,breakfast,normal,gain,720,40000,1
+Bún chả Hà Nội,breakfast,normal,gain,740,45000,1
+Mì xào bò rau cải,breakfast,normal,gain,710,45000,1
+Hủ tiếu bò kho,breakfast,normal,gain,790,50000,1
+Cơm + bò xào hành tây + rau luộc,lunch,normal,gain,860,55000,1
+Cơm + ức gà áp chảo + khoai + salad,lunch,normal,gain,820,50000,1
+Cơm + tôm rim + canh rau ngót,lunch,normal,gain,790,55000,1
+Cơm + cá hồi áp chảo + bông cải,lunch,normal,gain,840,65000,1
+Cơm + cá thu sốt cà + cải luộc,lunch,normal,gain,810,55000,1
+Cơm + thịt nạc kho trứng + bí đỏ,lunch,normal,gain,870,50000,1
+Cơm + bò lúc lắc + khoai tây,lunch,normal,gain,900,65000,1
+Cơm + gà nướng mật ong + bắp,lunch,normal,gain,860,50000,1
+Cơm + cá diêu hồng hấp + rau cải,lunch,normal,gain,780,50000,1
+Cơm + đậu hũ sốt thịt bằm + trứng,lunch,normal,gain,790,45000,1
+Cơm + thịt viên sốt cà + salad,lunch,normal,gain,830,50000,1
+Bún chả thịt nạc + nem nhỏ,lunch,normal,gain,850,55000,1
+Phở bò viên thêm trứng,lunch,normal,gain,760,50000,1
+Hủ tiếu bò kho,lunch,normal,gain,800,55000,1
+Mì xào bò + cải ngọt,lunch,normal,gain,830,55000,1
+Cơm gà rô ti + canh rau,lunch,normal,gain,850,52000,1
+Cơm cá ngừ áp chảo + canh chua,lunch,normal,gain,800,58000,1
+Cơm tôm xào nấm + rau luộc,lunch,normal,gain,810,55000,1
+Cơm heo nạc xào đậu que + trứng,lunch,normal,gain,830,50000,1
+Cơm bò cuộn nấm kim châm,lunch,normal,gain,860,60000,1
+Cơm + cá saba nướng + canh cải,lunch,normal,gain,820,60000,1
+Bún bò Huế thêm chả,lunch,normal,gain,830,55000,1
+Cơm + gà sốt tiêu + salad,lunch,normal,gain,810,50000,1
+Cơm + sườn nướng + trứng + dưa leo,lunch,normal,gain,920,60000,1
+Cơm + bò hầm khoai cà rốt,lunch,normal,gain,890,65000,1
+Cơm + cá hồi sốt nhẹ + rau củ,dinner,normal,gain,780,62000,1
+Cơm + ức gà nướng + bí ngòi,dinner,normal,gain,750,50000,1
+Cơm + bò xào nấm,dinner,normal,gain,810,60000,1
+Cơm + tôm hấp + canh bầu,dinner,normal,gain,730,55000,1
+Miến gà xé + sữa chua,dinner,normal,gain,650,40000,1
+Nui hải sản rau củ,dinner,normal,gain,760,55000,1
+Cơm + đậu hũ non sốt bò bằm,dinner,normal,gain,770,50000,1
+Cơm + trứng hấp thịt cua giả,dinner,normal,gain,720,45000,1
+Cơm + gà kho gừng + rau cải,dinner,normal,gain,760,48000,1
+Bún cá + chuối + sữa,dinner,normal,gain,700,42000,1
+Phở gà thêm thịt + trứng,dinner,normal,gain,760,50000,1
+Hủ tiếu gà xé nấm,dinner,normal,gain,690,45000,1
+Salad gà áp chảo + khoai lang,dinner,normal,gain,680,45000,1
+Khoai tây nghiền + bò áp chảo,dinner,normal,gain,790,65000,1
+Súp bí đỏ kem nhẹ + bánh mì + gà,dinner,normal,gain,740,45000,1
+Cơm + cá thu áp chảo + canh chua,dinner,normal,gain,780,58000,1
+Cơm + heo nạc xào súp lơ,dinner,normal,gain,760,50000,1
+Cơm + tôm xào bông cải,dinner,normal,gain,770,55000,1
+Cơm + chả cá thì là + rau,dinner,normal,gain,740,50000,1
+Yến mạch mặn bò bằm,dinner,normal,gain,640,40000,1
+Cơm + bò sốt tiêu đen,dinner,normal,gain,830,65000,1
+Cơm + gà teriyaki kiểu Việt,dinner,normal,gain,790,52000,1
+Bún thịt nướng + rau,dinner,normal,gain,760,50000,1
+Cơm + cá basa cuộn sốt chanh,dinner,normal,gain,720,50000,1
+Cháo cá hồi + trứng,dinner,normal,gain,670,50000,1
+Sữa chua Hy Lạp + chuối,snack,normal,gain,280,22000,1
+Sinh tố chuối yến mạch sữa,snack,normal,gain,380,25000,1
+Sinh tố bơ sữa,snack,normal,gain,420,30000,1
+Sữa tươi + bánh mì phô mai,snack,normal,gain,360,25000,1
+Chuối + hạnh nhân,snack,normal,gain,300,25000,1
+Táo + bơ đậu phộng,snack,normal,gain,280,25000,1
+2 trứng luộc + sữa chua,snack,normal,gain,260,20000,1
+Khoai lang + sữa tươi,snack,normal,gain,300,18000,1
+Sữa đậu nành + xôi nhỏ,snack,normal,gain,340,18000,1
+Bánh mì gà xé nhỏ,snack,normal,gain,370,25000,1
+Ngũ cốc + sữa,snack,normal,gain,310,22000,1
+Phô mai + bánh quy yến mạch,snack,normal,gain,290,25000,1
+Sữa chua + granola,snack,normal,gain,340,28000,1
+Xoài chín + sữa chua,snack,normal,gain,260,22000,1
+Dưa hấu + sữa,snack,normal,gain,220,18000,1
+Chuối + phô mai,snack,normal,gain,270,22000,1
+Hạt điều + sữa chua,snack,normal,gain,320,28000,1
+Trứng vịt lộn + sữa đậu nành,snack,normal,gain,300,20000,1
+Bánh mì bơ đậu phộng chuối,snack,normal,gain,390,25000,1
+Yến mạch qua đêm,snack,normal,gain,350,25000,1
+Khoai tây + 2 trứng,snack,normal,gain,320,20000,1
+Sữa tươi + hạt mix,snack,normal,gain,330,30000,1
+Bánh chuối yến mạch homemade,snack,normal,gain,310,22000,1
+Sinh tố xoài sữa chua,snack,normal,gain,300,25000,1
+Bắp luộc + sữa,snack,normal,gain,260,18000,1
+Overnight oats + chuối + whey + hạt,breakfast,premium,gain,680,55000,1
+Greek yogurt bowl + granola + berries + chuối,breakfast,premium,gain,620,65000,1
+Sandwich nguyên cám ức gà phô mai + sữa,breakfast,premium,gain,710,60000,1
+Bagel trứng bò xông khói kiểu healthy,breakfast,premium,gain,760,75000,1
+Burrito gà trứng bơ kiểu Việt hóa,breakfast,premium,gain,780,70000,1
+Cơm gạo lứt + cá hồi áp chảo + trứng,breakfast,premium,gain,790,85000,1
+Phở bò chất lượng cao + sữa chua Hy Lạp,breakfast,premium,gain,760,75000,1
+Bún bò nạm chuẩn + nước ép cam,breakfast,premium,gain,780,80000,1
+Bánh mì bò áp chảo + phô mai,breakfast,premium,gain,800,75000,1
+Trứng scramble + khoai tây áp chảo + xúc xích gà,breakfast,premium,gain,740,70000,1
+Oatmeal protein bowl xoài hạt chia,breakfast,premium,gain,650,55000,1
+Oatmeal bơ đậu phộng chuối mật ong,breakfast,premium,gain,690,50000,1
+Pancake yến mạch + yogurt + trái cây,breakfast,premium,gain,720,60000,1
+Cơm tấm sườn nạc premium + trứng,breakfast,premium,gain,860,85000,1
+Hủ tiếu hải sản cao đạm,breakfast,premium,gain,760,85000,1
+Nui sốt bò bằm phô mai,breakfast,premium,gain,780,75000,1
+Bánh mì cá ngừ bơ,breakfast,premium,gain,730,65000,1
+Xôi gà nấm đông cô,breakfast,premium,gain,760,60000,1
+Trứng benedict kiểu healthy,breakfast,premium,gain,700,75000,1
+Salad pasta gà xé + phô mai,breakfast,premium,gain,690,65000,1
+Smoothie bowl bơ chuối granola,breakfast,premium,gain,640,60000,1
+Croissant trứng gà hun khói + sữa,breakfast,premium,gain,790,80000,1
+Cơm cuộn cá hồi trứng kiểu Hàn-Việt,breakfast,premium,gain,720,85000,1
+Bún chả thịt nướng premium,breakfast,premium,gain,780,85000,1
+Cháo yến mạch cá hồi trứng,breakfast,premium,gain,690,65000,1
+Meal prep cơm gạo lứt + ức gà sốt nấm + rau củ,lunch,premium,gain,820,85000,1
+Meal prep khoai nghiền + bò áp chảo + asparagus,lunch,premium,gain,900,120000,1
+Meal prep pasta sốt bò bằm + salad,lunch,premium,gain,880,95000,1
+Meal prep cá hồi teriyaki + cơm + bông cải,lunch,premium,gain,860,110000,1
+Meal prep tôm tỏi bơ + cơm + rau củ,lunch,premium,gain,830,100000,1
+Cơm + steak bò Úc + trứng + salad,lunch,premium,gain,980,150000,1
+Cơm + cá hồi Na Uy + bí ngòi nướng,lunch,premium,gain,870,120000,1
+Cơm + đùi gà hữu cơ nướng + bắp ngọt,lunch,premium,gain,860,90000,1
+Cơm + heo thăn áp chảo + khoai nướng,lunch,premium,gain,850,95000,1
+Bún bò chất lượng cao thêm thịt,lunch,premium,gain,860,90000,1
+Phở bò Wagyu kiểu Việt,lunch,premium,gain,920,160000,1
+Hủ tiếu hải sản premium,lunch,premium,gain,840,100000,1
+Cơm + cá tuyết áp chảo + rau chân vịt,lunch,premium,gain,820,130000,1
+Cơm + bò sốt tiêu đen + nấm áp chảo,lunch,premium,gain,910,120000,1
+Cơm + tôm sú nướng + salad bơ,lunch,premium,gain,850,110000,1
+Mì Ý ức gà sốt kem nhẹ,lunch,premium,gain,890,95000,1
+Cơm + gà sốt pesto + rau củ,lunch,premium,gain,840,95000,1
+Bibimbap bò kiểu healthy,lunch,premium,gain,880,100000,1
+Cơm + cá ngừ áp chảo + trứng lòng đào,lunch,premium,gain,830,105000,1
+Bún thịt nướng bản premium + chả giò,lunch,premium,gain,900,90000,1
+Cơm + bò hầm rượu vang kiểu nhẹ,lunch,premium,gain,920,130000,1
+Poke bowl cá hồi kiểu Việt hóa,lunch,premium,gain,820,110000,1
+Cơm + gà sốt mật ong mù tạt + rau,lunch,premium,gain,850,95000,1
+Sushi bowl cá hồi trứng bơ,lunch,premium,gain,840,110000,1
+Cơm + cừu áp chảo + khoai nghiền,lunch,premium,gain,940,150000,1
+Meal prep cá hồi + khoai lang + salad,dinner,premium,gain,760,100000,1
+Meal prep bò áp chảo + rau củ nướng,dinner,premium,gain,820,120000,1
+Meal prep ức gà sous vide + cơm + rau,dinner,premium,gain,740,90000,1
+Meal prep pasta cá ngừ + rau xanh,dinner,premium,gain,780,95000,1
+Salad gà bơ phô mai + bánh mì nguyên cám,dinner,premium,gain,720,85000,1
+Salad cá hồi xông khói + khoai nướng,dinner,premium,gain,760,100000,1
+Cơm + bò nướng đá + rau củ,dinner,premium,gain,840,130000,1
+Cơm + tôm áp chảo bơ tỏi + bí ngòi,dinner,premium,gain,780,110000,1
+Cơm + cá tuyết sốt chanh bơ nhẹ,dinner,premium,gain,760,125000,1
+Bún cá hồi thì là,dinner,premium,gain,720,85000,1
+Phở gà ta premium thêm trứng,dinner,premium,gain,760,85000,1
+Hủ tiếu bò viên cao đạm,dinner,premium,gain,740,80000,1
+Oatmeal mặn bò bằm phô mai,dinner,premium,gain,690,65000,1
+Súp bí đỏ kem + steak gà,dinner,premium,gain,730,85000,1
+Cơm + thịt heo Iberico áp chảo + salad,dinner,premium,gain,860,130000,1
+Cơm + cá saba nướng Nhật kiểu healthy,dinner,premium,gain,790,95000,1
+Gà cuộn phô mai + khoai nghiền,dinner,premium,gain,810,95000,1
+Pasta hải sản sốt cà,dinner,premium,gain,820,100000,1
+Sushi bowl tôm trứng bơ,dinner,premium,gain,760,95000,1
+Cơm gạo lứt + bò cuộn măng tây,dinner,premium,gain,800,110000,1
+Cơm + gà nướng thảo mộc + bắp,dinner,premium,gain,780,90000,1
+Cá hồi sốt miso nhẹ + cơm,dinner,premium,gain,790,115000,1
+Tacos bò kiểu healthy,dinner,premium,gain,760,90000,1
+Cháo yến mạch hải sản,dinner,premium,gain,650,80000,1
+Cơm + đậu hũ non Nhật sốt thịt bò,dinner,premium,gain,770,85000,1
+Greek yogurt + granola + berries,snack,premium,gain,320,35000,1
+Protein smoothie chuối yến mạch bơ đậu phộng,snack,premium,gain,450,50000,1
+Smoothie bơ whey sữa hạnh nhân,snack,premium,gain,430,55000,1
+Banana bread healthy + sữa,snack,premium,gain,360,35000,1
+Sandwich cá ngừ mini,snack,premium,gain,340,40000,1
+Phô mai que + táo,snack,premium,gain,260,30000,1
+Hạt mix cao cấp + sữa chua,snack,premium,gain,340,40000,1
+Overnight oats mini,snack,premium,gain,300,30000,1
+2 trứng lòng đào + bánh mì nguyên cám,snack,premium,gain,290,25000,1
+Rice cake + bơ đậu phộng + chuối,snack,premium,gain,310,30000,1
+Pudding chia seed xoài,snack,premium,gain,280,35000,1
+Yogurt drink + granola bar,snack,premium,gain,300,35000,1
+Sữa tươi protein cao + chuối,snack,premium,gain,260,30000,1
+Bánh quy yến mạch homemade + sữa,snack,premium,gain,320,30000,1
+Mini poke bowl cá hồi,snack,premium,gain,350,50000,1
+Hummus + bánh mì pita,snack,premium,gain,290,40000,1
+Phô mai cottage + dứa,snack,premium,gain,250,35000,1
+Trái bơ + sữa chua Hy Lạp,snack,premium,gain,330,40000,1
+Chocolate đen + hạnh nhân + sữa,snack,premium,gain,310,40000,1
+Granola protein cup,snack,premium,gain,340,45000,1
+Mini wrap gà xé,snack,premium,gain,320,40000,1
+Protein pancake 2 miếng,snack,premium,gain,350,45000,1
+Sinh tố berries chuối yogurt,snack,premium,gain,290,40000,1
+Bắp ngọt + phô mai,snack,premium,gain,270,30000,1
+Nut butter toast + mật ong,snack,premium,gain,330,35000,1
+Yến mạch sữa chua chuối,breakfast,saving,maintain,380,15000,1
+Bánh mì trứng dưa leo,breakfast,saving,maintain,401,16000,1
+Cơm trứng + rau luộc,breakfast,saving,maintain,382,17000,1
+Khoai lang + 2 trứng luộc,breakfast,saving,maintain,418,18000,1
+Cháo yến mạch thịt gà xé,breakfast,saving,maintain,398,19000,1
+Bún gà rau sống,breakfast,saving,maintain,409,20000,1
+Miến gà nấm,breakfast,saving,maintain,430,21000,1
+Bánh mì ức gà áp chảo,breakfast,saving,maintain,411,22000,1
+Cơm gạo lứt + trứng cuộn,breakfast,saving,maintain,447,23000,1
+Phở gà ít bánh nhiều thịt,breakfast,saving,maintain,427,24000,1
+Bún cá rau cải,breakfast,saving,maintain,438,25000,1
+Cháo cá thì là,breakfast,saving,maintain,459,26000,1
+Yến mạch nấu sữa đậu nành,breakfast,saving,maintain,440,26000,1
+Bánh mì chả lụa ít mayo,breakfast,saving,maintain,476,27000,1
+Cơm nắm cá ngừ,breakfast,saving,maintain,457,28000,1
+Khoai lang + sữa chua,breakfast,saving,maintain,468,29000,1
+Trứng ốp la + salad + bánh mì,breakfast,saving,maintain,488,30000,1
+Xôi gấc gà xé phần nhỏ,breakfast,saving,maintain,469,31000,1
+Mì trứng rau cải,breakfast,saving,maintain,505,32000,1
+Bánh cuốn chả lụa vừa phần,breakfast,saving,maintain,486,33000,1
+Cơm rang trứng ít dầu,breakfast,saving,maintain,497,34000,1
+Sữa chua + granola nội địa,breakfast,saving,maintain,517,35000,1
+Bánh mì bơ đậu phộng mỏng + chuối,breakfast,saving,maintain,498,36000,1
+Hủ tiếu gà ít nước béo,breakfast,saving,maintain,534,37000,1
+Bún mọc nạc,breakfast,saving,maintain,515,38000,1
+Cơm gạo lứt ức gà luộc rau muống,lunch,saving,maintain,500,15000,1
+Cơm trắng vừa phần cá basa kho canh bí,lunch,saving,maintain,523,16000,1
+Cơm thịt nạc rang rau cải,lunch,saving,maintain,505,17000,1
+Cơm đậu hũ sốt cà + trứng luộc,lunch,saving,maintain,542,18000,1
+Bún thịt nạc nướng rau sống,lunch,saving,maintain,525,19000,1
+Cơm gà kho gừng + bắp cải luộc,lunch,saving,maintain,538,20000,1
+Cơm cá nục sốt cà + canh rau ngót,lunch,saving,maintain,560,21000,1
+Miến trộn gà xé rau củ,lunch,saving,maintain,542,22000,1
+Cơm thịt bằm hấp trứng,lunch,saving,maintain,580,23000,1
+Cơm heo nạc xào đậu que,lunch,saving,maintain,563,24000,1
+Cơm đậu hũ non thịt bằm canh cải,lunch,saving,maintain,575,25000,1
+Bún cá + rau sống + trứng,lunch,saving,maintain,597,26000,1
+Cơm ức gà áp chảo khoai luộc,lunch,saving,maintain,580,26000,1
+Cơm cá diêu hồng hấp hành,lunch,saving,maintain,618,27000,1
+Cơm trứng cuộn thịt nạc + salad,lunch,saving,maintain,600,28000,1
+Phở gà thêm rau giá,lunch,saving,maintain,612,29000,1
+Cơm thịt viên sốt cà + rau luộc,lunch,saving,maintain,635,30000,1
+Bún mọc nạc rau thơm,lunch,saving,maintain,618,31000,1
+Cơm cá thu kho thơm phần vừa,lunch,saving,maintain,655,32000,1
+Cơm tôm rim ít dầu canh bầu,lunch,saving,maintain,637,33000,1
+Cơm thịt heo luộc + dưa leo + canh,lunch,saving,maintain,650,34000,1
+Cơm chả lá lốt nạc + rau,lunch,saving,maintain,673,35000,1
+Mì xào gà rau cải ít dầu,lunch,saving,maintain,655,36000,1
+Cơm đùi gà nướng + bí xanh,lunch,saving,maintain,692,37000,1
+Cơm cá ngừ áp chảo + canh chua,lunch,saving,maintain,675,38000,1
+Cơm cá hấp gừng + rau luộc,dinner,saving,maintain,450,15000,1
+Cơm ức gà xé + salad dưa leo,dinner,saving,maintain,472,16000,1
+Miến gà nấm,dinner,saving,maintain,454,17000,1
+Cháo cá lóc rau đắng,dinner,saving,maintain,491,18000,1
+Cơm đậu hũ sốt nấm + canh cải,dinner,saving,maintain,473,19000,1
+Khoai lang + ức gà áp chảo,dinner,saving,maintain,485,20000,1
+Bún cá rau cần,dinner,saving,maintain,507,21000,1
+Cơm heo nạc luộc + bắp cải,dinner,saving,maintain,490,22000,1
+Cơm trứng hấp thịt bằm,dinner,saving,maintain,527,23000,1
+Súp bí đỏ gà xé + bánh mì nhỏ,dinner,saving,maintain,509,24000,1
+Cơm cá basa áp chảo + bí luộc,dinner,saving,maintain,521,25000,1
+Nui gà rau củ,dinner,saving,maintain,543,26000,1
+Cơm thịt nạc xào súp lơ,dinner,saving,maintain,525,26000,1
+Phở gà ít bánh,dinner,saving,maintain,562,27000,1
+Cơm tôm hấp + canh mồng tơi,dinner,saving,maintain,544,28000,1
+Yến mạch mặn thịt bằm,dinner,saving,maintain,556,29000,1
+Cơm cá nục kho gừng + cải luộc,dinner,saving,maintain,578,30000,1
+Bún thịt nạc rau sống,dinner,saving,maintain,560,31000,1
+Cháo yến mạch trứng gà,dinner,saving,maintain,598,32000,1
+Cơm chả trứng hấp + rau,dinner,saving,maintain,580,33000,1
+Hủ tiếu thịt nạc,dinner,saving,maintain,592,34000,1
+Cơm gà kho nghệ + canh rau,dinner,saving,maintain,614,35000,1
+Miến cá rau thì là,dinner,saving,maintain,596,36000,1
+Cơm đậu que xào thịt nạc,dinner,saving,maintain,633,37000,1
+Salad gà + khoai luộc,dinner,saving,maintain,615,38000,1
+Chuối + sữa chua,snack,saving,maintain,150,15000,1
+Táo + 2 trứng luộc,snack,saving,maintain,170,16000,1
+Khoai lang luộc,snack,saving,maintain,151,17000,1
+Sữa tươi không đường + chuối,snack,saving,maintain,186,18000,1
+Sữa chua + yến mạch,snack,saving,maintain,167,19000,1
+Dưa hấu + phô mai con bò cười,snack,saving,maintain,177,20000,1
+Bánh mì nhỏ + trứng luộc,snack,saving,maintain,197,21000,1
+Sữa đậu nành + bắp luộc,snack,saving,maintain,178,22000,1
+1 quả trứng vịt lộn,snack,saving,maintain,213,23000,1
+Chuối + đậu phộng rang ít,snack,saving,maintain,194,24000,1
+Táo + sữa chua,snack,saving,maintain,204,25000,1
+Khoai tây luộc + sữa chua,snack,saving,maintain,225,26000,1
+Cam + 1 trứng luộc,snack,saving,maintain,205,26000,1
+Sữa chua uống + chuối,snack,saving,maintain,240,27000,1
+Bánh mì nguyên cám nhỏ + bơ đậu phộng mỏng,snack,saving,maintain,221,28000,1
+Ngô luộc,snack,saving,maintain,231,29000,1
+Ổi + phô mai tươi,snack,saving,maintain,252,30000,1
+Dứa + sữa chua,snack,saving,maintain,232,31000,1
+2 trứng cút luộc + chuối,snack,saving,maintain,268,32000,1
+Thanh yến mạch tự làm,snack,saving,maintain,248,33000,1
+Sữa tươi + táo,snack,saving,maintain,258,34000,1
+Quýt + hạt bí,snack,saving,maintain,279,35000,1
+Sữa đậu nành + khoai lang nhỏ,snack,saving,maintain,259,36000,1
+Xoài chín phần nhỏ + sữa chua,snack,saving,maintain,295,37000,1
+Lê + hạt điều ít,snack,saving,maintain,275,38000,1
+Phở bò tái vừa phần,breakfast,normal,maintain,400,30000,1
+Bún bò Huế ít bún nhiều rau,breakfast,normal,maintain,422,32000,1
+Hủ tiếu nam vang phần vừa,breakfast,normal,maintain,403,33000,1
+Bánh mì ốp la 2 trứng + salad,breakfast,normal,maintain,440,35000,1
+Yến mạch overnight chuối hạt chia,breakfast,normal,maintain,422,37000,1
+Sữa chua Hy Lạp + granola + xoài,breakfast,normal,maintain,433,38000,1
+Bún thịt nướng rau sống ít mỡ,breakfast,normal,maintain,455,40000,1
+Bánh cuốn chả nạc,breakfast,normal,maintain,437,42000,1
+Phở gà + trứng chần,breakfast,normal,maintain,473,43000,1
+Bánh mì gà xé phô mai mỏng,breakfast,normal,maintain,455,45000,1
+Khoai lang + yogurt + hạt điều,breakfast,normal,maintain,467,47000,1
+Miến gà nấm đông cô,breakfast,normal,maintain,488,48000,1
+Cơm tấm sườn nạc phần vừa,breakfast,normal,maintain,470,50000,1
+Bún cá thì là,breakfast,normal,maintain,507,52000,1
+Nui bò bằm sốt cà nhẹ,breakfast,normal,maintain,488,53000,1
+Cơm gạo lứt cá hồi áp chảo mini,breakfast,normal,maintain,500,55000,1
+Mì trứng bò rau cải,breakfast,normal,maintain,522,57000,1
+Bánh ướt thịt nướng,breakfast,normal,maintain,503,58000,1
+Yến mạch sữa tươi dâu tây,breakfast,normal,maintain,540,60000,1
+Trứng scramble + bánh mì nguyên cám,breakfast,normal,maintain,522,62000,1
+Hủ tiếu gà xé,breakfast,normal,maintain,533,63000,1
+Bún chả phần vừa nhiều rau,breakfast,normal,maintain,555,65000,1
+Cháo yến mạch cá hồi,breakfast,normal,maintain,537,67000,1
+Sandwich cá ngừ,breakfast,normal,maintain,573,68000,1
+Salad mì Ý gà xé,breakfast,normal,maintain,555,70000,1
+Cơm bò xào hành tây + rau luộc,lunch,normal,maintain,550,30000,1
+Cơm cá hồi áp chảo bông cải,lunch,normal,maintain,572,32000,1
+Cơm tôm rim ít dầu canh rau,lunch,normal,maintain,554,33000,1
+Cơm ức gà nướng khoai nướng salad,lunch,normal,maintain,591,35000,1
+Bún chả nạc + rau sống,lunch,normal,maintain,573,37000,1
+Phở bò viên thêm rau,lunch,normal,maintain,585,38000,1
+Cơm heo nạc kho trứng canh bí,lunch,normal,maintain,607,40000,1
+Cơm gà sốt tiêu đen + cải luộc,lunch,normal,maintain,590,42000,1
+Mì xào bò rau cải ít dầu,lunch,normal,maintain,627,43000,1
+Cơm cá thu sốt cà + salad,lunch,normal,maintain,609,45000,1
+Cơm đậu hũ non sốt bò bằm,lunch,normal,maintain,621,47000,1
+Bún cá ngừ rau sống,lunch,normal,maintain,643,48000,1
+Cơm tôm xào nấm + canh chua,lunch,normal,maintain,625,50000,1
+Cơm bò lúc lắc khoai tây vừa phần,lunch,normal,maintain,662,52000,1
+Cơm gà áp chảo sốt chanh,lunch,normal,maintain,644,53000,1
+Cơm cá saba nướng + rau,lunch,normal,maintain,656,55000,1
+Hủ tiếu bò kho phần vừa,lunch,normal,maintain,678,57000,1
+Cơm heo nạc xào đậu que,lunch,normal,maintain,660,58000,1
+Cơm cá ngừ áp chảo + bí luộc,lunch,normal,maintain,698,60000,1
+Pasta gà sốt cà nhẹ,lunch,normal,maintain,680,62000,1
+Cơm tôm hấp + rau củ,lunch,normal,maintain,692,63000,1
+Bún bò Huế phần vừa nhiều rau,lunch,normal,maintain,714,65000,1
+Cơm bò cuộn nấm kim châm,lunch,normal,maintain,696,67000,1
+Cơm gà rô ti + salad,lunch,normal,maintain,733,68000,1
+Salad gà áp chảo + bánh mì,lunch,normal,maintain,715,70000,1
+Cơm cá hồi sốt chanh + rau củ,dinner,normal,maintain,480,30000,1
+Cơm bò xào nấm,dinner,normal,maintain,503,32000,1
+Miến gà xé + sữa chua,dinner,normal,maintain,485,33000,1
+Nui hải sản rau củ,dinner,normal,maintain,522,35000,1
+Cơm đậu hũ non thịt bằm + canh cải,dinner,normal,maintain,505,37000,1
+Cơm gà kho gừng + bí xanh,dinner,normal,maintain,518,38000,1
+Bún cá + rau cần,dinner,normal,maintain,540,40000,1
+Phở gà thêm rau,dinner,normal,maintain,522,42000,1
+Salad gà áp chảo + khoai lang,dinner,normal,maintain,560,43000,1
+Cơm tôm xào bông cải,dinner,normal,maintain,543,45000,1
+Cơm cá thu áp chảo + canh chua,dinner,normal,maintain,555,47000,1
+Yến mạch mặn bò bằm,dinner,normal,maintain,577,48000,1
+Cơm heo nạc xào súp lơ,dinner,normal,maintain,560,50000,1
+Súp bí đỏ + ức gà áp chảo,dinner,normal,maintain,598,52000,1
+Hủ tiếu gà nấm,dinner,normal,maintain,580,53000,1
+Cơm chả cá thì là + rau,dinner,normal,maintain,592,55000,1
+Bún thịt nướng phần vừa,dinner,normal,maintain,615,57000,1
+Cơm cá basa sốt chanh dây nhẹ,dinner,normal,maintain,598,58000,1
+Cơm bò sốt tiêu đen vừa phần,dinner,normal,maintain,635,60000,1
+Cháo cá hồi + rau,dinner,normal,maintain,617,62000,1
+Miến hải sản nấm,dinner,normal,maintain,630,63000,1
+Cơm gà teriyaki kiểu Việt,dinner,normal,maintain,653,65000,1
+Cơm tôm hấp + canh bầu,dinner,normal,maintain,635,67000,1
+Salad cá ngừ + bánh mì nguyên cám,dinner,normal,maintain,672,68000,1
+Cơm đậu hũ áp chảo sốt nấm,dinner,normal,maintain,655,70000,1
+Greek yogurt + chuối,snack,normal,maintain,180,30000,1
+Sinh tố chuối yến mạch,snack,normal,maintain,201,32000,1
+Táo + bơ đậu phộng mỏng,snack,normal,maintain,182,33000,1
+Khoai lang + sữa tươi,snack,normal,maintain,218,35000,1
+Sữa chua + granola,snack,normal,maintain,198,37000,1
+Trứng luộc + cam,snack,normal,maintain,209,38000,1
+Hạt điều + sữa chua,snack,normal,maintain,230,40000,1
+Bánh mì nguyên cám + cá ngừ,snack,normal,maintain,211,42000,1
+Sinh tố bơ sữa không đường,snack,normal,maintain,247,43000,1
+Phô mai + táo,snack,normal,maintain,227,45000,1
+Bắp luộc + sữa chua uống,snack,normal,maintain,238,47000,1
+Xoài + yogurt,snack,normal,maintain,259,48000,1
+Yến mạch qua đêm mini,snack,normal,maintain,240,50000,1
+Chuối + hạnh nhân,snack,normal,maintain,276,52000,1
+Dứa + yogurt Hy Lạp,snack,normal,maintain,257,53000,1
+Rice cake + bơ đậu phộng,snack,normal,maintain,268,55000,1
+Sữa tươi giàu đạm + chuối,snack,normal,maintain,288,57000,1
+Trứng vịt lộn + rau răm,snack,normal,maintain,269,58000,1
+Bánh quy yến mạch homemade,snack,normal,maintain,305,60000,1
+Lê + hạt mix,snack,normal,maintain,286,62000,1
+Sữa đậu nành + xôi gấc nhỏ,snack,normal,maintain,297,63000,1
+Cam + yogurt,snack,normal,maintain,317,65000,1
+Sandwich gà xé mini,snack,normal,maintain,298,67000,1
+Pudding chia xoài,snack,normal,maintain,334,68000,1
+Dưa lưới + phô mai tươi,snack,normal,maintain,315,70000,1
+Greek yogurt bowl granola berries,breakfast,premium,maintain,430,65000,1
+Overnight oats chuối whey hạt chia,breakfast,premium,maintain,453,68000,1
+Sandwich nguyên cám ức gà phô mai,breakfast,premium,maintain,436,71000,1
+Bagel trứng cá ngừ salad,breakfast,premium,maintain,474,74000,1
+Cơm gạo lứt cá hồi trứng lòng đào,breakfast,premium,maintain,457,78000,1
+Phở bò premium phần cân bằng,breakfast,premium,maintain,470,81000,1
+Bún bò chất lượng cao nhiều rau,breakfast,premium,maintain,493,84000,1
+Bánh mì bò áp chảo phô mai mỏng,breakfast,premium,maintain,475,87000,1
+Trứng scramble + khoai tây áp chảo + salad,breakfast,premium,maintain,513,90000,1
+Protein oatmeal xoài hạt chia,breakfast,premium,maintain,496,93000,1
+Pancake yến mạch yogurt trái cây,breakfast,premium,maintain,509,96000,1
+Hủ tiếu hải sản cao đạm,breakfast,premium,maintain,532,99000,1
+Nui sốt bò bằm phô mai nhẹ,breakfast,premium,maintain,515,102000,1
+Bánh mì cá ngừ bơ mini,breakfast,premium,maintain,553,106000,1
+Xôi gà nấm phần kiểm soát,breakfast,premium,maintain,536,109000,1
+Egg benedict kiểu healthy,breakfast,premium,maintain,549,112000,1
+Pasta salad gà xé,breakfast,premium,maintain,572,115000,1
+Smoothie bowl bơ chuối granola,breakfast,premium,maintain,555,118000,1
+Croissant trứng gà hun khói phần nhỏ,breakfast,premium,maintain,592,121000,1
+Cơm cuộn cá hồi trứng,breakfast,premium,maintain,575,124000,1
+Bún chả premium nhiều rau,breakfast,premium,maintain,588,128000,1
+Cháo yến mạch cá hồi,breakfast,premium,maintain,611,131000,1
+Yogurt Hy Lạp + mật ong + hạt,breakfast,premium,maintain,594,134000,1
+Wrap gà nướng kiểu healthy,breakfast,premium,maintain,632,137000,1
+Poke breakfast bowl cá hồi,breakfast,premium,maintain,615,140000,1
+Meal prep gạo lứt ức gà sốt nấm,lunch,premium,maintain,580,65000,1
+Meal prep khoai nghiền bò áp chảo rau củ,lunch,premium,maintain,603,68000,1
+Meal prep pasta sốt bò bằm salad,lunch,premium,maintain,587,71000,1
+Meal prep cá hồi teriyaki cơm bông cải,lunch,premium,maintain,625,74000,1
+Meal prep tôm bơ tỏi cơm rau,lunch,premium,maintain,608,78000,1
+Cơm steak bò Úc + salad,lunch,premium,maintain,622,81000,1
+Cơm cá hồi Na Uy + bí ngòi nướng,lunch,premium,maintain,645,84000,1
+Cơm đùi gà hữu cơ nướng + bắp ngọt,lunch,premium,maintain,628,87000,1
+Cơm heo thăn áp chảo + khoai nướng,lunch,premium,maintain,667,90000,1
+Phở bò premium thêm rau,lunch,premium,maintain,650,93000,1
+Hủ tiếu hải sản premium,lunch,premium,maintain,663,96000,1
+Cơm cá tuyết áp chảo + spinach,lunch,premium,maintain,687,99000,1
+Cơm bò sốt tiêu đen + nấm,lunch,premium,maintain,670,102000,1
+Cơm tôm sú nướng + salad bơ,lunch,premium,maintain,708,106000,1
+Mì Ý ức gà sốt kem nhẹ,lunch,premium,maintain,692,109000,1
+Cơm gà pesto + rau củ,lunch,premium,maintain,705,112000,1
+Bibimbap bò kiểu healthy,lunch,premium,maintain,728,115000,1
+Cơm cá ngừ áp chảo + trứng lòng đào,lunch,premium,maintain,712,118000,1
+Bún thịt nướng premium + rau,lunch,premium,maintain,750,121000,1
+Cơm bò hầm rau củ,lunch,premium,maintain,733,124000,1
+Poke bowl cá hồi kiểu Việt,lunch,premium,maintain,747,128000,1
+Cơm gà mật ong mù tạt + salad,lunch,premium,maintain,770,131000,1
+Sushi bowl cá hồi trứng bơ,lunch,premium,maintain,753,134000,1
+Cơm cừu áp chảo + khoai nghiền,lunch,premium,maintain,792,137000,1
+Salad bò áp chảo + bánh mì nguyên cám,lunch,premium,maintain,775,140000,1
+Meal prep cá hồi + khoai lang + salad,dinner,premium,maintain,500,65000,1
+Meal prep bò áp chảo + rau củ nướng,dinner,premium,maintain,523,68000,1
+Meal prep ức gà sous vide + cơm rau,dinner,premium,maintain,507,71000,1
+Meal prep pasta cá ngừ + rau xanh,dinner,premium,maintain,545,74000,1
+Salad gà bơ phô mai + bánh mì nguyên cám,dinner,premium,maintain,528,78000,1
+Salad cá hồi xông khói + khoai nướng,dinner,premium,maintain,542,81000,1
+Cơm bò nướng đá + rau củ,dinner,premium,maintain,565,84000,1
+Cơm tôm áp chảo bơ tỏi + bí ngòi,dinner,premium,maintain,548,87000,1
+Cơm cá tuyết sốt chanh bơ nhẹ,dinner,premium,maintain,587,90000,1
+Bún cá hồi thì là,dinner,premium,maintain,570,93000,1
+Phở gà premium thêm rau,dinner,premium,maintain,583,96000,1
+Oatmeal mặn bò bằm phô mai,dinner,premium,maintain,607,99000,1
+Súp bí đỏ kem nhẹ + steak gà,dinner,premium,maintain,590,102000,1
+Cơm heo Iberico áp chảo + salad,dinner,premium,maintain,628,106000,1
+Cơm cá saba nướng Nhật,dinner,premium,maintain,612,109000,1
+Gà cuộn phô mai + khoai nghiền,dinner,premium,maintain,625,112000,1
+Pasta hải sản sốt cà,dinner,premium,maintain,648,115000,1
+Sushi bowl tôm trứng bơ,dinner,premium,maintain,632,118000,1
+Cơm gạo lứt bò cuộn măng tây,dinner,premium,maintain,670,121000,1
+Cơm gà nướng thảo mộc + bắp,dinner,premium,maintain,653,124000,1
+Cá hồi sốt miso nhẹ + cơm,dinner,premium,maintain,667,128000,1
+Tacos bò kiểu healthy,dinner,premium,maintain,690,131000,1
+Cháo yến mạch hải sản,dinner,premium,maintain,673,134000,1
+Cơm đậu hũ non Nhật sốt bò,dinner,premium,maintain,712,137000,1
+Salad cá ngừ áp chảo + bánh mì,dinner,premium,maintain,695,140000,1
+Greek yogurt + granola + berries,snack,premium,maintain,200,65000,1
+Protein smoothie chuối yến mạch,snack,premium,maintain,222,68000,1
+Smoothie bơ whey sữa hạnh nhân,snack,premium,maintain,203,71000,1
+Banana bread healthy + sữa,snack,premium,maintain,240,74000,1
+Sandwich cá ngừ mini,snack,premium,maintain,222,78000,1
+Phô mai que + táo,snack,premium,maintain,233,81000,1
+Hạt mix cao cấp + yogurt,snack,premium,maintain,255,84000,1
+Overnight oats mini,snack,premium,maintain,237,87000,1
+2 trứng lòng đào + bánh mì nguyên cám,snack,premium,maintain,273,90000,1
+Rice cake + bơ đậu phộng + chuối,snack,premium,maintain,255,93000,1
+Pudding chia xoài,snack,premium,maintain,267,96000,1
+Yogurt drink + granola bar,snack,premium,maintain,288,99000,1
+Sữa protein cao + chuối,snack,premium,maintain,270,102000,1
+Bánh quy yến mạch homemade,snack,premium,maintain,307,106000,1
+Mini poke bowl cá hồi,snack,premium,maintain,288,109000,1
+Hummus + bánh mì pita,snack,premium,maintain,300,112000,1
+Cottage cheese + dứa,snack,premium,maintain,322,115000,1
+Trái bơ + Greek yogurt,snack,premium,maintain,303,118000,1
+Chocolate đen + hạnh nhân + sữa,snack,premium,maintain,340,121000,1
+Granola protein cup,snack,premium,maintain,322,124000,1
+Mini wrap gà xé,snack,premium,maintain,333,128000,1
+Protein pancake 2 miếng,snack,premium,maintain,355,131000,1
+Sinh tố berries chuối yogurt,snack,premium,maintain,337,134000,1
+Bắp ngọt + phô mai,snack,premium,maintain,373,137000,1
+Nut butter toast + mật ong,snack,premium,maintain,355,140000,1

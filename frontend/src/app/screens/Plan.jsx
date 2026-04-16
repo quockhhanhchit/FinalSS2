@@ -2,12 +2,65 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   Calendar as CalendarIcon,
-  List,
   CheckCircle2,
   Circle,
+  List,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { apiGet } from "../lib/api";
+
+function toDateKey(value) {
+  const date = new Date(value);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function buildMonthCalendar(planDays) {
+  const firstPlanDate = planDays[0]?.date || new Date();
+  const monthStart = new Date(
+    firstPlanDate.getFullYear(),
+    firstPlanDate.getMonth(),
+    1,
+  );
+  const monthEnd = new Date(
+    firstPlanDate.getFullYear(),
+    firstPlanDate.getMonth() + 1,
+    0,
+  );
+  const planDayByDate = new Map(
+    planDays.map((day) => [toDateKey(day.date), day]),
+  );
+  const cells = [];
+
+  for (let index = 0; index < monthStart.getDay(); index += 1) {
+    cells.push({ type: "blank", key: `blank-${index}` });
+  }
+
+  for (let date = 1; date <= monthEnd.getDate(); date += 1) {
+    const currentDate = new Date(
+      firstPlanDate.getFullYear(),
+      firstPlanDate.getMonth(),
+      date,
+    );
+    const key = toDateKey(currentDate);
+
+    cells.push({
+      type: "date",
+      key,
+      date: currentDate,
+      planDay: planDayByDate.get(key) || null,
+    });
+  }
+
+  return cells;
+}
+
+function formatVndShort(value) {
+  return `${Math.round(Number(value || 0) / 1000)}k`;
+}
 
 export function Plan() {
   const navigate = useNavigate();
@@ -24,6 +77,7 @@ export function Plan() {
 
         if (!ignore) {
           setPlan(data);
+          setError("");
         }
       } catch (requestError) {
         if (!ignore) {
@@ -33,25 +87,40 @@ export function Plan() {
     }
 
     loadPlan();
+    window.addEventListener("budgetfit:budget-updated", loadPlan);
 
     return () => {
       ignore = true;
+      window.removeEventListener("budgetfit:budget-updated", loadPlan);
     };
   }, []);
 
   const planDays = useMemo(
     () =>
       (plan?.days || []).map((day) => ({
-        day: day.day_number,
+        day: Number(day.day_number),
         date: new Date(day.plan_date),
+        dateKey: toDateKey(day.plan_date),
         workout: day.workout_type,
-        plannedCost: Number(day.planned_cost),
+        plannedCost: Number(day.planned_cost || 0),
         completed: Boolean(day.completed),
+        isLocked: Boolean(day.is_locked),
+        lockReason: day.lock_reason,
       })),
     [plan],
   );
 
+  const calendarCells = useMemo(() => buildMonthCalendar(planDays), [planDays]);
   const completedDays = planDays.filter((day) => day.completed).length;
+  const dailyBudget = Number(plan?.budget?.daily_budget || 0);
+  const averageDailyCost =
+    dailyBudget ||
+    (planDays.length
+      ? Math.round(
+          planDays.reduce((sum, day) => sum + day.plannedCost, 0) /
+            planDays.length,
+        )
+      : 0);
 
   const getWorkoutColor = (workout) => {
     switch (workout) {
@@ -72,9 +141,9 @@ export function Plan() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold mb-2">30-Day Plan</h1>
+          <h1 className="text-3xl font-semibold mb-2">Kế hoạch 30 ngày</h1>
           <p className="text-muted-foreground">
-            Your personalized routine for the next 30 days
+            Lịch ăn uống và tập luyện cá nhân hóa theo thời gian thực tế
           </p>
         </div>
         <div className="flex gap-2 bg-secondary rounded-lg p-1">
@@ -85,7 +154,7 @@ export function Plan() {
             className="gap-2"
           >
             <CalendarIcon className="w-4 h-4" />
-            Calendar
+            Lịch
           </Button>
           <Button
             variant={viewMode === "list" ? "default" : "ghost"}
@@ -94,7 +163,7 @@ export function Plan() {
             className="gap-2"
           >
             <List className="w-4 h-4" />
-            List
+            Danh sách
           </Button>
         </div>
       </div>
@@ -107,35 +176,52 @@ export function Plan() {
 
       <div className="grid grid-cols-4 gap-4">
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
-          <div className="text-sm text-muted-foreground mb-1">Days Completed</div>
+          <div className="text-sm text-muted-foreground mb-1">
+            Ngày đã hoàn thành
+          </div>
           <div className="text-2xl font-bold">
             {completedDays} / {planDays.length || 30}
           </div>
           <div className="text-xs text-muted-foreground mt-1">
             {planDays.length
-              ? `${Math.round((completedDays / planDays.length) * 100)}% complete`
-              : "No plan yet"}
+              ? `${Math.round((completedDays / planDays.length) * 100)}% hoàn thành`
+              : "Chưa có kế hoạch"}
           </div>
         </div>
+
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
-          <div className="text-sm text-muted-foreground mb-1">Current Streak</div>
-          <div className="text-2xl font-bold">{completedDays} days</div>
-          
-        </div>
-        <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
-          <div className="text-sm text-muted-foreground mb-1">Avg. Daily Cost</div>
-          <div className="text-2xl font-bold">
-            {planDays.length
-              ? `${Math.round(planDays.reduce((sum, day) => sum + day.plannedCost, 0) / planDays.length / 1000)}k`
-              : "0k"}
+          <div className="text-sm text-muted-foreground mb-1">
+            Chuỗi hiện tại
           </div>
-          <div className="text-xs text-muted-foreground mt-1">VND per day</div>
-        </div>
-        <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
-          <div className="text-sm text-muted-foreground mb-1">Budget Status</div>
-          <div className="text-2xl font-bold text-primary">{plan ? "Active" : "Pending"}</div>
+          <div className="text-2xl font-bold">{completedDays} ngày</div>
           <div className="text-xs text-muted-foreground mt-1">
-            {plan?.status || "Create a plan in onboarding"}
+            Dựa trên số ngày đã hoàn thành
+          </div>
+        </div>
+
+        <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
+          <div className="text-sm text-muted-foreground mb-1">
+            Ngân sách TB/ngày
+          </div>
+          <div className="text-2xl font-bold">
+            {averageDailyCost ? formatVndShort(averageDailyCost) : "0k"}
+          </div>
+          <div className="text-xs text-muted-foreground mt-1">
+            Match với Budget Breakdown
+          </div>
+        </div>
+
+        <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
+          <div className="text-sm text-muted-foreground mb-1">
+            Trạng thái ngân sách
+          </div>
+          <div className="text-2xl font-bold text-primary">
+            {plan ? "Đang hoạt động" : "Đang chờ"}
+          </div>
+          <div className="text-xs text-muted-foreground mt-1">
+            {plan?.status === "active"
+              ? `${Number(plan?.budget?.total_budget || 0).toLocaleString("vi-VN")} VND`
+              : "Tạo kế hoạch ở bước onboarding"}
           </div>
         </div>
       </div>
@@ -144,14 +230,15 @@ export function Plan() {
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
           <div className="mb-4">
             <h3 className="text-lg font-semibold">
-              {planDays[0]?.date.toLocaleDateString("en-US", {
+              {planDays[0]?.date.toLocaleDateString("vi-VN", {
                 month: "long",
                 year: "numeric",
-              }) || "Current Plan"}
+              }) || "Kế hoạch hiện tại"}
             </h3>
           </div>
+
           <div className="grid grid-cols-7 gap-3">
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+            {["CN", "T2", "T3", "T4", "T5", "T6", "T7"].map((day) => (
               <div
                 key={day}
                 className="text-center text-sm font-medium text-muted-foreground pb-2"
@@ -160,36 +247,80 @@ export function Plan() {
               </div>
             ))}
 
-            {planDays.map((day) => (
-              <button
-                key={day.day}
-                onClick={() => navigate(`/app/plan/day/${day.day}`)}
-                className={`relative p-3 rounded-xl border transition-all hover:shadow-md ${
-                  day.completed
-                    ? "border-primary bg-primary/5"
-                    : "border-border bg-card hover:border-primary/50"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Day {day.day}</span>
-                  {day.completed ? (
-                    <CheckCircle2 className="w-4 h-4 text-primary" />
-                  ) : (
-                    <Circle className="w-4 h-4 text-muted-foreground" />
-                  )}
-                </div>
-                <div
-                  className={`text-xs px-2 py-1 rounded-md border ${getWorkoutColor(
-                    day.workout,
-                  )}`}
+            {calendarCells.map((cell) => {
+              if (cell.type === "blank") {
+                return <div key={cell.key} />;
+              }
+
+              if (!cell.planDay) {
+                return (
+                  <div
+                    key={cell.key}
+                    className="min-h-[112px] rounded-xl border border-dashed border-slate-200 bg-slate-50 p-3 text-slate-400"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold">
+                        {cell.date.getDate()}
+                      </span>
+                      <span className="text-xs">
+                        {cell.date.toLocaleDateString("vi-VN", {
+                          weekday: "short",
+                        })}
+                      </span>
+                    </div>
+                    <div className="mt-6 text-xs">Bỏ qua</div>
+                  </div>
+                );
+              }
+
+              const day = cell.planDay;
+
+              return (
+                <button
+                  key={cell.key}
+                  onClick={() => navigate(`/app/plan/day/${day.day}`)}
+                  title={day.lockReason || undefined}
+                  className={`relative min-h-[112px] p-3 rounded-xl border transition-all text-left ${
+                    day.isLocked
+                      ? "border-slate-200 bg-slate-100 text-slate-400 grayscale"
+                      : day.completed
+                        ? "border-primary bg-primary/5 hover:shadow-md"
+                        : "border-border bg-card hover:border-primary/50 hover:shadow-md"
+                  }`}
                 >
-                  {day.workout}
-                </div>
-                <div className="text-xs text-muted-foreground mt-2">
-                  {Math.round(day.plannedCost / 1000)}k VND
-                </div>
-              </button>
-            ))}
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <span className="text-sm font-semibold">
+                        {cell.date.getDate()}
+                      </span>
+                      <span className="ml-1 text-xs text-muted-foreground">
+                        Ngày {day.day}
+                      </span>
+                    </div>
+                    {day.completed ? (
+                      <CheckCircle2 className="w-4 h-4 text-primary" />
+                    ) : (
+                      <Circle className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="mb-2 text-xs text-muted-foreground">
+                    {cell.date.toLocaleDateString("vi-VN", {
+                      weekday: "long",
+                    })}
+                  </div>
+                  <div
+                    className={`text-xs px-2 py-1 rounded-md border ${getWorkoutColor(
+                      day.workout,
+                    )}`}
+                  >
+                    {day.workout}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    Food: {formatVndShort(day.plannedCost)} VND
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -200,7 +331,12 @@ export function Plan() {
             <button
               key={day.day}
               onClick={() => navigate(`/app/plan/day/${day.day}`)}
-              className="w-full bg-card rounded-xl p-4 shadow-sm border border-border hover:shadow-md hover:border-primary/50 transition-all text-left"
+              title={day.lockReason || undefined}
+              className={`w-full rounded-xl p-4 shadow-sm border transition-all text-left ${
+                day.isLocked
+                  ? "bg-slate-100 border-slate-200 text-slate-400 grayscale"
+                  : "bg-card border-border hover:shadow-md hover:border-primary/50"
+              }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -211,9 +347,10 @@ export function Plan() {
                       <Circle className="w-5 h-5 text-muted-foreground" />
                     )}
                     <div>
-                      <div className="font-semibold">Day {day.day}</div>
+                      <div className="font-semibold">Ngày {day.day}</div>
                       <div className="text-sm text-muted-foreground">
-                        {day.date.toLocaleDateString("en-US", {
+                        {day.date.toLocaleDateString("vi-VN", {
+                          weekday: "long",
                           month: "short",
                           day: "numeric",
                         })}
@@ -230,7 +367,9 @@ export function Plan() {
                 </div>
                 <div className="flex items-center gap-6">
                   <div className="text-right">
-                    <div className="text-sm text-muted-foreground">Planned Cost</div>
+                    <div className="text-sm text-muted-foreground">
+                      Chi phí food dự kiến
+                    </div>
                     <div className="font-semibold">
                       {Math.round(day.plannedCost).toLocaleString("vi-VN")} VND
                     </div>
@@ -244,11 +383,14 @@ export function Plan() {
       )}
 
       <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
-        <div className="text-sm font-medium mb-3">Workout Types</div>
+        <div className="text-sm font-medium mb-3">Loại bài tập</div>
         <div className="flex gap-4 flex-wrap">
           {[
             { type: "Cardio", color: "bg-blue-50 text-blue-700 border-blue-200" },
-            { type: "Strength", color: "bg-purple-50 text-purple-700 border-purple-200" },
+            {
+              type: "Strength",
+              color: "bg-purple-50 text-purple-700 border-purple-200",
+            },
             { type: "HIIT", color: "bg-orange-50 text-orange-700 border-orange-200" },
             { type: "Rest", color: "bg-gray-100 text-gray-700 border-gray-200" },
           ].map((item) => (

@@ -1,0 +1,161 @@
+﻿workout_type,gender_target,location,workout_name,primary_focus,equipment,difficulty,suggested_volume,notes,is_active
+cardio,male,gym,Đi bộ dốc trên máy chạy bộ,Đốt mỡ / sức bền,Máy chạy bộ,beginner,20-30 min,Ít tác động ổn định cardio,1
+cardio,male,gym,Chạy trên máy chạy bộ,Sức bền,Máy chạy bộ,intermediate,15-25 min,Tăng tốc độ dần,1
+cardio,male,gym,Máy chèo thuyền,Cardio toàn thân,Máy chèo thuyền,intermediate,12-20 min,Rất tốt để tăng thể lực,1
+cardio,male,gym,Nước rút trên air bike,Điều hòa yếm khí,Xe air bike,advanced,10 x 20s sprint,Các hiệp cường độ cao,1
+cardio,male,gym,Leo cầu thang máy,Sức bền chân,Máy leo cầu thang,intermediate,15-20 min,Giữ nhịp tim ở mức cao,1
+cardio,male,gym,Đạp elliptical,Cardio ít tác động,Máy elliptical,beginner,20-30 min,Thân thiện với khớp,1
+cardio,male,gym,Đẩy xe kéo tạ,Cardio sức mạnh,Xe kéo tạ,advanced,8-10 rounds,Thể lực bùng nổ,1
+cardio,male,gym,Battle rope ngắt quãng,Điều hòa thân trên,Dây battle rope,intermediate,10 x 30s,Giữ core siết chặt,1
+cardio,male,gym,Dây nhảy,Phối hợp / cardio,Dây nhảy,intermediate,10-15 min,Các hiệp ngắn cường độ cao,1
+cardio,male,gym,Máy ski erg,Cardio thân trên + core,Máy ski erg,intermediate,12-18 min,Nhịp vận động toàn thân,1
+cardio,female,gym,Đi bộ dốc trên máy chạy bộ,Đốt mỡ / sức bền,Máy chạy bộ,beginner,20-35 min,Lựa chọn cardio ổn định rất tốt,1
+cardio,female,gym,Đạp elliptical,Cardio ít tác động,Máy elliptical,beginner,20-30 min,Êm hơn cho khớp,1
+cardio,female,gym,Xe đạp cố định,Cardio / chân,Xe đạp,beginner,20-30 min,Dễ kiểm soát cường độ,1
+cardio,female,gym,Leo cầu thang máy,Mông / cardio,Máy leo cầu thang,intermediate,12-20 min,Tập trung đốt phần thân dưới,1
+cardio,female,gym,Máy chèo thuyền,Cardio toàn thân,Máy chèo thuyền,intermediate,12-18 min,Giữ nhịp kéo mượt mà,1
+cardio,female,gym,Arc trainer,Ít tác động conditioning,Arc trainer,beginner,20-25 min,Full-body movement,1
+cardio,female,gym,Dance cardio class,Cardio / coordination,Studio class,beginner,30-45 min,Lựa chọn vui và dễ duy trì,1
+cardio,female,gym,Air bike ngắt quãng,Conditioning,Xe air bike,intermediate,8 x 30s,Progress gradually,1
+cardio,female,gym,Dây nhảy,Cardio / nhanh nhẹn,Dây nhảy,intermediate,8-12 min,Dùng các hiệp ngắn hơn,1
+cardio,female,gym,Máy ski erg,Cardio thân trên + core,Máy ski erg,intermediate,10-15 min,Good posture throughout,1
+strength,male,gym,Squat với thanh tạ đòn,Đùi trước / mông,Thanh tạ đòn + rack,intermediate,4 x 5-8,Foundational lower-body lift,1
+strength,male,gym,Đẩy ngực với thanh tạ đòn,Ngực / tay sau,Thanh tạ đòn + ghế tập,intermediate,4 x 5-8,Bài sức mạnh thân trên cơ bản,1
+strength,male,gym,Deadlift,Posterior chain,Thanh tạ đòn,advanced,3-5 x 3-6,Focus on bracing,1
+strength,male,gym,Pull-up,Lưng / tay trước,Xà đơn,intermediate,4 x 6-10,Add assistance if needed,1
+strength,male,gym,Overhead press,Shoulders / triceps,Thanh tạ đòn,intermediate,4 x 5-8,Keep ribs down,1
+strength,male,gym,Máy đạp chân,Đùi trước / mông,Leg press machine,beginner,4 x 8-12,Khối lượng tập chân nặng an toàn hơn,1
+strength,male,gym,Chèo cáp ngồi,Mid-back,Máy cáp,beginner,4 x 8-12,Pause at contraction,1
+strength,male,gym,Máy kéo xô,Lats / upper back,Máy cáp,beginner,4 x 8-12,Controlled movement,1
+strength,male,gym,Dumbbell incline press,Upper chest,Tạ đơn,beginner,3-4 x 8-12,Neutral wrist,1
+strength,male,gym,Romanian deadlift,Đùi sau / mông,Thanh tạ đòn hoặc tạ đơn,intermediate,4 x 6-10,Hip hinge emphasis,1
+strength,female,gym,Hip thrust,Mông,Thanh tạ đòn + ghế tập,intermediate,4 x 8-12,Siết ở đỉnh trong 1 giây,1
+strength,female,gym,Goblet squat,Chân / mông,Dumbbell,beginner,4 x 8-12,Rất tốt để xây dựng form squat,1
+strength,female,gym,Romanian deadlift,Đùi sau / mông,Tạ đơn,intermediate,4 x 8-12,Keep back neutral,1
+strength,female,gym,Máy kéo xô,Lưng,Máy cáp,beginner,3-4 x 8-12,Strong back posture,1
+strength,female,gym,Đẩy vai với tạ đơn,Vai,Tạ đơn,beginner,3 x 8-12,Ngồi hoặc đứng đều được,1
+strength,female,gym,Máy đạp chân,Chân / mông,Leg press machine,beginner,4 x 10-15,Controlled range,1
+strength,female,gym,Bulgarian split squat,Glutes / quads,Bench + dumbbells,intermediate,3 x 8-10/mỗi bên,Thăng bằng và sức mạnh,1
+strength,female,gym,Chèo cáp ngồi,Lưng / tư thế,Máy cáp,beginner,3-4 x 10-12,Keep chest up,1
+strength,female,gym,Đẩy ngực máy,Chest / arms,Chest press machine,beginner,3 x 10-12,Easy to learn,1
+strength,female,gym,Đá chân sau với cáp,Mông,Máy cáp,beginner,3 x 12-15/mỗi bên,Glute isolation work,1
+hiit,male,gym,Chạy nước rút ngắt quãng trên máy,Speed / conditioning,Máy chạy bộ,advanced,10 x 30s fast / 60s easy,Warm up first,1
+hiit,male,gym,Chèo thuyền nước rút ngắt quãng,Full body power,Máy chèo thuyền,advanced,8 x 250m,Nghỉ 60-90 giây,1
+hiit,male,gym,Bike assault intervals,Sức mạnh yếm khí,Xe air bike,advanced,10 x 15s all-out,Very demanding,1
+hiit,male,gym,Đập battle rope,Conditioning,Dây battle rope,intermediate,12 x 20s,Bùng nổ cho tay và core,1
+hiit,male,gym,Box jump intervals,Power,Plyo box,advanced,8 x 8 reps,Land softly,1
+hiit,male,gym,Đẩy xe kéo tạ ngắt quãng,Power endurance,Xe kéo tạ,advanced,10 x 20m,Heavy but crisp,1
+hiit,male,gym,Kettlebell swing intervals,Posterior chain / cardio,Kettlebell,intermediate,12 x 20s,Hip snap,1
+hiit,male,gym,Kết hợp burpee và kéo xà,HIIT toàn thân,Xà đơn,advanced,6-8 vòng x 8 reps,Nỗ lực cao,1
+hiit,male,gym,Medicine ball slam circuit,Power / core,Medicine ball,intermediate,10 x 15 reps,Duỗi hết biên độ,1
+hiit,male,gym,VersaClimber intervals,HIIT toàn thân,VersaClimber,advanced,8 x 30s,High heart-rate work,1
+hiit,female,gym,Bike intervals,Conditioning,Xe đạp cố định,intermediate,10 x 30s hard / 60s easy,Thân thiện với khớp HIIT,1
+hiit,female,gym,Row intervals,Cardio toàn thân,Máy chèo thuyền,intermediate,8 x 200m,Dồn lực bằng chân,1
+hiit,female,gym,Ski erg intervals,Upper body / core,Máy ski erg,intermediate,8 x 30s,Smooth powerful pulls,1
+hiit,female,gym,Battle rope waves,Cardio tay / core,Dây battle rope,intermediate,10 x 20s,Thể lực vận động,1
+hiit,female,gym,Kettlebell swing,Mông / cardio,Kettlebell,intermediate,10 x 15 reps,Explosive hinge,1
+hiit,female,gym,Step-up to knee drive,Mông / cardio,Ghế tập,intermediate,8 x 30s,Good unilateral work,1
+hiit,female,gym,Box step-up intervals,Leg conditioning,Box,beginner,10 x 40s,An toàn hơn so với nhảy,1
+hiit,female,gym,Đập bóng tạ,Core / cardio,Medicine ball,intermediate,10 x 12 reps,Powerful but controlled,1
+hiit,female,gym,Air bike ngắt quãng,Conditioning,Xe air bike,intermediate,8 x 20s,Các đợt bùng nổ ngắn tối đa,1
+hiit,female,gym,Elliptical nước rút ngắt quãng,Ít tác động HIIT,Máy elliptical,beginner,10 x 30s fast,Lower impact,1
+rest,male,gym,Đi bộ phục hồi trên máy chạy bộ,Phục hồi chủ động,Máy chạy bộ,beginner,15-25 min,Keep it easy,1
+rest,male,gym,Mobility flow,Mobility,Thảm,beginner,10-15 min,"Hips, shoulders, thoracic spine",1
+rest,male,gym,Foam rolling quads,Phục hồi,Con lăn foam,beginner,2-3 min,Áp lực nhẹ,1
+rest,male,gym,Foam rolling lats,Phục hồi,Con lăn foam,beginner,2-3 min,Breathe deeply,1
+rest,male,gym,Child's pose breathing,Relaxation,Thảm,beginner,2-3 min,Down-regulate stress,1
+rest,male,gym,Giãn cơ gập hông,Mobility,Thảm,beginner,2 x 30s/mỗi bên,After leg days,1
+rest,male,gym,Hamstring stretch,Mobility,Thảm,beginner,2 x 30s/mỗi bên,Gentle stretch only,1
+rest,male,gym,Cat-cow,Spine mobility,Thảm,beginner,8-12 reps,Chậm và có kiểm soát,1
+rest,male,gym,Treo người thả lỏng,Shoulder decompression,Xà đơn,beginner,3 x 20-30s,Relax shoulders,1
+rest,male,gym,Xông hơi + đi bộ nhẹ,Phục hồi,Xông hơi / máy chạy bộ,beginner,10 min + 10 min,Hydrate well,1
+rest,female,gym,Đi bộ dốc phục hồi,Phục hồi chủ động,Máy chạy bộ,beginner,15-25 min,Zone 1-2 effort,1
+rest,female,gym,Full-body stretching,Flexibility,Thảm,beginner,10-15 min,Gentle routine,1
+rest,female,gym,Foam rolling glutes,Phục hồi,Con lăn foam,beginner,2-3 min,Slow breathing,1
+rest,female,gym,Foam rolling calves,Phục hồi,Con lăn foam,beginner,2-3 min,Useful after cardio,1
+rest,female,gym,Tư thế em bé,Relaxation,Thảm,beginner,2-3 min,Release lower back,1
+rest,female,gym,Pigeon stretch,Glute mobility,Thảm,beginner,2 x 30s/mỗi bên,Ease into stretch,1
+rest,female,gym,Giãn cơ gập hông,Mobility,Thảm,beginner,2 x 30s/mỗi bên,Counter prolonged sitting,1
+rest,female,gym,Thoracic rotation,Upper-back mobility,Thảm,beginner,8-10 reps/mỗi bên,Good posture drill,1
+rest,female,gym,Wall calf stretch,Mobility cổ chân,Tường,beginner,2 x 30s/mỗi bên,Helps squat depth,1
+rest,female,gym,Easy yoga flow,Phục hồi / mobility,Thảm,beginner,15-20 min,Lựa chọn thư giãn cho ngày nghỉ,1
+cardio,male,home,Dây nhảy,Cardio / nhanh nhẹn,Dây nhảy,intermediate,10-20 min,Áp dụng tập ngắt quãng,1
+cardio,male,home,Chạy bộ tại chỗ,Cardio ổn định,Không cần,beginner,15-20 min,Lựa chọn đơn giản tại nhà,1
+cardio,male,home,Leo núi tại chỗ,Cardio / core,Không cần,intermediate,4 x 40s,Nhanh nhưng vẫn kiểm soát,1
+cardio,male,home,Nâng gối cao,Cardio / tốc độ,Không cần,intermediate,6 x 30s,Đánh tay mạnh,1
+cardio,male,home,Burpee,Cardio toàn thân,Không cần,advanced,4 x 10-15,Bài cường độ cao với trọng lượng cơ thể,1
+cardio,male,home,Đấm gió,Cardio / coordination,Không cần,beginner,5 x 2 min,Di chuyển nhẹ nhàng trên mũi chân,1
+cardio,male,home,Chạy cầu thang,Leg cardio,Cầu thang,intermediate,10-15 min,Dùng cầu thang trong nhà,1
+cardio,male,home,Bật nhảy dang tay chân,Cardio,Không cần,beginner,5 x 50,Tốt để khởi động hoặc kết thúc buổi tập,1
+cardio,male,home,Bật nhảy ngang kiểu skater,Cardio / nhanh nhẹn,Không cần,intermediate,4 x 30s,Sức bật ngang,1
+cardio,male,home,Bò gấu,Thể lực toàn thân,Không cần,intermediate,4 x 20m hoặc 30s,Giữ core luôn chắc,1
+cardio,female,home,Đi bộ nhanh ngoài trời,Cardio ổn định,Giày,beginner,20-30 min,Sustainable ít tác động,1
+cardio,female,home,Tập nhảy cardio,Cardio / coordination,Không cần,beginner,20-30 min,Fun home cardio,1
+cardio,female,home,Dây nhảy,Cardio / nhanh nhẹn,Dây nhảy,intermediate,8-15 min,Dùng các hiệp ngắn,1
+cardio,female,home,Đi bước tại chỗ,Cardio ít tác động,Không cần,beginner,15-20 min,Rất phù hợp cho người mới,1
+cardio,female,home,Step-up on stairs,Cardio / glutes,Cầu thang,beginner,10-15 min,Steady effort,1
+cardio,female,home,Leo núi tại chỗ,Cardio / core,Không cần,intermediate,4 x 30s,Low equipment,1
+cardio,female,home,Ít tác động jacks,Cardio,Không cần,beginner,5 x 45s,Thân thiện với khớp,1
+cardio,female,home,Đấm gió,Cardio / arms,Không cần,beginner,5 x 2 min,Rất tốt để rèn nhịp,1
+cardio,female,home,Side steps + arm swings,Cardio,Không cần,beginner,15-20 min,Easy follow-along,1
+cardio,female,home,Skater steps,Cardio / balance,Không cần,beginner,4 x 40s,Lower-impact lateral work,1
+strength,male,home,Hít đất,Ngực / tay sau,Không cần,intermediate,4 x 10-20,Bài đẩy bodyweight cơ bản,1
+strength,male,home,Pull-up,Lưng / tay trước,Bar,intermediate,4 x 5-10,Dùng xà cửa nếu có,1
+strength,male,home,Hít đất pike,Vai,Không cần,intermediate,4 x 8-15,Overhead pressing pattern,1
+strength,male,home,Squat trọng lượng cơ thể,Chân,Không cần,beginner,4 x 15-25,Xuống độ sâu có kiểm soát,1
+strength,male,home,Bulgarian split squat,Chân / mông,Ghế,intermediate,3 x 10-15/mỗi bên,Sức mạnh đơn bên,1
+strength,male,home,Chair dip,Triceps,Ghế,intermediate,3 x 10-15,Shoulders down,1
+strength,male,home,Single-leg Romanian deadlift,Hamstrings / balance,Ba lô,intermediate,3 x 10/mỗi bên,Dùng ba lô để tăng tải,1
+strength,male,home,Chèo ba lô,Lưng,Ba lô,beginner,4 x 10-15,Squeeze shoulder blades,1
+strength,male,home,Cầu mông,Mông,Không cần,beginner,4 x 15-20,Giữ ở điểm cao nhất,1
+strength,male,home,Wall sit,Đùi trước,Tường,beginner,3 x 45-60s,Bài kết thúc rất tốt,1
+strength,female,home,Cầu mông,Mông,Không cần,beginner,4 x 15-20,"Core tight, squeeze glutes",1
+strength,female,home,Squat trọng lượng cơ thể,Chân / mông,Không cần,beginner,4 x 15-20,Ngồi lùi ra sau rồi hạ xuống,1
+strength,female,home,Reverse lunge,Chân / mông,Không cần,beginner,3 x 10-12/mỗi bên,Stable unilateral pattern,1
+strength,female,home,Donkey kick,Mông,Không cần,beginner,3 x 15/mỗi bên,Mind-muscle connection,1
+strength,female,home,Fire hydrant,Glute medius,Không cần,beginner,3 x 15/mỗi bên,Hip stability drill,1
+strength,female,home,Hít đất chống gối,Chest / arms,Không cần,beginner,3 x 8-12,Scalable upper-body work,1
+strength,female,home,Hip thrust on sofa,Mông,Sofa/bench,intermediate,4 x 12-15,Giữ ở điểm cao nhất,1
+strength,female,home,Romanian deadlift với ba lô,Đùi sau / mông,Ba lô,beginner,3 x 12,Mẫu động tác bản lề hông,1
+strength,female,home,Đi ngang với dây kháng lực,Mông,Mini band,beginner,3 x 15 steps/mỗi bên,Excellent activation,1
+strength,female,home,Plank shoulder tap,Core / shoulders,Không cần,intermediate,3 x 20 taps,Core chống xoay,1
+hiit,male,home,Burpee intervals,HIIT toàn thân,Không cần,advanced,10 x 20s on / 40s off,Very intense,1
+hiit,male,home,Jump squat intervals,Leg power,Không cần,advanced,8 x 15 reps,Land softly,1
+hiit,male,home,Mountain climber sprints,Core / cardio,Không cần,intermediate,10 x 30s,Fast tempo,1
+hiit,male,home,Jump rope sprints,Conditioning,Dây nhảy,intermediate,10 x 45s,Quick feet,1
+hiit,male,home,Kết hợp hít đất + squat,Thể lực toàn thân,Không cần,intermediate,8 vòng x 10+10,Kết hợp sức mạnh và cardio,1
+hiit,male,home,High knees intervals,Speed cardio,Không cần,intermediate,10 x 30s,Stay tall,1
+hiit,male,home,Skater hop intervals,Lateral power,Không cần,intermediate,8 x 30s,Explosive push,1
+hiit,male,home,Bear crawl intervals,Full body,Không cần,intermediate,8 x 20s,Hard on core,1
+hiit,male,home,Tuck jump intervals,Plyometric power,Không cần,advanced,6 x 10 reps,Chỉ dùng nếu khớp của bạn đã sẵn sàng,1
+hiit,male,home,Các hiệp đấm gió mạnh,Cardio / power,Không cần,beginner,8 x 1 min,Add speed bursts,1
+hiit,female,home,Ít tác động HIIT circuit,Cardio,Không cần,beginner,8 vòng x 40s,An toàn hơn cho người mới,1
+hiit,female,home,Squat to knee lift,Legs / cardio,Không cần,beginner,8 x 40s,Tốt cho khả năng phối hợp,1
+hiit,female,home,Leo núi tại chỗ,Cardio / core,Không cần,intermediate,8 x 30s,Có thể kê tay cao hơn nếu cần,1
+hiit,female,home,Nhảy dây ngắt quãng,Conditioning,Dây nhảy,intermediate,8 x 45s,Nghỉ ngắn,1
+hiit,female,home,Step-up intervals,Mông / cardio,Cầu thang,beginner,10 x 30s,Low equipment,1
+hiit,female,home,Skater steps intervals,Lateral cardio,Không cần,beginner,8 x 40s,Lựa chọn ít tác động hơn,1
+hiit,female,home,Burpee walk-out,HIIT toàn thân,Không cần,intermediate,8 x 10 reps,Less impact than full burpee,1
+hiit,female,home,High-knee march intervals,Cardio,Không cần,beginner,10 x 30s,Gentler than running,1
+hiit,female,home,Shadow boxing intervals,Cardio / arms,Không cần,beginner,10 x 45s,Fast punches,1
+hiit,female,home,Squat nhảy hoặc pulse squat ngắt quãng,Leg burner,Không cần,intermediate,8 x 20s,Choose impact level,1
+rest,male,home,Đi bộ nhẹ,Phục hồi chủ động,Giày,beginner,20-30 min,Keep conversational pace,1
+rest,male,home,Foam rolling routine,Phục hồi,Con lăn foam,beginner,8-10 min,"Quads, calves, back",1
+rest,male,home,Hip mobility routine,Mobility,Thảm,beginner,8-10 min,Helpful after leg work,1
+rest,male,home,Hamstring stretch,Flexibility,Thảm,beginner,2 x 30s/mỗi bên,No bouncing,1
+rest,male,home,Chest opener stretch,Upper-body mobility,Tường,beginner,2 x 30s/mỗi bên,Counter desk posture,1
+rest,male,home,Cat-cow,Mobility cột sống,Thảm,beginner,10 reps,Slow breathing,1
+rest,male,home,Tư thế em bé,Phục hồi,Thảm,beginner,2-3 min,Relaxation,1
+rest,male,home,Dead bug,Core activation,Thảm,beginner,3 x 10/mỗi bên,Phục hồi chủ động nhẹ,1
+rest,male,home,Bài tập mobility cổ chân,Mobility,Tường,beginner,2 x 10/mỗi bên,Improves squat form,1
+rest,male,home,Breathing drill,Phục hồi,Không cần,beginner,5 min,Nasal breathing / down-regulation,1
+rest,female,home,Đi bộ nhẹ,Phục hồi chủ động,Giày,beginner,20-30 min,Vận động nhẹ,1
+rest,female,home,Gentle yoga flow,Mobility / phục hồi,Thảm,beginner,15-20 min,Lựa chọn phổ biến cho ngày nghỉ,1
+rest,female,home,Lăn cơ mông và bắp chân với foam roller,Phục hồi,Con lăn foam,beginner,6-8 min,Ease muscle tightness,1
+rest,female,home,Hip opener routine,Mobility,Thảm,beginner,8-10 min,Useful after lower-body days,1
+rest,female,home,Hamstring stretch,Flexibility,Thảm,beginner,2 x 30s/mỗi bên,Move gently,1
+rest,female,home,Tư thế em bé,Relaxation,Thảm,beginner,2-3 min,Calming stretch,1
+rest,female,home,Thoracic rotation,Upper-back mobility,Thảm,beginner,8-10 reps/mỗi bên,Hỗ trợ tư thế,1
+rest,female,home,Wall calf stretch,Mobility cổ chân,Tường,beginner,2 x 30s/mỗi bên,Good after walking/cardio,1
+rest,female,home,Dead bug,Core activation,Thảm,beginner,3 x 10/mỗi bên,Low-stress core work,1
+rest,female,home,Breathing + meditation,Phục hồi,Không cần,beginner,5-10 min,Nghỉ ngơi và quản lý căng thẳng,1

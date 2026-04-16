@@ -48,7 +48,7 @@ function PaginationControls({ pagination, onPrevious, onNext }) {
           disabled={pagination.page <= 1}
           onClick={onPrevious}
         >
-          Previous
+          Trước
         </Button>
         <Button
           type="button"
@@ -57,7 +57,7 @@ function PaginationControls({ pagination, onPrevious, onNext }) {
           disabled={pagination.page >= pagination.totalPages}
           onClick={onNext}
         >
-          Next
+          Sau
         </Button>
       </div>
     </div>
@@ -211,7 +211,7 @@ export function Tracking() {
   };
 
   const handleDeleteWeight = async (entryId) => {
-    if (!window.confirm("Delete this weight log?")) return;
+    if (!window.confirm("Xóa bản ghi cân nặng này?")) return;
 
     try {
       await apiDelete(`/api/tracking/weights/${entryId}`);
@@ -222,7 +222,7 @@ export function Tracking() {
   };
 
   const handleDeleteExpense = async (entryId) => {
-    if (!window.confirm("Delete this expense log?")) return;
+    if (!window.confirm("Xóa bản ghi chi tiêu này?")) return;
 
     try {
       await apiDelete(`/api/tracking/expenses/${entryId}`);
@@ -272,9 +272,9 @@ export function Tracking() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold mb-2">Tracking</h1>
+          <h1 className="text-3xl font-semibold mb-2">Theo dõi</h1>
           <p className="text-muted-foreground">
-            Monitor your weight progress and expenses
+            Theo dõi tiến độ cân nặng và chi tiêu của bạn
           </p>
         </div>
         <select
@@ -286,9 +286,9 @@ export function Tracking() {
           }}
           className="h-10 px-3 rounded-lg border border-border bg-background"
         >
-          <option value="all">All logs</option>
-          <option value="week">This week</option>
-          <option value="month">This month</option>
+          <option value="all">Tất cả</option>
+          <option value="week">Tuần này</option>
+          <option value="month">Tháng này</option>
         </select>
       </div>
 
@@ -300,28 +300,28 @@ export function Tracking() {
 
       <div className="grid grid-cols-4 gap-4">
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
-          <div className="text-sm text-muted-foreground mb-1">Current Weight</div>
+          <div className="text-sm text-muted-foreground mb-1">Cân nặng hiện tại</div>
           <div className="text-2xl font-bold">{currentWeight || "--"} kg</div>
           <div className={`text-xs mt-1 ${weightChange <= 0 ? "text-primary" : "text-orange-500"}`}>
-            {currentWeight && startWeight ? `${weightChange.toFixed(1)} kg from start` : "No data yet"}
+            {currentWeight && startWeight ? `${weightChange.toFixed(1)} kg so với ban đầu` : "Chưa có dữ liệu"}
           </div>
         </div>
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
-          <div className="text-sm text-muted-foreground mb-1">Goal Weight</div>
+          <div className="text-sm text-muted-foreground mb-1">Cân nặng mục tiêu</div>
           <div className="text-2xl font-bold">
             {goalWeight ? `${goalWeight.toFixed(1)} kg` : "-- kg"}
           </div>
-          <div className="text-xs text-muted-foreground mt-1">From profile goal</div>
+          <div className="text-xs text-muted-foreground mt-1">Từ mục tiêu hồ sơ</div>
         </div>
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
-          <div className="text-sm text-muted-foreground mb-1">Weekly Spending</div>
+          <div className="text-sm text-muted-foreground mb-1">Chi tiêu tuần</div>
           <div className="text-2xl font-bold">{Math.round(weeklyExpenses / 1000)}k</div>
           <div className="text-xs text-muted-foreground mt-1">VND</div>
         </div>
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
-          <div className="text-sm text-muted-foreground mb-1">Total Spent</div>
+          <div className="text-sm text-muted-foreground mb-1">Tổng đã chi</div>
           <div className="text-2xl font-bold">{Math.round(totalExpenses / 1000)}k</div>
-          <div className="text-xs text-primary mt-1">Live backend data</div>
+          <div className="text-xs text-primary mt-1">Dữ liệu từ hệ thống</div>
         </div>
       </div>
 
@@ -334,7 +334,7 @@ export function Tracking() {
       <div className="grid grid-cols-2 gap-6">
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Weight Log</h3>
+            <h3 className="text-lg font-semibold">Nhật ký cân nặng</h3>
             <Button
               size="sm"
               onClick={() => {
@@ -345,14 +345,14 @@ export function Tracking() {
               className="gap-2"
             >
               <Plus className="w-4 h-4" />
-              Add Entry
+              Thêm bản ghi
             </Button>
           </div>
 
           {showWeightForm ? (
             <form onSubmit={handleAddOrUpdateWeight} className="mb-6 p-4 bg-secondary/50 rounded-xl space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="weightDate">Date</Label>
+                <Label htmlFor="weightDate">Ngày</Label>
                 <Input
                   id="weightDate"
                   type="date"
@@ -362,7 +362,7 @@ export function Tracking() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="weightValue">Weight (kg)</Label>
+                <Label htmlFor="weightValue">Cân nặng (kg)</Label>
                 <Input
                   id="weightValue"
                   type="number"
@@ -374,21 +374,21 @@ export function Tracking() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="weightNote">Note (optional)</Label>
+                <Label htmlFor="weightNote">Ghi chú (tùy chọn)</Label>
                 <Input
                   id="weightNote"
                   type="text"
-                  placeholder="Morning weight"
+                  placeholder="Cân buổi sáng"
                   value={newWeight.note}
                   onChange={(event) => setNewWeight({ ...newWeight, note: event.target.value })}
                 />
               </div>
               <div className="flex gap-2">
                 <Button type="submit" size="sm" className="flex-1" disabled={isSubmitting}>
-                  {isSubmitting ? "Saving..." : editingWeightId ? "Update" : "Save"}
+                  {isSubmitting ? "Đang lưu..." : editingWeightId ? "Cập nhật" : "Lưu"}
                 </Button>
                 <Button type="button" size="sm" variant="outline" onClick={resetWeightForm}>
-                  Cancel
+                  Hủy
                 </Button>
               </div>
             </form>
@@ -439,7 +439,7 @@ export function Tracking() {
 
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Expense Log</h3>
+            <h3 className="text-lg font-semibold">Nhật ký chi tiêu</h3>
             <Button
               size="sm"
               onClick={() => {
@@ -450,14 +450,14 @@ export function Tracking() {
               className="gap-2"
             >
               <Plus className="w-4 h-4" />
-              Add Expense
+              Thêm chi tiêu
             </Button>
           </div>
 
           {showExpenseForm ? (
             <form onSubmit={handleAddOrUpdateExpense} className="mb-6 p-4 bg-secondary/50 rounded-xl space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="expenseDate">Date</Label>
+                <Label htmlFor="expenseDate">Ngày</Label>
                 <Input
                   id="expenseDate"
                   type="date"
@@ -467,7 +467,7 @@ export function Tracking() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="expenseAmount">Amount (VND)</Label>
+                <Label htmlFor="expenseAmount">Số tiền (VND)</Label>
                 <Input
                   id="expenseAmount"
                   type="number"
@@ -478,21 +478,21 @@ export function Tracking() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="expenseDescription">Description (optional)</Label>
+                <Label htmlFor="expenseDescription">Mô tả (tùy chọn)</Label>
                 <Input
                   id="expenseDescription"
                   type="text"
-                  placeholder="Daily meals"
+                  placeholder="Bữa ăn trong ngày"
                   value={newExpense.description}
                   onChange={(event) => setNewExpense({ ...newExpense, description: event.target.value })}
                 />
               </div>
               <div className="flex gap-2">
                 <Button type="submit" size="sm" className="flex-1" disabled={isSubmitting}>
-                  {isSubmitting ? "Saving..." : editingExpenseId ? "Update" : "Save"}
+                  {isSubmitting ? "Đang lưu..." : editingExpenseId ? "Cập nhật" : "Lưu"}
                 </Button>
                 <Button type="button" size="sm" variant="outline" onClick={resetExpenseForm}>
-                  Cancel
+                  Hủy
                 </Button>
               </div>
             </form>
@@ -523,7 +523,7 @@ export function Tracking() {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="px-2 py-1 rounded-md border border-green-200 bg-green-50 text-xs text-green-700">
-                    Food
+                    Ăn uống
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {formatShortDate(entry.date)}

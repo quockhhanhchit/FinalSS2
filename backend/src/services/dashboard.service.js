@@ -50,48 +50,48 @@ function buildAchievements({
   if (weights.length > 0) {
     achievements.push({
       code: "W1",
-      title: "First weight log",
-      description: "You recorded your first weight entry.",
+      title: "Ghi nhận cân nặng đầu tiên",
+      description: "Bạn đã ghi lại chỉ số cân nặng đầu tiên.",
     });
   }
 
   if (expenses.length > 0) {
     achievements.push({
       code: "B1",
-      title: "Budget tracker started",
-      description: "You recorded your first expense.",
+      title: "Bắt đầu theo dõi chi tiêu",
+      description: "Bạn đã ghi lại khoản chi đầu tiên.",
     });
   }
 
   if (daysCompleted > 0) {
     achievements.push({
       code: "D1",
-      title: "First plan day done",
-      description: `${daysCompleted} plan day${daysCompleted === 1 ? "" : "s"} completed.`,
+      title: "Hoàn thành ngày đầu tiên",
+      description: `Bạn đã hoàn thành ${daysCompleted} ngày trong kế hoạch.`,
     });
   }
 
   if (currentStreak >= 3) {
     achievements.push({
       code: "S3",
-      title: "3-day streak",
-      description: "You kept your routine going for 3 days.",
+      title: "Chuỗi 3 ngày",
+      description: "Bạn đã duy trì lịch trình liên tục trong 3 ngày.",
     });
   }
 
   if (workoutsDoneThisWeek > 0) {
     achievements.push({
       code: "GYM",
-      title: "Workout momentum",
-      description: `${workoutsDoneThisWeek} workout task${workoutsDoneThisWeek === 1 ? "" : "s"} done this week.`,
+      title: "Đà tập luyện tốt",
+      description: `Bạn đã hoàn thành ${workoutsDoneThisWeek} nhiệm vụ tập luyện trong tuần này.`,
     });
   }
 
   if (budgetTotal > 0 && totalSpent <= budgetTotal) {
     achievements.push({
       code: "SAVE",
-      title: "Within budget",
-      description: "Your spending is still under the planned budget.",
+      title: "Chi tiêu trong ngân sách",
+      description: "Chi tiêu của bạn vẫn nằm trong ngân sách đã đặt.",
     });
   }
 
