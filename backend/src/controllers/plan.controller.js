@@ -103,11 +103,33 @@ async function updateActualCost(req, res) {
   }
 }
 
+async function continuePlan(req, res) {
+  try {
+    const data = await planService.continueCurrentPlan(req.user.id, {
+      startFromToday: Boolean(req.body?.startFromToday),
+    });
+    res.status(201).json(data);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+}
+
+async function declineContinuation(req, res) {
+  try {
+    const data = await planService.declineCurrentPlanContinuation(req.user.id);
+    res.json(data);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+}
+
 module.exports = {
   createPlan,
   getPlan,
   getPlanDay,
   completePlanDay,
+  continuePlan,
+  declineContinuation,
   swapMeal,
   swapWorkout,
   updateActualCost,

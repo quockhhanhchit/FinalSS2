@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { User, Bell, Lock, Wallet, Target } from "lucide-react";
+import { Flame, User, Bell, Lock, Wallet, Target } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { getAuthSession } from "../lib/auth";
-import { apiGet, apiPut } from "../lib/api";
+import { apiGet, apiPost, apiPut } from "../lib/api";
 import { showToast } from "../components/ui/toast";
 
 const initialBodyGoalsData = {
@@ -54,15 +54,18 @@ export function Settings() {
   const [isBodyGoalsEditing, setIsBodyGoalsEditing] = useState(false);
   const [isBudgetEditing, setIsBudgetEditing] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [planStatus, setPlanStatus] = useState(null);
+  const [isReturningToRace, setIsReturningToRace] = useState(false);
 
   useEffect(() => {
     let ignore = false;
 
     async function loadProfile() {
       try {
-        const [profile, notifications] = await Promise.all([
+        const [profile, notifications, currentPlan] = await Promise.all([
           apiGet("/api/profile"),
           apiGet("/api/profile/notifications"),
+          apiGet("/api/plans/current").catch(() => null),
         ]);
 
         if (ignore || !profile) {
@@ -94,6 +97,7 @@ export function Settings() {
           weightTrackingReminders: Boolean(notifications.weight_tracking_reminders),
           budgetAlerts: Boolean(notifications.budget_alerts),
         });
+        setPlanStatus(currentPlan);
       } catch (requestError) {
         if (!ignore) {
           setError(requestError.message);
@@ -266,6 +270,24 @@ export function Settings() {
     }
   };
 
+  const handleReturnToRace = async () => {
+    setIsReturningToRace(true);
+    setError("");
+
+    try {
+      await apiPost("/api/plans/current/continue", {
+        startFromToday: true,
+      });
+      const currentPlan = await apiGet("/api/plans/current");
+      setPlanStatus(currentPlan);
+      showToast("Đã khởi động lại cuộc đua 30 ngày từ hôm nay.", "success");
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsReturningToRace(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
@@ -278,6 +300,29 @@ export function Settings() {
       {error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
+        </div>
+      ) : null}
+
+      {planStatus?.has_declined_continuation ? (
+        <div className="overflow-hidden rounded-2xl border border-orange-200 bg-gradient-to-br from-orange-50 via-amber-50 to-rose-50 p-6 shadow-sm dark:border-orange-900/60 dark:from-orange-950/50 dark:via-slate-900 dark:to-rose-950/40">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-rose-500 text-white shadow-lg shadow-orange-500/25">
+              <Flame className="h-7 w-7" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-semibold">Trở lại cuộc đua 30 ngày</h3>
+              <p className="text-sm text-muted-foreground">
+                Bạn đã tạm dừng sau chu kỳ trước. Bấm nút này để tạo 30 ngày mới bắt đầu từ hôm nay.
+              </p>
+            </div>
+            <Button
+              onClick={handleReturnToRace}
+              disabled={isReturningToRace || isLoading}
+              className="bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-lg shadow-orange-500/20"
+            >
+              {isReturningToRace ? "Đang tạo..." : "Bắt đầu lại"}
+            </Button>
+          </div>
         </div>
       ) : null}
 

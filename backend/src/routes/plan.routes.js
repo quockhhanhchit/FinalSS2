@@ -14,6 +14,12 @@ const actualCostSchema = z.object({
 
 router.post("/generate", authMiddleware, planController.createPlan);
 router.get("/current", authMiddleware, planController.getPlan);
+router.post("/current/continue", authMiddleware, planController.continuePlan);
+router.post(
+  "/current/decline-continuation",
+  authMiddleware,
+  planController.declineContinuation
+);
 router.get("/current/day/:dayNumber", authMiddleware, planController.getPlanDay);
 router.patch(
   "/day/:dayNumber/swap-meal/:mealId",

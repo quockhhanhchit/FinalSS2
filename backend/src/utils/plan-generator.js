@@ -273,7 +273,7 @@ function getMealPlanTemplate(mealsPerDay) {
     return [
       { type: "breakfast", label: "Breakfast", time: "7:00 AM", ratio: 0.3 },
       { type: "lunch", label: "Lunch", time: "12:30 PM", ratio: 0.35 },
-      { type: "dinner", label: "Dinner", time: "7:00 PM", ratio: 0.35 },
+      { type: "dinner", label: "Dinner", time: "19:00", ratio: 0.35 },
     ];
   }
 
@@ -282,7 +282,7 @@ function getMealPlanTemplate(mealsPerDay) {
       { type: "breakfast", label: "Breakfast", time: "7:00 AM", ratio: 0.25 },
       { type: "lunch", label: "Lunch", time: "12:30 PM", ratio: 0.3 },
       { type: "snack", label: "Snack", time: "3:30 PM", ratio: 0.15 },
-      { type: "dinner", label: "Dinner", time: "7:00 PM", ratio: 0.3 },
+      { type: "dinner", label: "Dinner", time: "19:00", ratio: 0.3 },
     ];
   }
 
@@ -291,7 +291,7 @@ function getMealPlanTemplate(mealsPerDay) {
     { type: "snack", label: "Snack 1", time: "10:00 AM", ratio: 0.13 },
     { type: "lunch", label: "Lunch", time: "12:30 PM", ratio: 0.28 },
     { type: "snack", label: "Snack 2", time: "3:30 PM", ratio: 0.12 },
-    { type: "dinner", label: "Dinner", time: "7:00 PM", ratio: 0.25 },
+    { type: "dinner", label: "Dinner", time: "19:00", ratio: 0.25 },
   ];
 }
 

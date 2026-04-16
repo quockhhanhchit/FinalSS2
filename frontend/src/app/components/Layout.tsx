@@ -11,6 +11,7 @@ import {
   UserCircle,
 } from "lucide-react";
 import { ToastContainer } from "./ui/toast";
+import { ThemeToggleBtn } from "./ThemeToggleBtn";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -108,6 +109,8 @@ export function Layout() {
             </div>
 
             <div className="flex items-center gap-4">
+              <ThemeToggleBtn />
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-secondary transition-colors outline-none">
