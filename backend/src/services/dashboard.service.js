@@ -44,10 +44,66 @@ function buildAchievements({
   workoutsDoneThisWeek,
   totalSpent,
   budgetTotal,
+  goalType,
 }) {
   const achievements = [];
+  const firstWeight = weights.length ? Number(weights[0].weight_kg) : null;
+  const latestWeight = weights.length
+    ? Number(weights[weights.length - 1].weight_kg)
+    : null;
+  const weightDelta =
+    firstWeight !== null && latestWeight !== null ? latestWeight - firstWeight : 0;
+  const normalizedGoal = ["lose", "maintain", "gain"].includes(goalType)
+    ? goalType
+    : "lose";
+  const goalAchievement =
+    normalizedGoal === "gain"
+      ? {
+          code: "GAIN",
+          title: "Tiến bộ tăng cân",
+          title_en: "Weight Gain Progress",
+          description:
+            weightDelta > 0
+              ? `Bạn đã tăng ${weightDelta.toFixed(1)} kg theo mục tiêu.`
+              : "Tiếp tục ghi nhận cân nặng để theo dõi mục tiêu tăng cân.",
+          description_en:
+            weightDelta > 0
+              ? `You gained ${weightDelta.toFixed(1)} kg toward your goal.`
+              : "Keep logging your weight to track your weight-gain goal.",
+        }
+      : normalizedGoal === "maintain"
+        ? {
+            code: "KEEP",
+            title: "Duy trì cân nặng",
+            title_en: "Weight Maintenance",
+            description:
+              firstWeight !== null && latestWeight !== null
+                ? `Cân nặng dao động ${Math.abs(weightDelta).toFixed(1)} kg so với ban đầu.`
+                : "Ghi nhận cân nặng đều đặn để giữ cân ổn định.",
+            description_en:
+              firstWeight !== null && latestWeight !== null
+                ? `Your weight changed by ${Math.abs(weightDelta).toFixed(1)} kg from start.`
+                : "Log your weight regularly to maintain stability.",
+          }
+        : {
+            code: "LOSE",
+            title: "Tiến bộ giảm cân",
+            title_en: "Weight Loss Progress",
+            description:
+              weightDelta < 0
+                ? `Bạn đã giảm ${Math.abs(weightDelta).toFixed(1)} kg theo mục tiêu.`
+                : "Tiếp tục ghi nhận cân nặng để theo dõi mục tiêu giảm cân.",
+            description_en:
+              weightDelta < 0
+                ? `You lost ${Math.abs(weightDelta).toFixed(1)} kg toward your goal.`
+                : "Keep logging your weight to track your weight-loss goal.",
+          };
 
   if (weights.length > 0) {
+    achievements.push(goalAchievement);
+  }
+
+  if (false) {
     achievements.push({
       code: "W1",
       title: "Ghi nhận cân nặng đầu tiên",
@@ -212,6 +268,7 @@ async function getDashboardSummary(userId) {
     workoutsDoneThisWeek,
     totalSpent,
     budgetTotal,
+    goalType: profile?.goal_type,
   });
   const [badges] = await pool.query(
     `SELECT badge_name, earned_at

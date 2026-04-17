@@ -95,6 +95,101 @@ const ACHIEVEMENT_RULES = [
   },
 ];
 
+function getGoalAchievementText(goalType, threshold) {
+  if (goalType === "gain") {
+    return threshold === 5
+      ? {
+          title: "Cột mốc tăng 5kg",
+          titleEn: "5kg Gain Milestone",
+          description: "Bạn đã tăng được 5kg theo mục tiêu tăng cân",
+          descriptionEn: "You gained 5kg toward your weight-gain goal",
+        }
+      : {
+          title: "Tăng 1kg đầu tiên",
+          titleEn: "First 1kg Gained",
+          description: "Bạn đã tăng được kilogram đầu tiên theo mục tiêu tăng cân",
+          descriptionEn: "You gained your first kilogram toward your weight-gain goal",
+        };
+  }
+
+  if (goalType === "maintain") {
+    return threshold === 5
+      ? {
+          title: "Giữ cân ổn định",
+          titleEn: "Stable Weight Maintained",
+          description: "Bạn duy trì cân nặng ổn định trong quá trình theo dõi",
+          descriptionEn: "You kept your weight stable during tracking",
+        }
+      : {
+          title: "Bắt đầu giữ cân",
+          titleEn: "Maintenance Started",
+          description: "Bạn đã ghi nhận cân nặng và đang bám sát mục tiêu giữ cân",
+          descriptionEn: "You logged your weight and are staying aligned with your maintenance goal",
+        };
+  }
+
+  return threshold === 5
+    ? {
+        title: "Cột mốc giảm 5kg",
+        titleEn: "5kg Loss Milestone",
+        description: "Bạn đã giảm được 5kg theo mục tiêu giảm cân",
+        descriptionEn: "You lost 5kg toward your weight-loss goal",
+      }
+    : {
+        title: "Giảm 1kg đầu tiên",
+        titleEn: "First 1kg Lost",
+        description: "Bạn đã giảm được kilogram đầu tiên theo mục tiêu giảm cân",
+        descriptionEn: "You lost your first kilogram toward your weight-loss goal",
+      };
+}
+
+function localizeRule(rule, goalType) {
+  const staticText = {
+    streak_7: ["7-Day Streak", "Complete 7 consecutive days"],
+    streak_14: ["14-Day Streak", "Complete 14 consecutive days"],
+    streak_30: ["30-Day Streak", "Complete 30 consecutive days"],
+    budget_master: ["Budget Master", "Keep your spending within budget"],
+    week_1_complete: ["Week 1 Complete", "Complete your first week"],
+    week_2_complete: ["Week 2 Complete", "Complete your second week"],
+    perfect_day: ["Perfect Day", "Complete 100% of tasks in one day"],
+    fitness_champion: ["Fitness Champion", "Complete 20 workout tasks"],
+    hydration_hero: ["Hydration Hero", "Hit your hydration goal for 14 days"],
+  };
+
+  if (rule.key === "weight_1kg") {
+    const text = getGoalAchievementText(goalType, 1);
+    return {
+      ...rule,
+      ...text,
+      legacyTitles: [
+        ...(rule.legacyTitles || []),
+        rule.title,
+        getGoalAchievementText("lose", 1).title,
+        getGoalAchievementText("gain", 1).title,
+        getGoalAchievementText("maintain", 1).title,
+      ],
+    };
+  }
+
+  if (rule.key === "weight_5kg") {
+    const text = getGoalAchievementText(goalType, 5);
+    return {
+      ...rule,
+      ...text,
+      legacyTitles: [
+        ...(rule.legacyTitles || []),
+        rule.title,
+        getGoalAchievementText("lose", 5).title,
+        getGoalAchievementText("gain", 5).title,
+        getGoalAchievementText("maintain", 5).title,
+      ],
+    };
+  }
+
+  const [titleEn, descriptionEn] = staticText[rule.key] || [rule.title, rule.description];
+  return { ...rule, titleEn, descriptionEn };
+}
+
 function calculateStreak(dates) {
   const sorted = [...new Set(dates)]
     .sort()
@@ -119,7 +214,7 @@ function calculateStreak(dates) {
 
 async function getRewardMetrics(userId) {
   const [[profile]] = await pool.query(
-    "SELECT budget_total FROM user_profiles WHERE user_id = ?",
+    "SELECT budget_total, goal_type FROM user_profiles WHERE user_id = ?",
     [userId]
   );
   const [weights] = await pool.query(
@@ -153,17 +248,26 @@ async function getRewardMetrics(userId) {
   const latestWeight = weights.length
     ? Number(weights[weights.length - 1].weight_kg)
     : null;
-  const weightLost =
-    firstWeight !== null && latestWeight !== null
-      ? Math.max(firstWeight - latestWeight, 0)
-      : 0;
+  const goalType = ["lose", "maintain", "gain"].includes(profile?.goal_type)
+    ? profile.goal_type
+    : "lose";
+  const weightDelta =
+    firstWeight !== null && latestWeight !== null ? latestWeight - firstWeight : 0;
+  const weightProgress =
+    goalType === "gain"
+      ? Math.max(weightDelta, 0)
+      : goalType === "maintain"
+        ? Math.abs(weightDelta)
+        : Math.max(-weightDelta, 0);
 
   return {
     bestStreak: calculateStreak(
       completedDays.map((day) => new Date(day.plan_date).toISOString().split("T")[0])
     ),
     daysCompleted: completedDays.length,
-    weightLost,
+    goalType,
+    weightProgress,
+    weightLogCount: weights.length,
     budgetTotal: Number(profile?.budget_total || 0),
     totalSpent: Number(expensesRow?.totalSpent || 0),
     workoutsDone: Number(taskRow?.workoutsDone || 0),
@@ -178,9 +282,15 @@ function isAchievementEarned(rule, metrics) {
     case "streak_30":
       return metrics.bestStreak >= Number(rule.level || 0);
     case "weight_1kg":
-      return metrics.weightLost >= 1;
+      if (metrics.goalType === "maintain") {
+        return metrics.weightLogCount >= 2 && metrics.weightProgress <= 1;
+      }
+      return metrics.weightProgress >= 1;
     case "weight_5kg":
-      return metrics.weightLost >= 5;
+      if (metrics.goalType === "maintain") {
+        return metrics.daysCompleted >= 14 && metrics.weightProgress <= 2;
+      }
+      return metrics.weightProgress >= 5;
     case "budget_master":
       return (
         metrics.budgetTotal > 0 &&
@@ -206,7 +316,8 @@ async function syncAchievements(userId) {
   const metrics = await getRewardMetrics(userId);
   const achievements = [];
 
-  for (const rule of ACHIEVEMENT_RULES) {
+  for (const baseRule of ACHIEVEMENT_RULES) {
+    const rule = localizeRule(baseRule, metrics.goalType);
     const earned = isAchievementEarned(rule, metrics);
     const lookupTitles = [rule.title, ...(rule.legacyTitles || [])];
     const placeholders = lookupTitles.map(() => "?").join(", ");
@@ -264,6 +375,8 @@ async function syncAchievements(userId) {
       level: rule.level || null,
       title: rule.title,
       description: rule.description,
+      title_en: rule.titleEn,
+      description_en: rule.descriptionEn,
       earned: finalEarned,
       points: rule.points,
     });

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Calendar, DollarSign, Pencil, Trash2 } from "lucide-react";
+import { Plus, Calendar, DollarSign, Pencil, Trash2, Activity } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -297,6 +297,23 @@ export function Tracking() {
           {error}
         </div>
       ) : null}
+
+      <div className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-5 text-white shadow-lg dark:border-emerald-800">
+        <div className="absolute -right-6 -top-8 h-28 w-28 rounded-full bg-white/15 blur-xl" />
+        <div className="relative flex items-center gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 shadow-inner">
+            <Activity className="h-7 w-7" />
+          </div>
+          <div>
+            <div className="text-lg font-semibold">
+              Hãy cập nhật cân nặng của bạn mỗi tuần
+            </div>
+            <p className="text-sm text-white/85">
+              Ghi nhận đều đặn giúp hệ thống theo dõi tiến độ và điều chỉnh kế hoạch chính xác hơn.
+            </p>
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-4 gap-4">
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">

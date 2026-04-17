@@ -6,8 +6,10 @@ import { Button } from "../components/ui/button";
 import { SuccessCelebration } from "../components/SuccessCelebration";
 import { apiGet, apiPost } from "../lib/api";
 import { formatShortDate } from "../lib/formatters";
+import { useLanguage } from "../LanguageContext";
 
 export function Rewards() {
+  const { language, t } = useLanguage();
   const [summary, setSummary] = useState(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -73,6 +75,14 @@ export function Rewards() {
       setRedeemingId(null);
     }
   };
+  const getAchievementTitle = (achievement) =>
+    language === "en"
+      ? achievement.title_en || achievement.titleEn || t(achievement.title)
+      : achievement.title;
+  const getAchievementDescription = (achievement) =>
+    language === "en"
+      ? achievement.description_en || achievement.descriptionEn || t(achievement.description || "")
+      : achievement.description;
 
   if (isLoading) {
     return (
@@ -176,8 +186,8 @@ export function Rewards() {
               key={achievement.title}
               type={achievement.type}
               level={achievement.level}
-              title={achievement.title}
-              description={achievement.description}
+              title={getAchievementTitle(achievement)}
+              description={getAchievementDescription(achievement)}
               earned={achievement.earned}
               size="md"
             />

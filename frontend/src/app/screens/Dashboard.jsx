@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { TrendingDown, Target, CheckCircle, Wallet } from "lucide-react";
+import { TrendingDown, Target, CheckCircle, Wallet, Trophy, Flame } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -10,9 +10,10 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Button } from "../components/ui/button";
-import { useNavigate } from "react-router";
-import { apiGet } from "../lib/api";
+import { useNavigate, useSearchParams } from "react-router";
+import { apiGet, apiPost } from "../lib/api";
 import { DashboardAnalytics } from "../components/DashboardAnalytics";
+import { useLanguage } from "../LanguageContext";
 
 function DashboardSkeleton() {
   return (
@@ -58,23 +59,29 @@ function ChartEmptyState({ onClick }) {
 
 export function Dashboard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { language, t } = useLanguage();
   const [dashboard, setDashboard] = useState(null);
   const [analytics, setAnalytics] = useState(null);
+  const [plan, setPlan] = useState(null);
   const [error, setError] = useState("");
+  const [isContinuingPlan, setIsContinuingPlan] = useState(false);
 
   useEffect(() => {
     let ignore = false;
 
     async function loadDashboard() {
       try {
-        const [data, analyticsData] = await Promise.all([
+        const [data, analyticsData, planData] = await Promise.all([
           apiGet("/api/dashboard/summary"),
           apiGet("/api/dashboard/analytics"),
+          apiGet("/api/plans/current").catch(() => null),
         ]);
 
         if (!ignore) {
           setDashboard(data);
           setAnalytics(analyticsData);
+          setPlan(planData);
         }
       } catch (requestError) {
         if (!ignore) {
@@ -131,10 +138,135 @@ export function Dashboard() {
   const achievements = dashboard?.achievements || [];
   const currentStreak = Number(dashboard?.currentStreak || 0);
   const bestStreak = Number(dashboard?.bestStreak || 0);
+  const showPlanSummary =
+    searchParams.get("summary") === "plan-complete" || Boolean(plan?.can_prompt_continue);
+  const planDays = plan?.days || [];
+  const planTotalDays = planDays.length || 30;
+  const planCompletedDays = planDays.filter((day) => Boolean(day.completed)).length;
+  const planSkippedDays = planDays.filter(
+    (day) => !day.completed && day.lock_type === "skipped",
+  ).length;
+  const planTotalFoodCost = planDays.reduce(
+    (sum, day) => sum + Number(day.planned_cost || 0),
+    0,
+  );
+  const goalType = dashboard?.goalType || "lose";
+  const getAchievementTitle = (achievement) => {
+    if (language === "en") {
+      if (achievement.title_en || achievement.titleEn) {
+        return achievement.title_en || achievement.titleEn;
+      }
+
+      if (achievement.code === "W1") {
+        if (goalType === "gain") return "Weight Gain Progress";
+        if (goalType === "maintain") return "Weight Maintenance";
+        return "Weight Loss Progress";
+      }
+
+      const titleByCode = {
+        B1: "Started Expense Tracking",
+        D1: "First Day Completed",
+        S3: "3-Day Streak",
+        GYM: "Workout Momentum",
+        SAVE: "Within Budget",
+      };
+
+      if (titleByCode[achievement.code]) {
+        return titleByCode[achievement.code];
+      }
+
+      return t(achievement.title);
+    }
+
+    if (achievement.code === "W1") {
+      if (goalType === "gain") return "Tiến bộ tăng cân";
+      if (goalType === "maintain") return "Duy trì cân nặng";
+      return "Tiến bộ giảm cân";
+    }
+
+    return achievement.title;
+  };
+  const getAchievementDescription = (achievement) => {
+    if (language === "en") {
+      if (achievement.description_en || achievement.descriptionEn) {
+        return achievement.description_en || achievement.descriptionEn;
+      }
+
+      if (achievement.code === "W1") {
+        if (goalType === "gain") return "Track progress toward your weight-gain goal.";
+        if (goalType === "maintain") return "Keep your weight stable over time.";
+        return "Track progress toward your weight-loss goal.";
+      }
+
+      const descriptionByCode = {
+        B1: "You logged your first expense.",
+        D1: "You completed your first plan day.",
+        S3: "You maintained your routine for 3 consecutive days.",
+        GYM: "You completed workout tasks this week.",
+        SAVE: "Your spending remains within your planned budget.",
+      };
+
+      if (descriptionByCode[achievement.code]) {
+        return descriptionByCode[achievement.code];
+      }
+
+      return t(achievement.description);
+    }
+
+    if (achievement.code === "W1") {
+      if (goalType === "gain") return "Theo dõi tiến độ theo mục tiêu tăng cân.";
+      if (goalType === "maintain") return "Duy trì cân nặng ổn định theo thời gian.";
+      return "Theo dõi tiến độ theo mục tiêu giảm cân.";
+    }
+
+    return achievement.description;
+  };
 
   if (!dashboard && !error) {
     return <DashboardSkeleton />;
   }
+
+  const handleContinuePlan = async () => {
+    setIsContinuingPlan(true);
+    setError("");
+
+    try {
+      const result = await apiPost("/api/plans/current/continue", {
+        startFromToday: false,
+      });
+      const nextPlan = await apiGet("/api/plans/current");
+      setPlan(nextPlan);
+      navigate(result?.startDate ? "/app/plan" : "/app", { replace: true });
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsContinuingPlan(false);
+    }
+  };
+
+  const handleDeclineContinuation = async () => {
+    setIsContinuingPlan(true);
+    setError("");
+
+    try {
+      const response = await apiPost("/api/plans/current/decline-continuation", {});
+      setPlan((current) =>
+        current
+          ? {
+              ...current,
+              can_prompt_continue: false,
+              has_declined_continuation: true,
+              continuation_declined_after_day: response?.declinedAfterDay,
+            }
+          : current,
+      );
+      navigate("/app", { replace: true });
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsContinuingPlan(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -148,6 +280,68 @@ export function Dashboard() {
       {error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
+        </div>
+      ) : null}
+
+      {showPlanSummary ? (
+        <div className="overflow-hidden rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 p-1 shadow-2xl shadow-orange-500/20 dark:border-amber-900">
+          <div className="rounded-[1.35rem] bg-white/95 p-6 dark:bg-slate-950/90">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex gap-4">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-rose-500 text-white shadow-lg">
+                  <Trophy className="h-9 w-9" />
+                </div>
+                <div>
+                  <div className="mb-1 inline-flex items-center gap-2 rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700 dark:bg-orange-950 dark:text-orange-200">
+                    <Flame className="h-4 w-4" />
+                    Tổng kết kế hoạch
+                  </div>
+                  <h2 className="text-2xl font-bold">Bạn đã hoàn thành kế hoạch</h2>
+                  <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+                    Bạn đã đi tới ngày cuối cùng của chu kỳ hiện tại. Một vài ngày có thể bị bỏ qua, nhưng hệ thống vẫn tổng kết dựa trên những gì bạn đã thực hiện.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleDeclineContinuation}
+                  disabled={isContinuingPlan}
+                >
+                  Không, giữ như hiện tại
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleContinuePlan}
+                  disabled={isContinuingPlan}
+                  className="bg-gradient-to-r from-orange-500 to-rose-500 text-white"
+                >
+                  {isContinuingPlan ? "Đang xử lý..." : "Có, tiếp tục 30 ngày"}
+                </Button>
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <div className="text-sm text-muted-foreground">Ngày đã hoàn thành</div>
+                <div className="mt-1 text-2xl font-bold">{planCompletedDays}/{planTotalDays}</div>
+              </div>
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <div className="text-sm text-muted-foreground">Ngày đã bỏ qua</div>
+                <div className="mt-1 text-2xl font-bold">{planSkippedDays}</div>
+              </div>
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <div className="text-sm text-muted-foreground">Chuỗi tốt nhất</div>
+                <div className="mt-1 text-2xl font-bold">{bestStreak} ngày</div>
+              </div>
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <div className="text-sm text-muted-foreground">Chi phí food dự kiến</div>
+                <div className="mt-1 text-2xl font-bold">{Math.round(planTotalFoodCost / 1000)}k</div>
+              </div>
+            </div>
+          </div>
         </div>
       ) : null}
 
@@ -395,9 +589,9 @@ export function Dashboard() {
                   <span>{achievement.code}</span>
                 </div>
                 <div>
-                  <div className="text-sm font-medium">{achievement.title}</div>
+                  <div className="text-sm font-medium">{getAchievementTitle(achievement)}</div>
                   <div className="text-xs text-muted-foreground">
-                    {achievement.description}
+                    {getAchievementDescription(achievement)}
                   </div>
                 </div>
               </div>

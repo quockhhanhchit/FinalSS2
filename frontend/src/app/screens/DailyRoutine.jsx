@@ -50,6 +50,7 @@ function MealGroup({
   onSwap,
   swappingId,
   disabled = false,
+  dimDisabled = disabled,
 }) {
   if (meals.length === 0) {
     return null;
@@ -70,7 +71,7 @@ function MealGroup({
         {meals.map((meal) => (
           <div key={meal.id} className="relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className={`relative flex items-start gap-3 rounded-xl border border-border p-4 ${disabled ? "opacity-70" : hoverBorder} transition-all`}>
+            <div className={`relative flex items-start gap-3 rounded-xl border border-border p-4 ${dimDisabled ? "opacity-70" : disabled ? "" : hoverBorder} transition-all`}>
               <button
                 onClick={() => onToggle(meal.id)}
                 disabled={disabled}
@@ -171,7 +172,7 @@ export function DailyRoutine() {
     const signature = JSON.stringify(sortedTaskIds);
 
     if (!options.force && signature === lastSavedSignatureRef.current) {
-      return true;
+      return response || true;
     }
 
     setIsSaving(true);
@@ -312,6 +313,8 @@ export function DailyRoutine() {
     0,
   );
   const isReadOnly = Boolean(dayData?.is_locked);
+  const isCompletedReadOnly = dayData?.lock_type === "completed_locked";
+  const shouldDimReadOnly = isReadOnly && !isCompletedReadOnly;
   const actualCostDelta =
     normalizedDayData.actualCost === null
       ? null
@@ -373,10 +376,10 @@ export function DailyRoutine() {
       return;
     }
 
-    const wasSaved = await saveProgress(checkedItems, { force: true });
+    const saveResult = await saveProgress(checkedItems, { force: true });
 
-    if (wasSaved) {
-      navigate("/app/plan");
+    if (saveResult) {
+      navigate(saveResult?.plan_completed ? "/app?summary=plan-complete" : "/app/plan");
     }
   };
 
@@ -388,9 +391,9 @@ export function DailyRoutine() {
       return;
     }
 
-    const wasSaved = await saveProgress(checkedItems, { force: true });
+    const saveResult = await saveProgress(checkedItems, { force: true });
 
-    if (!wasSaved) return;
+    if (!saveResult) return;
 
     setIsSaving(true);
 
@@ -409,7 +412,7 @@ export function DailyRoutine() {
         });
       }
       setShowActualCostPrompt(false);
-      navigate("/app/plan");
+      navigate(saveResult?.plan_completed ? "/app?summary=plan-complete" : "/app/plan");
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -448,11 +451,13 @@ export function DailyRoutine() {
 
       {isReadOnly ? (
         <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-          {dayData?.lock_reason || "Ngày này đã bị khóa, bạn chỉ có thể xem lại tiến độ."}
+          {isCompletedReadOnly
+            ? "Ngày này đã hoàn thành. Bạn có thể xem lại nhiệm vụ nhưng không thể chỉnh sửa."
+            : dayData?.lock_reason || "Ngày này đã bị khóa, bạn chỉ có thể xem lại tiến độ."}
         </div>
       ) : null}
 
-      <div className={`bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20 ${isReadOnly ? "grayscale opacity-80" : ""}`}>
+      <div className={`bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20 ${shouldDimReadOnly ? "grayscale opacity-80" : ""}`}>
         <div className="flex items-center justify-between mb-4">
           <div>
             <div className="text-sm text-muted-foreground mb-1">Tiến độ trong ngày</div>
@@ -473,7 +478,7 @@ export function DailyRoutine() {
         </div>
       </div>
 
-      <div className={`grid grid-cols-3 gap-4 ${isReadOnly ? "grayscale opacity-80" : ""}`}>
+      <div className={`grid grid-cols-3 gap-4 ${shouldDimReadOnly ? "grayscale opacity-80" : ""}`}>
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
           <div className="text-sm text-muted-foreground mb-1">Calo dự kiến</div>
           <div className="text-2xl font-bold">{normalizedDayData.plannedCalories}</div>
@@ -510,7 +515,7 @@ export function DailyRoutine() {
         </div>
       ) : null}
 
-      <div className={`bg-card rounded-2xl p-6 shadow-sm border border-border ${isReadOnly ? "grayscale opacity-80" : ""}`}>
+      <div className={`bg-card rounded-2xl p-6 shadow-sm border border-border ${shouldDimReadOnly ? "grayscale opacity-80" : ""}`}>
         <div className="flex items-center gap-2 mb-6">
           <Cookie className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-semibold">Kế hoạch dinh dưỡng</h3>
@@ -531,6 +536,7 @@ export function DailyRoutine() {
             onSwap={handleSwapMeal}
             swappingId={swappingId}
             disabled={isReadOnly}
+            dimDisabled={shouldDimReadOnly}
           />
           <MealGroup
             title="Bữa trưa"
@@ -543,6 +549,7 @@ export function DailyRoutine() {
             onSwap={handleSwapMeal}
             swappingId={swappingId}
             disabled={isReadOnly}
+            dimDisabled={shouldDimReadOnly}
           />
           <MealGroup
             title="Bữa tối"
@@ -555,6 +562,7 @@ export function DailyRoutine() {
             onSwap={handleSwapMeal}
             swappingId={swappingId}
             disabled={isReadOnly}
+            dimDisabled={shouldDimReadOnly}
           />
           <MealGroup
             title="Bữa phụ"
@@ -567,11 +575,12 @@ export function DailyRoutine() {
             onSwap={handleSwapMeal}
             swappingId={swappingId}
             disabled={isReadOnly}
+            dimDisabled={shouldDimReadOnly}
           />
         </div>
       </div>
 
-      <div className={`bg-card rounded-2xl p-6 shadow-sm border border-border ${isReadOnly ? "grayscale opacity-80" : ""}`}>
+      <div className={`bg-card rounded-2xl p-6 shadow-sm border border-border ${shouldDimReadOnly ? "grayscale opacity-80" : ""}`}>
         <div className="flex items-center gap-2 mb-4">
           <Dumbbell className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-semibold">Tập luyện</h3>
@@ -583,7 +592,7 @@ export function DailyRoutine() {
           {normalizedDayData.workouts.map((workout) => (
             <div
               key={workout.id}
-              className={`w-full flex items-center gap-4 p-4 rounded-xl border border-border transition-all text-left ${isReadOnly ? "opacity-70" : "hover:border-primary/50"}`}
+              className={`w-full flex items-center gap-4 p-4 rounded-xl border border-border transition-all text-left ${shouldDimReadOnly ? "opacity-70" : isReadOnly ? "" : "hover:border-primary/50"}`}
             >
               <button
                 onClick={() => toggleCheck(workout.id)}
@@ -621,7 +630,7 @@ export function DailyRoutine() {
         </div>
       </div>
 
-      <div className={`grid grid-cols-2 gap-4 ${isReadOnly ? "grayscale opacity-80" : ""}`}>
+      <div className={`grid grid-cols-2 gap-4 ${shouldDimReadOnly ? "grayscale opacity-80" : ""}`}>
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
           <div className="flex items-center gap-2 mb-4">
             <Moon className="w-5 h-5 text-primary" />
@@ -630,7 +639,7 @@ export function DailyRoutine() {
           <button
             onClick={() => toggleCheck(normalizedDayData.sleep.id)}
             disabled={isReadOnly}
-            className={`w-full flex items-center gap-4 p-4 rounded-xl border border-border transition-all text-left ${isReadOnly ? "cursor-not-allowed opacity-70" : "hover:border-primary/50"}`}
+            className={`w-full flex items-center gap-4 p-4 rounded-xl border border-border transition-all text-left ${shouldDimReadOnly ? "cursor-not-allowed opacity-70" : isReadOnly ? "cursor-default" : "hover:border-primary/50"}`}
           >
             {checkedItems.has(normalizedDayData.sleep.id) ? (
               <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
@@ -652,7 +661,7 @@ export function DailyRoutine() {
           <button
             onClick={() => toggleCheck(normalizedDayData.water.id)}
             disabled={isReadOnly}
-            className={`w-full flex items-center gap-4 p-4 rounded-xl border border-border transition-all text-left ${isReadOnly ? "cursor-not-allowed opacity-70" : "hover:border-primary/50"}`}
+            className={`w-full flex items-center gap-4 p-4 rounded-xl border border-border transition-all text-left ${shouldDimReadOnly ? "cursor-not-allowed opacity-70" : isReadOnly ? "cursor-default" : "hover:border-primary/50"}`}
           >
             {checkedItems.has(normalizedDayData.water.id) ? (
               <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
@@ -705,7 +714,7 @@ export function DailyRoutine() {
         className="w-full h-12"
         disabled={isSaving || isReadOnly}
       >
-        {isReadOnly ? "Ngày này đã bị khóa" : isSaving
+        {isCompletedReadOnly ? "Chỉ xem lại nhiệm vụ" : isReadOnly ? "Ngày này đã bị khóa" : isSaving
           ? "Đang lưu..."
           : completionPercentage === 100
             ? "Đã hoàn thành ngày này!"

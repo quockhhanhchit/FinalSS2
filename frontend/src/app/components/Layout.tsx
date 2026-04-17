@@ -23,18 +23,20 @@ import {
 import { clearAuthSession, getAuthSession } from "../lib/auth";
 import { apiPost } from "../lib/api";
 import { RouteTransition } from "./RouteTransition";
+import { useLanguage } from "../LanguageContext";
 
 export function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const session = getAuthSession();
+  const { t } = useLanguage();
 
   const navigation = [
-    { name: "Tong quan", href: "/app", icon: LayoutDashboard },
-    { name: "Ke hoach", href: "/app/plan", icon: Calendar },
-    { name: "Theo doi", href: "/app/tracking", icon: TrendingUp },
-    { name: "Phan thuong", href: "/app/rewards", icon: Trophy },
-    { name: "Cai dat", href: "/app/settings", icon: Settings },
+    { name: t("Tổng quan"), href: "/app", icon: LayoutDashboard },
+    { name: t("Kế hoạch"), href: "/app/plan", icon: Calendar },
+    { name: t("Theo dõi"), href: "/app/tracking", icon: TrendingUp },
+    { name: t("Phần thưởng"), href: "/app/rewards", icon: Trophy },
+    { name: t("Cài đặt"), href: "/app/settings", icon: Settings },
   ];
 
   const isActive = (href: string) => {
@@ -46,7 +48,7 @@ export function Layout() {
   };
 
   const userName =
-    session?.user?.fullName || session?.name || "Nguoi dung BudgetFit";
+    session?.user?.fullName || session?.name || t("Người dùng BudgetFit");
   const userInitials = userName
     .split(" ")
     .map((part) => part[0])
@@ -84,7 +86,7 @@ export function Layout() {
                     BudgetFit
                   </span>
                   <div className="-mt-0.5 hidden text-xs text-muted-foreground sm:block">
-                    Suc khoe va ngan sach
+                    {t("Sức khỏe và ngân sách")}
                   </div>
                 </div>
               </Link>
@@ -145,7 +147,7 @@ export function Layout() {
                     className="cursor-pointer"
                   >
                     <UserCircle className="h-4 w-4" />
-                    Cai dat
+                    {t("Cài đặt")}
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
@@ -153,7 +155,7 @@ export function Layout() {
                     className="cursor-pointer text-red-600 focus:text-red-600"
                   >
                     <LogOut className="h-4 w-4" />
-                    Dang xuat
+                    {t("Đăng xuất")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -177,7 +179,7 @@ export function Layout() {
                     className="cursor-pointer"
                   >
                     <UserCircle className="h-4 w-4" />
-                    Cai dat
+                    {t("Cài đặt")}
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
@@ -187,7 +189,7 @@ export function Layout() {
                     className="cursor-pointer text-red-600 focus:text-red-600"
                   >
                     <LogOut className="h-4 w-4" />
-                    Dang xuat
+                    {t("Đăng xuất")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

@@ -130,6 +130,12 @@ export function Plan() {
     }
   }, [planDays]);
 
+  useEffect(() => {
+    if (plan?.can_prompt_continue) {
+      navigate("/app?summary=plan-complete", { replace: true });
+    }
+  }, [navigate, plan?.can_prompt_continue]);
+
   const calendarCells = useMemo(
     () => buildMonthCalendar(planDays, displayDate),
     [planDays, displayDate],
@@ -218,7 +224,7 @@ export function Plan() {
 
   return (
     <div className="space-y-6">
-      {plan?.can_prompt_continue ? (
+      {false && plan?.can_prompt_continue ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm">
           <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl">
             <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-rose-500 text-white shadow-lg">

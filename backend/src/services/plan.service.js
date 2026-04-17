@@ -612,6 +612,13 @@ async function getCurrentPlan(userId) {
     "SELECT * FROM budget_breakdowns WHERE plan_id = ? LIMIT 1",
     [plan.id]
   );
+  const lastDay = days[days.length - 1] || null;
+  const lastDayNumber = Number(lastDay?.day_number || 0);
+  const hasDeclinedContinuation =
+    Number(plan.continuation_declined_after_day || 0) === lastDayNumber;
+  const lastDayReached =
+    Boolean(lastDay?.completed) ||
+    (lastDay?.plan_date ? toDateKey(lastDay.plan_date) < getTodayKey() : false);
 
   return {
     ...plan,
@@ -619,12 +626,9 @@ async function getCurrentPlan(userId) {
     can_prompt_continue:
       days.length > 0 &&
       days.length % 30 === 0 &&
-      days.every((day) => Boolean(day.completed)) &&
-      Number(plan.continuation_declined_after_day || 0) !==
-        Number(days[days.length - 1]?.day_number || 0),
-    has_declined_continuation:
-      Number(plan.continuation_declined_after_day || 0) ===
-      Number(days[days.length - 1]?.day_number || 0),
+      lastDayReached &&
+      !hasDeclinedContinuation,
+    has_declined_continuation: hasDeclinedContinuation,
     days: days.map((day) => {
       const lockState = getDayLockState(day);
 
@@ -864,12 +868,26 @@ async function updatePlanDayCompletion(userId, dayNumber, completedTasks) {
     const awardedBadges = isCompleted
       ? await checkAndAwardBadges(connection, userId)
       : [];
+    const [[planSummary]] = await connection.query(
+      `SELECT COALESCE(MAX(day_number), 0) AS maxDayNumber
+       FROM plan_days
+       WHERE plan_id = ?`,
+      [plan.id]
+    );
+    const maxDayNumber = Number(planSummary?.maxDayNumber || 0);
+    const planCompleted =
+      isCompleted &&
+      maxDayNumber > 0 &&
+      Number(day.day_number) === maxDayNumber &&
+      maxDayNumber % 30 === 0 &&
+      Number(plan.continuation_declined_after_day || 0) !== maxDayNumber;
 
     await connection.commit();
 
     return {
       dayNumber,
       completed: isCompleted,
+      plan_completed: planCompleted,
       awardedBadges,
       completed_tasks: completionRecords.map((record) =>
         record.taskType === "sleep" || record.taskType === "water"
