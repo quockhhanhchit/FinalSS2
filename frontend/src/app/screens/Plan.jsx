@@ -118,6 +118,8 @@ export function Plan() {
         completed: Boolean(day.completed),
         isLocked: Boolean(day.is_locked),
         lockReason: day.lock_reason,
+        lockType: day.lock_type || (day.is_locked && day.completed ? "completed_locked" : day.is_locked ? "skipped" : "active"),
+        canOpen: day.can_open !== false,
       })),
     [plan],
   );
@@ -407,17 +409,25 @@ export function Plan() {
               }
 
               const day = cell.planDay;
+              const isSkipped = day.lockType === "skipped" || !day.canOpen;
+              const isCompletedLocked = day.lockType === "completed_locked";
 
               return (
                 <button
                   key={cell.key}
-                  onClick={() => navigate(`/app/plan/day/${day.day}`)}
+                  type="button"
+                  disabled={isSkipped}
+                  onClick={() => {
+                    if (day.canOpen) {
+                      navigate(`/app/plan/day/${day.day}`);
+                    }
+                  }}
                   title={day.lockReason || undefined}
                   className={`relative min-h-[112px] p-3 rounded-xl border transition-all text-left ${
-                    day.isLocked
-                      ? "border-slate-200 bg-slate-100 text-slate-400 grayscale"
+                    isSkipped
+                      ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 opacity-60 grayscale dark:border-slate-700 dark:bg-slate-800/55 dark:text-slate-500"
                       : day.completed
-                        ? "border-primary bg-primary/5 hover:shadow-md"
+                        ? "border-emerald-300 bg-emerald-50 text-emerald-900 hover:shadow-md dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-100"
                         : "border-border bg-card hover:border-primary/50 hover:shadow-md"
                   }`}
                 >
@@ -446,6 +456,16 @@ export function Plan() {
                   <div className="text-xs text-muted-foreground mt-2">
                     Food: {formatVndShort(day.plannedCost)} VND
                   </div>
+                  {isCompletedLocked ? (
+                    <div className="mt-2 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                      Đã hoàn thành
+                    </div>
+                  ) : null}
+                  {isSkipped ? (
+                    <div className="mt-2 text-xs font-medium text-slate-500">
+                      Bỏ qua
+                    </div>
+                  ) : null}
                 </button>
               );
             })}
@@ -461,15 +481,27 @@ export function Plan() {
             </div>
           ) : null}
 
-          {visiblePlanDays.map((day) => (
+          {visiblePlanDays.map((day) => {
+            const isSkipped = day.lockType === "skipped" || !day.canOpen;
+            const isCompletedLocked = day.lockType === "completed_locked";
+
+            return (
             <button
               key={day.day}
-              onClick={() => navigate(`/app/plan/day/${day.day}`)}
+              type="button"
+              disabled={isSkipped}
+              onClick={() => {
+                if (day.canOpen) {
+                  navigate(`/app/plan/day/${day.day}`);
+                }
+              }}
               title={day.lockReason || undefined}
               className={`w-full rounded-xl p-4 shadow-sm border transition-all text-left ${
-                day.isLocked
-                  ? "bg-slate-100 border-slate-200 text-slate-400 grayscale"
-                  : "bg-card border-border hover:shadow-md hover:border-primary/50"
+                isSkipped
+                  ? "cursor-not-allowed bg-slate-100 border-slate-200 text-slate-400 opacity-60 grayscale dark:border-slate-700 dark:bg-slate-800/55 dark:text-slate-500"
+                  : day.completed
+                    ? "border-emerald-300 bg-emerald-50 text-emerald-900 hover:shadow-md dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-100"
+                    : "bg-card border-border hover:shadow-md hover:border-primary/50"
               }`}
             >
               <div className="flex items-center justify-between">
@@ -511,11 +543,14 @@ export function Plan() {
                       {Math.round(day.plannedCost).toLocaleString("vi-VN")} VND
                     </div>
                   </div>
-                  <div className="text-muted-foreground">-</div>
+                  <div className="text-muted-foreground">
+                    {isCompletedLocked ? "Đã hoàn thành" : isSkipped ? "Bỏ qua" : "-"}
+                  </div>
                 </div>
               </div>
             </button>
-          ))}
+            );
+          })}
         </div>
       )}
 
