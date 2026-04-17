@@ -16,12 +16,12 @@ export function ThemeToggleBtn() {
       <span
         className={`absolute left-1 top-1 h-8 w-8 rounded-full bg-gradient-to-br shadow-lg transition-transform duration-300 ${
           isDark
-            ? "translate-x-9 from-indigo-500 to-violet-500"
+            ? "translate-x-8 from-indigo-500 to-violet-500"
             : "translate-x-0 from-amber-300 to-orange-400"
         }`}
       />
 
-      <span className="relative z-10 grid w-8 place-items-center">
+      <span className="relative z-10 flex h-8 w-8 items-center justify-center">
         <Sun
           className={`h-4 w-4 transition-all duration-300 ${
             isDark ? "scale-75 text-slate-500" : "scale-100 text-white"
@@ -29,7 +29,7 @@ export function ThemeToggleBtn() {
         />
       </span>
 
-      <span className="relative z-10 grid w-8 place-items-center">
+      <span className="relative z-10 flex h-8 w-8 items-center justify-center">
         <Moon
           className={`h-4 w-4 transition-all duration-300 ${
             isDark ? "scale-100 text-white" : "scale-75 text-slate-400"

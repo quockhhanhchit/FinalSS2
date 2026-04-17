@@ -32,6 +32,25 @@ const refreshSchema = z.object({
   refreshToken: z.string().min(1, "Refresh token is required"),
 });
 
+const forgotPasswordSchema = z.object({
+  email: z.string().trim().email("Invalid email address").transform((value) => value.toLowerCase()),
+});
+
+const resetTokenSchema = z.object({
+  token: z.string().trim().min(1, "Reset token is required"),
+});
+
+const resetPasswordSchema = z
+  .object({
+    token: z.string().trim().min(1, "Reset token is required"),
+    newPassword: passwordSchema,
+    confirmPassword: z.string().min(1, "Confirm password is required"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
 const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, "Current password is required"),
@@ -99,6 +118,21 @@ router.post("/register", validateBody(registerSchema), authController.register);
  */
 router.post("/login", validateBody(loginSchema), authController.login);
 router.post("/google", validateBody(googleLoginSchema), authController.googleLogin);
+router.post(
+  "/forgot-password",
+  validateBody(forgotPasswordSchema),
+  authController.forgotPassword
+);
+router.post(
+  "/reset-password/validate",
+  validateBody(resetTokenSchema),
+  authController.validateResetToken
+);
+router.post(
+  "/reset-password",
+  validateBody(resetPasswordSchema),
+  authController.resetPassword
+);
 
 /**
  * @swagger

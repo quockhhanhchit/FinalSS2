@@ -21,7 +21,7 @@ function DashboardSkeleton() {
         <div className="h-9 w-48 rounded-lg bg-secondary animate-pulse mb-2" />
         <div className="h-5 w-72 rounded-lg bg-secondary animate-pulse" />
       </div>
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <div key={index} className="rounded-2xl border border-border bg-card p-6">
             <div className="h-10 w-10 rounded-lg bg-secondary animate-pulse mb-4" />
@@ -30,7 +30,7 @@ function DashboardSkeleton() {
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         {Array.from({ length: 2 }).map((_, index) => (
           <div key={index} className="rounded-2xl border border-border bg-card p-6">
             <div className="h-6 w-40 rounded-lg bg-secondary animate-pulse mb-6" />

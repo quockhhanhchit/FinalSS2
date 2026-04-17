@@ -67,6 +67,33 @@ async function changePassword(req, res) {
   }
 }
 
+async function forgotPassword(req, res) {
+  try {
+    const data = await authService.requestPasswordReset(req.body.email);
+    res.json(data);
+  } catch (error) {
+    res.status(error.status || 400).json({ message: error.message });
+  }
+}
+
+async function validateResetToken(req, res) {
+  try {
+    const data = await authService.validatePasswordResetToken(req.body.token);
+    res.json(data);
+  } catch (error) {
+    res.status(error.status || 400).json({ message: error.message });
+  }
+}
+
+async function resetPassword(req, res) {
+  try {
+    const data = await authService.resetPassword(req.body);
+    res.json(data);
+  } catch (error) {
+    res.status(error.status || 400).json({ message: error.message });
+  }
+}
+
 module.exports = {
   register,
   login,
@@ -75,4 +102,7 @@ module.exports = {
   refreshToken,
   logout,
   changePassword,
+  forgotPassword,
+  validateResetToken,
+  resetPassword,
 };

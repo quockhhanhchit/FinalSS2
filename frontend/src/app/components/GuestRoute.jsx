@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router";
 import { isAuthenticated } from "../lib/auth";
 import { resolveOnboardingStatus } from "../lib/onboarding";
+import { RouteTransition } from "./RouteTransition";
 
 export function GuestRoute() {
   const authenticated = isAuthenticated();
@@ -36,7 +37,11 @@ export function GuestRoute() {
   }, [authenticated]);
 
   if (!authenticated) {
-    return <Outlet />;
+    return (
+      <RouteTransition>
+        <Outlet />
+      </RouteTransition>
+    );
   }
 
   if (onboardingCompleted === null) {

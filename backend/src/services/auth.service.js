@@ -1,11 +1,23 @@
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const pool = require("../config/db");
+const { getSmtpConfig, sendPasswordResetEmail } = require("./email.service");
 const {
   signAccessToken,
   signRefreshToken,
   verifyRefreshToken,
 } = require("../utils/jwt");
+
+const PASSWORD_RESET_TOKEN_TTL_MINUTES = 30;
+
+function hashToken(token) {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
+
+function buildPasswordResetUrl(token) {
+  const appUrl = (process.env.APP_URL || "http://localhost:5173").replace(/\/$/, "");
+  return `${appUrl}/reset-password?token=${encodeURIComponent(token)}`;
+}
 
 async function persistRefreshToken(userId, refreshToken) {
   const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
@@ -262,6 +274,151 @@ async function changePassword(userId, { currentPassword, newPassword }) {
   return { message: "Password changed successfully" };
 }
 
+async function requestPasswordReset(email) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+
+  if (!normalizedEmail) {
+    const error = new Error("Email is required");
+    error.status = 400;
+    throw error;
+  }
+
+  const [rows] = await pool.query(
+    "SELECT id FROM users WHERE email = ? LIMIT 1",
+    [normalizedEmail]
+  );
+
+  // Always return a generic success response to avoid exposing account existence.
+  if (rows.length === 0) {
+    return {
+      message:
+        "If an account exists for this email, password reset instructions have been prepared.",
+    };
+  }
+
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  const resetTokenHash = hashToken(resetToken);
+  const expiresAt = new Date(Date.now() + PASSWORD_RESET_TOKEN_TTL_MINUTES * 60 * 1000);
+
+  await pool.query(
+    `UPDATE users
+     SET password_reset_token_hash = ?, password_reset_expires_at = ?
+     WHERE id = ?`,
+    [resetTokenHash, expiresAt, rows[0].id]
+  );
+
+  const resetUrl = buildPasswordResetUrl(resetToken);
+
+  try {
+    await sendPasswordResetEmail({
+      to: normalizedEmail,
+      resetUrl,
+      expiresInMinutes: PASSWORD_RESET_TOKEN_TTL_MINUTES,
+    });
+  } catch (error) {
+    await pool.query(
+      `UPDATE users
+       SET password_reset_token_hash = NULL, password_reset_expires_at = NULL
+       WHERE id = ?`,
+      [rows[0].id]
+    );
+
+    if (error.code === "SMTP_NOT_CONFIGURED") {
+      return {
+        message:
+          "If an account exists for this email, password reset instructions have been prepared.",
+        ...(process.env.NODE_ENV === "production"
+          ? {}
+          : { resetUrl }),
+      };
+    }
+
+    const smtpError = new Error("Unable to send password reset email right now");
+    smtpError.status = 500;
+    throw smtpError;
+  }
+
+  return {
+    message:
+      "If an account exists for this email, password reset instructions have been prepared.",
+    ...(process.env.NODE_ENV === "production" || getSmtpConfig()
+      ? {}
+      : { resetUrl }),
+  };
+}
+
+async function validatePasswordResetToken(token) {
+  const normalizedToken = String(token || "").trim();
+
+  if (!normalizedToken) {
+    const error = new Error("Reset token is required");
+    error.status = 400;
+    throw error;
+  }
+
+  const tokenHash = hashToken(normalizedToken);
+
+  const [rows] = await pool.query(
+    `SELECT id
+     FROM users
+     WHERE password_reset_token_hash = ?
+       AND password_reset_expires_at IS NOT NULL
+       AND password_reset_expires_at > NOW()
+     LIMIT 1`,
+    [tokenHash]
+  );
+
+  if (rows.length === 0) {
+    const error = new Error("Reset link is invalid or has expired");
+    error.status = 400;
+    throw error;
+  }
+
+  return { valid: true };
+}
+
+async function resetPassword({ token, newPassword }) {
+  const normalizedToken = String(token || "").trim();
+
+  if (!normalizedToken) {
+    const error = new Error("Reset token is required");
+    error.status = 400;
+    throw error;
+  }
+
+  const tokenHash = hashToken(normalizedToken);
+
+  const [rows] = await pool.query(
+    `SELECT id
+     FROM users
+     WHERE password_reset_token_hash = ?
+       AND password_reset_expires_at IS NOT NULL
+       AND password_reset_expires_at > NOW()
+     LIMIT 1`,
+    [tokenHash]
+  );
+
+  if (rows.length === 0) {
+    const error = new Error("Reset link is invalid or has expired");
+    error.status = 400;
+    throw error;
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 10);
+
+  await pool.query(
+    `UPDATE users
+     SET password_hash = ?,
+         refresh_token_hash = NULL,
+         password_reset_token_hash = NULL,
+         password_reset_expires_at = NULL
+     WHERE id = ?`,
+    [passwordHash, rows[0].id]
+  );
+
+  return { message: "Password reset successfully" };
+}
+
 module.exports = {
   register,
   login,
@@ -270,4 +427,7 @@ module.exports = {
   refreshAccessToken,
   logout,
   changePassword,
+  requestPasswordReset,
+  validatePasswordResetToken,
+  resetPassword,
 };

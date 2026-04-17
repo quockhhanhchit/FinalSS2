@@ -5,6 +5,9 @@ jest.mock("../src/services/auth.service", () => ({
   getMe: jest.fn(),
   refreshAccessToken: jest.fn(),
   logout: jest.fn(),
+  requestPasswordReset: jest.fn(),
+  validatePasswordResetToken: jest.fn(),
+  resetPassword: jest.fn(),
 }));
 
 const request = require("supertest");
@@ -65,5 +68,44 @@ describe("Auth routes validation", () => {
     expect(response.body.message).toBe("Validation failed");
     expect(response.body.errors.idToken).toBeDefined();
     expect(authService.loginWithGoogle).not.toHaveBeenCalled();
+  });
+
+  it("requires a valid email for forgot password", async () => {
+    const response = await request(app)
+      .post("/api/auth/forgot-password")
+      .send({
+        email: "bad-email",
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+    expect(response.body.errors.email).toBeDefined();
+    expect(authService.requestPasswordReset).not.toHaveBeenCalled();
+  });
+
+  it("requires a token for reset token validation", async () => {
+    const response = await request(app)
+      .post("/api/auth/reset-password/validate")
+      .send({});
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+    expect(response.body.errors.token).toBeDefined();
+    expect(authService.validatePasswordResetToken).not.toHaveBeenCalled();
+  });
+
+  it("requires matching passwords for reset password", async () => {
+    const response = await request(app)
+      .post("/api/auth/reset-password")
+      .send({
+        token: "abc",
+        newPassword: "Password123",
+        confirmPassword: "Password456",
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+    expect(response.body.errors.confirmPassword).toBeDefined();
+    expect(authService.resetPassword).not.toHaveBeenCalled();
   });
 });

@@ -9,6 +9,7 @@ import {
   ChevronDown,
   LogOut,
   UserCircle,
+  Menu,
 } from "lucide-react";
 import { ToastContainer } from "./ui/toast";
 import { ThemeToggleBtn } from "./ThemeToggleBtn";
@@ -21,6 +22,7 @@ import {
 } from "./ui/dropdown-menu";
 import { clearAuthSession, getAuthSession } from "../lib/auth";
 import { apiPost } from "../lib/api";
+import { RouteTransition } from "./RouteTransition";
 
 export function Layout() {
   const location = useLocation();
@@ -28,21 +30,23 @@ export function Layout() {
   const session = getAuthSession();
 
   const navigation = [
-    { name: "Tổng quan", href: "/app", icon: LayoutDashboard },
-    { name: "Kế hoạch", href: "/app/plan", icon: Calendar },
-    { name: "Theo dõi", href: "/app/tracking", icon: TrendingUp },
-    { name: "Phần thưởng", href: "/app/rewards", icon: Trophy },
-    { name: "Cài đặt", href: "/app/settings", icon: Settings },
+    { name: "Tong quan", href: "/app", icon: LayoutDashboard },
+    { name: "Ke hoach", href: "/app/plan", icon: Calendar },
+    { name: "Theo doi", href: "/app/tracking", icon: TrendingUp },
+    { name: "Phan thuong", href: "/app/rewards", icon: Trophy },
+    { name: "Cai dat", href: "/app/settings", icon: Settings },
   ];
 
-  const isActive = (href) => {
+  const isActive = (href: string) => {
     if (href === "/app") {
       return location.pathname === "/app";
     }
+
     return location.pathname.startsWith(href);
   };
 
-  const userName = session?.user?.fullName || session?.name || "Người dùng BudgetFit";
+  const userName =
+    session?.user?.fullName || session?.name || "Nguoi dung BudgetFit";
   const userInitials = userName
     .split(" ")
     .map((part) => part[0])
@@ -67,25 +71,25 @@ export function Layout() {
 
   return (
     <div className="min-h-screen bg-background">
-      <nav className="bg-card border-b border-border sticky top-0 z-40 backdrop-blur-lg bg-card/80">
-        <div className="max-w-[1440px] mx-auto px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-8">
-              <Link to="/app" className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#22c55e] via-[#34d399] to-[#8b5cf6] rounded-xl flex items-center justify-center shadow-lg">
-                  <Activity className="w-6 h-6 text-white" />
+      <nav className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-lg">
+        <div className="mx-auto max-w-[1440px] px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-4 lg:gap-8">
+              <Link to="/app" className="flex min-w-0 items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#22c55e] via-[#34d399] to-[#8b5cf6] shadow-lg">
+                  <Activity className="h-6 w-6 text-white" />
                 </div>
-                <div>
-                  <span className="text-xl font-bold bg-gradient-to-r from-[#16a34a] via-[#10b981] to-[#8b5cf6] bg-clip-text text-transparent">
+                <div className="min-w-0">
+                  <span className="bg-gradient-to-r from-[#16a34a] via-[#10b981] to-[#8b5cf6] bg-clip-text text-lg font-bold text-transparent sm:text-xl">
                     BudgetFit
                   </span>
-                  <div className="text-xs text-muted-foreground -mt-0.5">
-                    Sức khỏe & Ngân sách
+                  <div className="-mt-0.5 hidden text-xs text-muted-foreground sm:block">
+                    Suc khoe va ngan sach
                   </div>
                 </div>
               </Link>
 
-              <div className="flex gap-1">
+              <div className="hidden gap-1 lg:flex">
                 {navigation.map((item) => {
                   const Icon = item.icon;
                   const active = isActive(item.href);
@@ -94,13 +98,13 @@ export function Layout() {
                     <Link
                       key={item.name}
                       to={item.href}
-                      className={`px-4 py-2.5 rounded-xl flex items-center gap-2 font-medium transition-all ${
+                      className={`flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all ${
                         active
                           ? "bg-gradient-to-r from-primary to-accent text-white shadow-lg"
-                          : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                          : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                       }`}
                     >
-                      <Icon className="w-4 h-4" />
+                      <Icon className="h-4 w-4" />
                       <span className="text-sm">{item.name}</span>
                     </Link>
                   );
@@ -108,17 +112,62 @@ export function Layout() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-4">
               <ThemeToggleBtn />
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-secondary transition-colors outline-none">
-                    <div className="w-9 h-9 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center text-white font-semibold shadow-md">
+                  <button className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background text-foreground shadow-sm transition-colors hover:bg-secondary outline-none lg:hidden">
+                    <Menu className="h-5 w-5" />
+                  </button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end" className="w-56">
+                  {navigation.map((item) => {
+                    const Icon = item.icon;
+
+                    return (
+                      <DropdownMenuItem
+                        key={item.href}
+                        onClick={() => navigate(item.href)}
+                        className="cursor-pointer"
+                      >
+                        <Icon className="h-4 w-4" />
+                        {item.name}
+                      </DropdownMenuItem>
+                    );
+                  })}
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    onClick={handleOpenSettings}
+                    className="cursor-pointer"
+                  >
+                    <UserCircle className="h-4 w-4" />
+                    Cai dat
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="cursor-pointer text-red-600 focus:text-red-600"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Dang xuat
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="hidden items-center gap-2 rounded-xl px-3 py-2 outline-none transition-colors hover:bg-secondary sm:flex">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 text-white shadow-md">
                       {userInitials}
                     </div>
-                    <span className="text-sm font-medium">{userName}</span>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    <span className="max-w-[160px] truncate text-sm font-medium">
+                      {userName}
+                    </span>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </button>
                 </DropdownMenuTrigger>
 
@@ -127,8 +176,8 @@ export function Layout() {
                     onClick={handleOpenSettings}
                     className="cursor-pointer"
                   >
-                    <UserCircle className="w-4 h-4" />
-                    Cài đặt
+                    <UserCircle className="h-4 w-4" />
+                    Cai dat
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
@@ -137,8 +186,8 @@ export function Layout() {
                     onClick={handleLogout}
                     className="cursor-pointer text-red-600 focus:text-red-600"
                   >
-                    <LogOut className="w-4 h-4" />
-                    Đăng xuất
+                    <LogOut className="h-4 w-4" />
+                    Dang xuat
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -147,8 +196,10 @@ export function Layout() {
         </div>
       </nav>
 
-      <main className="max-w-[1440px] mx-auto px-8 py-8">
-        <Outlet />
+      <main className="mx-auto max-w-[1440px] overflow-x-hidden px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
+        <RouteTransition mode="shell">
+          <Outlet />
+        </RouteTransition>
       </main>
 
       <ToastContainer />

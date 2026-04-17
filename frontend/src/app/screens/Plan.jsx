@@ -250,19 +250,19 @@ export function Plan() {
         </div>
       ) : null}
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-3xl font-semibold mb-2">Kế hoạch 30 ngày</h1>
           <p className="text-muted-foreground">
             Lịch ăn uống và tập luyện cá nhân hóa theo thời gian thực tế
           </p>
         </div>
-        <div className="flex gap-2 bg-secondary rounded-lg p-1">
+        <div className="flex w-full gap-2 bg-secondary rounded-lg p-1 sm:w-fit">
           <Button
             variant={viewMode === "calendar" ? "default" : "ghost"}
             size="sm"
             onClick={() => setViewMode("calendar")}
-            className="gap-2"
+            className="flex-1 gap-2 sm:flex-none"
           >
             <CalendarIcon className="w-4 h-4" />
             Lịch
@@ -271,7 +271,7 @@ export function Plan() {
             variant={viewMode === "list" ? "default" : "ghost"}
             size="sm"
             onClick={() => setViewMode("list")}
-            className="gap-2"
+            className="flex-1 gap-2 sm:flex-none"
           >
             <List className="w-4 h-4" />
             Danh sách
@@ -285,7 +285,7 @@ export function Plan() {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
           <div className="text-sm text-muted-foreground mb-1">
             Ngày đã hoàn thành
