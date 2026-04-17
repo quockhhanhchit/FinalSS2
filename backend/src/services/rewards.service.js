@@ -297,10 +297,22 @@ async function getRewardsSummary(userId) {
 
   const [vouchers] = await pool.query(
     `SELECT rv.*,
-       CASE WHEN rr.id IS NULL THEN false ELSE true END AS claimed
+       CASE WHEN rr.id IS NULL THEN false ELSE true END AS claimed,
+       GREATEST(
+         COALESCE(rv.weekly_quantity, rv.available_quantity) -
+           (
+             SELECT COUNT(*)
+             FROM reward_redemptions weekly_rr
+             WHERE weekly_rr.voucher_id = rv.id
+               AND YEARWEEK(weekly_rr.redeemed_at, 1) = YEARWEEK(CURDATE(), 1)
+           ),
+         0
+       ) AS available_this_week
      FROM reward_vouchers rv
      LEFT JOIN reward_redemptions rr
-       ON rr.voucher_id = rv.id AND rr.user_id = ?
+       ON rr.voucher_id = rv.id
+        AND rr.user_id = ?
+        AND YEARWEEK(rr.redeemed_at, 1) = YEARWEEK(CURDATE(), 1)
      WHERE rv.is_active = true
      ORDER BY rv.points_required ASC, rv.id ASC`,
     [userId]
@@ -343,7 +355,7 @@ async function getRewardsSummary(userId) {
       discount: voucher.discount_label,
       image: voucher.image_url,
       points: Number(voucher.points_required),
-      available: Number(voucher.available_quantity),
+      available: Number(voucher.available_this_week),
       claimed: Boolean(voucher.claimed),
     })),
     recentRewards,
@@ -376,13 +388,35 @@ async function redeemVoucher(userId, voucherId) {
       throw error;
     }
 
+    const weeklyQuantity = Number(
+      voucher.weekly_quantity || voucher.available_quantity || 0
+    );
+    const [[weeklyUsage]] = await connection.query(
+      `SELECT COUNT(*) AS usedThisWeek
+       FROM reward_redemptions
+       WHERE voucher_id = ?
+         AND YEARWEEK(redeemed_at, 1) = YEARWEEK(CURDATE(), 1)`,
+      [voucherId]
+    );
+
+    if (Number(weeklyUsage?.usedThisWeek || 0) >= weeklyQuantity) {
+      const error = new Error("Voucher is out of stock this week");
+      error.status = 400;
+      throw error;
+    }
+
     const [[existing]] = await connection.query(
-      "SELECT id FROM reward_redemptions WHERE user_id = ? AND voucher_id = ? LIMIT 1",
+      `SELECT id
+       FROM reward_redemptions
+       WHERE user_id = ?
+         AND voucher_id = ?
+         AND YEARWEEK(redeemed_at, 1) = YEARWEEK(CURDATE(), 1)
+       LIMIT 1`,
       [userId, voucherId]
     );
 
     if (existing) {
-      const error = new Error("Voucher already claimed");
+      const error = new Error("Voucher already claimed this week");
       error.status = 400;
       throw error;
     }
@@ -402,12 +436,6 @@ async function redeemVoucher(userId, voucherId) {
        (user_id, voucher_id, points_spent, redeem_code)
        VALUES (?, ?, ?, ?)`,
       [userId, voucherId, voucher.points_required, redeemCode]
-    );
-    await connection.query(
-      `UPDATE reward_vouchers
-       SET available_quantity = available_quantity - 1
-       WHERE id = ?`,
-      [voucherId]
     );
 
     await connection.commit();

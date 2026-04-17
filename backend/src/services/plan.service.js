@@ -155,11 +155,24 @@ function getDayLockState(day) {
     return {
       isLocked: false,
       lockReason: null,
+      lockType: "active",
+      canOpen: true,
+    };
+  }
+
+  if (day.completed) {
+    return {
+      isLocked: true,
+      lockReason: "Ngày này đã hoàn thành và đã bị khóa ở chế độ xem lại.",
+      lockType: "completed_locked",
+      canOpen: true,
     };
   }
 
   return {
     isLocked: true,
+    lockType: "skipped",
+    canOpen: false,
     lockReason: day.completed
       ? "Ngày này đã hoàn thành và đã bị khóa."
       : "Ngày này đã qua hạn và không thể cập nhật.",
@@ -619,6 +632,8 @@ async function getCurrentPlan(userId) {
         ...day,
         is_locked: lockState.isLocked,
         lock_reason: lockState.lockReason,
+        lock_type: lockState.lockType,
+        can_open: lockState.canOpen,
       };
     }),
   };
@@ -761,10 +776,18 @@ async function getPlanDay(userId, dayNumber) {
   const { meals, workouts, completedTasks } = await getPlanDayDetails(pool, day.id);
   const lockState = getDayLockState(day);
 
+  if (!lockState.canOpen) {
+    const error = new Error(lockState.lockReason);
+    error.status = 403;
+    throw error;
+  }
+
   return {
     ...day,
     is_locked: lockState.isLocked,
     lock_reason: lockState.lockReason,
+    lock_type: lockState.lockType,
+    can_open: lockState.canOpen,
     meals,
     workouts,
     completed_tasks: completedTasks,

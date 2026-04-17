@@ -12,6 +12,7 @@ export function Rewards() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [redeemingId, setRedeemingId] = useState(null);
+  const [selectedVoucher, setSelectedVoucher] = useState(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationReward, setCelebrationReward] = useState(null);
 
@@ -64,6 +65,7 @@ export function Rewards() {
         value: voucher.discount,
         code: response.redeemCode,
       });
+      setSelectedVoucher(null);
       setShowCelebration(true);
     } catch (requestError) {
       setError(requestError.message);
@@ -229,14 +231,14 @@ export function Rewards() {
                         voucher.available <= 0 ||
                         redeemingId === voucher.id
                       }
-                      onClick={() => handleRedeem(voucher)}
+                      onClick={() => setSelectedVoucher(voucher)}
                     >
                       {redeemingId === voucher.id ? "Đang đổi..." : "Đổi"}
                     </Button>
                   ) : null}
                 </div>
                 <div className="text-xs text-muted-foreground mt-2">
-                  Còn {voucher.available}
+                  Còn {voucher.available} lượt trong tuần này
                 </div>
               </div>
             </div>
@@ -285,6 +287,53 @@ export function Rewards() {
           code: "",
         }}
       />
+
+      {selectedVoucher ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+            <div className="h-36 overflow-hidden">
+              <img
+                src={selectedVoucher.image}
+                alt={selectedVoucher.brand}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="p-6">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <h3 className="text-xl font-semibold">Xác nhận đổi voucher</h3>
+                <Badge variant="purple">{selectedVoucher.discount}</Badge>
+              </div>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Bạn có chắc muốn dùng {selectedVoucher.points} điểm để nhận voucher {selectedVoucher.brand}? Nếu bấm Close, giao dịch sẽ bị hủy và voucher chưa được nhận.
+              </p>
+              <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
+                Voucher được làm mới theo tuần. Tuần sau bạn có thể đổi lại voucher này nếu còn đủ điểm và còn lượt.
+              </div>
+              <div className="flex justify-end gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setSelectedVoucher(null)}
+                  disabled={redeemingId === selectedVoucher.id}
+                >
+                  Close
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => handleRedeem(selectedVoucher)}
+                  disabled={
+                    totalPoints < selectedVoucher.points ||
+                    selectedVoucher.available <= 0 ||
+                    redeemingId === selectedVoucher.id
+                  }
+                >
+                  {redeemingId === selectedVoucher.id ? "Đang nhận..." : "Claim"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

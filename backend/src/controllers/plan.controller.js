@@ -29,7 +29,7 @@ async function getPlanDay(req, res) {
     const data = await planService.getPlanDay(req.user.id, dayNumber);
     res.json(data);
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(error.status || 404).json({ message: error.message });
   }
 }
 
