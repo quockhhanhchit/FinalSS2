@@ -191,6 +191,22 @@ export function Settings() {
         goal: bodyGoalsData.goal,
         duration: Number(bodyGoalsData.duration),
       });
+      window.localStorage.setItem(
+        "budgetfit:profile-updated-at",
+        String(Date.now())
+      );
+      window.dispatchEvent(
+        new CustomEvent("budgetfit:profile-updated", {
+          detail: {
+            age: Number(bodyGoalsData.age),
+            gender: bodyGoalsData.gender,
+            height: Number(bodyGoalsData.height),
+            weight: Number(bodyGoalsData.weight),
+            goal: bodyGoalsData.goal,
+            duration: Number(bodyGoalsData.duration),
+          },
+        })
+      );
       setSavedBodyGoalsData(bodyGoalsData);
       setIsBodyGoalsEditing(false);
       showToast("Đã lưu chỉ số cơ thể và mục tiêu.", "success");

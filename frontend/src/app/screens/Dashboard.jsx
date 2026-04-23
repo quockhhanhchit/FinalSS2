@@ -67,10 +67,23 @@ export function Dashboard() {
   const [error, setError] = useState("");
   const [isContinuingPlan, setIsContinuingPlan] = useState(false);
 
+  const loadDashboard = async () => {
+    const [data, analyticsData, planData] = await Promise.all([
+      apiGet("/api/dashboard/summary"),
+      apiGet("/api/dashboard/analytics"),
+      apiGet("/api/plans/current").catch(() => null),
+    ]);
+
+    setDashboard(data);
+    setAnalytics(analyticsData);
+    setPlan(planData);
+    setError("");
+  };
+
   useEffect(() => {
     let ignore = false;
 
-    async function loadDashboard() {
+    async function loadDashboardData() {
       try {
         const [data, analyticsData, planData] = await Promise.all([
           apiGet("/api/dashboard/summary"),
@@ -82,6 +95,7 @@ export function Dashboard() {
           setDashboard(data);
           setAnalytics(analyticsData);
           setPlan(planData);
+          setError("");
         }
       } catch (requestError) {
         if (!ignore) {
@@ -90,10 +104,18 @@ export function Dashboard() {
       }
     }
 
-    loadDashboard();
+    const handleRefresh = () => {
+      loadDashboardData();
+    };
+
+    loadDashboardData();
+    window.addEventListener("budgetfit:budget-updated", handleRefresh);
+    window.addEventListener("budgetfit:profile-updated", handleRefresh);
 
     return () => {
       ignore = true;
+      window.removeEventListener("budgetfit:budget-updated", handleRefresh);
+      window.removeEventListener("budgetfit:profile-updated", handleRefresh);
     };
   }, []);
 
@@ -268,6 +290,36 @@ export function Dashboard() {
     }
   };
 
+  const shortcutCards = (
+    <div className="flex flex-col gap-4">
+      <div
+        onClick={() => navigate("/app/plan")}
+        className="rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-6 text-white transition-all hover:shadow-lg cursor-pointer"
+      >
+        <h3 className="text-xl font-semibold mb-2">Xem kế hoạch 30 ngày</h3>
+        <p className="text-white/90 mb-4">
+          Xem các bài tập và bữa ăn sắp tới
+        </p>
+        <Button variant="secondary" size="sm">
+          Đến kế hoạch
+        </Button>
+      </div>
+
+      <div
+        onClick={() => navigate("/app/budget-breakdown")}
+        className="rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white transition-all hover:shadow-lg cursor-pointer"
+      >
+        <h3 className="text-xl font-semibold mb-2">Xem phân bổ ngân sách</h3>
+        <p className="text-white/90 mb-4">
+          Tối ưu cách phân bổ chi tiêu của bạn
+        </p>
+        <Button variant="secondary" size="sm">
+          Xem ngân sách
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <div>
@@ -345,286 +397,266 @@ export function Dashboard() {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <TrendingDown className="w-5 h-5 text-white" />
-            </div>
-            <div className="text-sm text-muted-foreground">Cân nặng hiện tại</div>
-          </div>
-          <div className="text-3xl font-bold mb-1">{currentWeight || "--"} kg</div>
-          <div className="text-sm text-primary">
-            {startWeight && currentWeight
-              ? `${(currentWeight - startWeight).toFixed(1)} kg so với ban đầu`
-              : "Chưa có dữ liệu"}
-          </div>
-        </div>
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+        <aside className="w-full lg:sticky lg:top-24 lg:w-[320px] lg:flex-shrink-0">
+          {shortcutCards}
+        </aside>
 
-        <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-              <Target className="w-5 h-5 text-orange-600" />
-            </div>
-            <div className="text-sm text-muted-foreground">Tiến độ mục tiêu</div>
-          </div>
-          <div className="text-3xl font-bold mb-1">{Math.round(weightProgress)}%</div>
-          <div className="text-sm text-muted-foreground">
-            {currentWeight && startWeight
-              ? `Còn ${Math.abs(goalWeight - currentWeight).toFixed(1)} kg tới mục tiêu`
-              : "Hoàn thành onboarding trước"}
-          </div>
-        </div>
-
-        <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <CheckCircle className="w-5 h-5 text-blue-600" />
-            </div>
-            <div className="text-sm text-muted-foreground">Mức bám sát tuần</div>
-          </div>
-          <div className="text-3xl font-bold mb-1">{adherenceRate}%</div>
-          <div className="text-sm text-primary">{daysCompleted} ngày đã hoàn thành</div>
-        </div>
-
-        <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-purple-600" />
-            </div>
-            <div className="text-sm text-muted-foreground">Ngân sách đã dùng</div>
-          </div>
-          <div className="text-3xl font-bold mb-1">{Math.round(budgetProgress)}%</div>
-          <div className="text-sm text-primary">
-            {totalBudget
-              ? `${Math.round(totalSpent / 1000)}k / ${Math.round(totalBudget / 1000)}k VND`
-              : "No budget yet"}
-          </div>
-        </div>
-      </div>
-
-      <DashboardAnalytics analytics={analytics} />
-
-      <div className="grid grid-cols-2 gap-6">
-        <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-1">Tiến độ cân nặng</h3>
-              <p className="text-sm text-muted-foreground">Cân nặng của bạn theo thời gian</p>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => navigate("/app/tracking")}>
-              Xem chi tiết
-            </Button>
-          </div>
-          {weightData.length === 0 ? (
-            <ChartEmptyState onClick={() => navigate("/app/tracking")} />
-          ) : (
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={weightData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="day" stroke="#6b7280" fontSize={12} />
-                  <YAxis stroke="#6b7280" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#ffffff",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "8px",
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="weight"
-                    stroke="#10b981"
-                    strokeWidth={3}
-                    dot={{ fill: "#10b981", r: 4 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-            <div>
-              <div className="text-xs text-muted-foreground">Ban đầu</div>
-              <div className="font-semibold">{startWeight || "--"} kg</div>
-            </div>
-            <div>
-              <div className="text-xs text-muted-foreground">Hiện tại</div>
-              <div className="font-semibold text-primary">{currentWeight || "--"} kg</div>
-            </div>
-            <div>
-              <div className="text-xs text-muted-foreground">Mục tiêu</div>
-              <div className="font-semibold">{goalWeight || "--"} kg</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-1">Chi tiêu so với ngân sách</h3>
-              <p className="text-sm text-muted-foreground">
-                Chi tiêu tracking và các ngày đã hoàn thành trong kế hoạch
-              </p>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => navigate("/app/tracking")}>
-              Xem chi tiết
-            </Button>
-          </div>
-          {spendingData.length === 0 ? (
-            <ChartEmptyState onClick={() => navigate("/app/tracking")} />
-          ) : (
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={spendingData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="week" stroke="#6b7280" fontSize={12} />
-                  <YAxis stroke="#6b7280" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#ffffff",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "8px",
-                    }}
-                    formatter={(value) => `${Math.round(value / 1000)}k VND`}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="spent"
-                    stroke="#10b981"
-                    strokeWidth={3}
-                    dot={{ fill: "#10b981", r: 4 }}
-                    name="Đã chi"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="budget"
-                    stroke="#e5e7eb"
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                    dot={{ fill: "#6b7280", r: 3 }}
-                    name="Ngân sách"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-            <div>
-              <div className="text-xs text-muted-foreground">Tổng đã chi</div>
-              <div className="font-semibold">{Math.round(totalSpent / 1000)}k VND</div>
-            </div>
-            <div>
-              <div className="text-xs text-muted-foreground">TB mỗi tuần</div>
-              <div className="font-semibold">
-                {spendingData.length
-                  ? `${Math.round(totalSpent / spendingData.length / 1000)}k VND`
-                  : "0k VND"}
+        <div className="min-w-0 flex-1 space-y-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                  <TrendingDown className="w-5 h-5 text-white" />
+                </div>
+                <div className="text-sm text-muted-foreground">Cân nặng hiện tại</div>
+              </div>
+              <div className="text-3xl font-bold mb-1">{currentWeight || "--"} kg</div>
+              <div className="text-sm text-primary">
+                {startWeight && currentWeight
+                  ? `${(currentWeight - startWeight).toFixed(1)} kg so với ban đầu`
+                  : "Chưa có dữ liệu"}
               </div>
             </div>
-            <div>
-              <div className="text-xs text-muted-foreground">Còn lại</div>
-              <div className="font-semibold text-primary">
-                {Math.round((totalBudget - totalSpent) / 1000)}k VND
+
+            <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <Target className="w-5 h-5 text-orange-600" />
+                </div>
+                <div className="text-sm text-muted-foreground">Tiến độ mục tiêu</div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-          <h4 className="font-semibold mb-4">Tuần này</h4>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Ngày hoàn thành</span>
-              <span className="font-semibold">
-                {Number(weeklyStats.daysCompletedThisWeek || 0)}/7
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Bài tập đã làm</span>
-              <span className="font-semibold">
-                {Number(weeklyStats.workoutsDoneThisWeek || 0)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Bữa ăn đã ghi nhận</span>
-              <span className="font-semibold">
-                {Number(weeklyStats.mealsLoggedThisWeek || 0)}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-          <h4 className="font-semibold mb-4">Tiến độ tổng thể</h4>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Tổng số ngày</span>
-              <span className="font-semibold">{daysCompleted}/30</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Chuỗi hiện tại</span>
-              <span className="font-semibold">{currentStreak} ngày</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Chuỗi tốt nhất</span>
-              <span className="font-semibold">{bestStreak} ngày</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-          <h4 className="font-semibold mb-4">Thành tựu</h4>
-          <div className="space-y-3">
-            {achievements.length === 0 ? (
+              <div className="text-3xl font-bold mb-1">{Math.round(weightProgress)}%</div>
               <div className="text-sm text-muted-foreground">
-                Hoàn thành tracking hoặc nhiệm vụ hằng ngày để mở khóa thành tựu.
+                {currentWeight && startWeight
+                  ? `Còn ${Math.abs(goalWeight - currentWeight).toFixed(1)} kg tới mục tiêu`
+                  : "Hoàn thành onboarding trước"}
               </div>
-            ) : null}
-            {achievements.map((achievement) => (
-              <div key={achievement.code} className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                  <span>{achievement.code}</span>
+            </div>
+
+            <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-blue-600" />
+                </div>
+                <div className="text-sm text-muted-foreground">Mức bám sát tuần</div>
+              </div>
+              <div className="text-3xl font-bold mb-1">{adherenceRate}%</div>
+              <div className="text-sm text-primary">{daysCompleted} ngày đã hoàn thành</div>
+            </div>
+
+            <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <Wallet className="w-5 h-5 text-purple-600" />
+                </div>
+                <div className="text-sm text-muted-foreground">Ngân sách đã dùng</div>
+              </div>
+              <div className="text-3xl font-bold mb-1">{Math.round(budgetProgress)}%</div>
+              <div className="text-sm text-primary">
+                {totalBudget
+                  ? `${Math.round(totalSpent / 1000)}k / ${Math.round(totalBudget / 1000)}k VND`
+                  : "No budget yet"}
+              </div>
+            </div>
+          </div>
+
+          <DashboardAnalytics analytics={analytics} />
+
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-1">Tiến độ cân nặng</h3>
+                  <p className="text-sm text-muted-foreground">Cân nặng của bạn theo thời gian</p>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => navigate("/app/tracking")}>
+                  Xem chi tiết
+                </Button>
+              </div>
+              {weightData.length === 0 ? (
+                <ChartEmptyState onClick={() => navigate("/app/tracking")} />
+              ) : (
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={weightData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis dataKey="day" stroke="#6b7280" fontSize={12} />
+                      <YAxis stroke="#6b7280" fontSize={12} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#ffffff",
+                          border: "1px solid #e5e7eb",
+                          borderRadius: "8px",
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="weight"
+                        stroke="#10b981"
+                        strokeWidth={3}
+                        dot={{ fill: "#10b981", r: 4 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+                <div>
+                  <div className="text-xs text-muted-foreground">Ban đầu</div>
+                  <div className="font-semibold">{startWeight || "--"} kg</div>
                 </div>
                 <div>
-                  <div className="text-sm font-medium">{getAchievementTitle(achievement)}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {getAchievementDescription(achievement)}
+                  <div className="text-xs text-muted-foreground">Hiện tại</div>
+                  <div className="font-semibold text-primary">{currentWeight || "--"} kg</div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">Mục tiêu</div>
+                  <div className="font-semibold">{goalWeight || "--"} kg</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-1">Chi tiêu so với ngân sách</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Chi tiêu tracking và các ngày đã hoàn thành trong kế hoạch
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => navigate("/app/tracking")}>
+                  Xem chi tiết
+                </Button>
+              </div>
+              {spendingData.length === 0 ? (
+                <ChartEmptyState onClick={() => navigate("/app/tracking")} />
+              ) : (
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={spendingData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis dataKey="week" stroke="#6b7280" fontSize={12} />
+                      <YAxis stroke="#6b7280" fontSize={12} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#ffffff",
+                          border: "1px solid #e5e7eb",
+                          borderRadius: "8px",
+                        }}
+                        formatter={(value) => `${Math.round(value / 1000)}k VND`}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="spent"
+                        stroke="#10b981"
+                        strokeWidth={3}
+                        dot={{ fill: "#10b981", r: 4 }}
+                        name="Đã chi"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="budget"
+                        stroke="#e5e7eb"
+                        strokeWidth={2}
+                        strokeDasharray="5 5"
+                        dot={{ fill: "#6b7280", r: 3 }}
+                        name="Ngân sách"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+                <div>
+                  <div className="text-xs text-muted-foreground">Tổng đã chi</div>
+                  <div className="font-semibold">{Math.round(totalSpent / 1000)}k VND</div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">TB mỗi tuần</div>
+                  <div className="font-semibold">
+                    {spendingData.length
+                      ? `${Math.round(totalSpent / spendingData.length / 1000)}k VND`
+                      : "0k VND"}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">Còn lại</div>
+                  <div className="font-semibold text-primary">
+                    {Math.round((totalBudget - totalSpent) / 1000)}k VND
                   </div>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div
-          onClick={() => navigate("/app/plan")}
-          className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-6 text-white cursor-pointer hover:shadow-lg transition-all"
-        >
-          <h3 className="text-xl font-semibold mb-2">Xem kế hoạch 30 ngày</h3>
-          <p className="text-white/90 mb-4">
-            Xem các bài tập và bữa ăn sắp tới
-          </p>
-          <Button variant="secondary" size="sm">
-            Đến kế hoạch
-          </Button>
-        </div>
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+            <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+              <h4 className="font-semibold mb-4">Tuần này</h4>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Ngày hoàn thành</span>
+                  <span className="font-semibold">
+                    {Number(weeklyStats.daysCompletedThisWeek || 0)}/7
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Bài tập đã làm</span>
+                  <span className="font-semibold">
+                    {Number(weeklyStats.workoutsDoneThisWeek || 0)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Bữa ăn đã ghi nhận</span>
+                  <span className="font-semibold">
+                    {Number(weeklyStats.mealsLoggedThisWeek || 0)}
+                  </span>
+                </div>
+              </div>
+            </div>
 
-        <div
-          onClick={() => navigate("/app/budget-breakdown")}
-          className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white cursor-pointer hover:shadow-lg transition-all"
-        >
-          <h3 className="text-xl font-semibold mb-2">Xem phân bổ ngân sách</h3>
-          <p className="text-white/90 mb-4">
-            Tối ưu cách phân bổ chi tiêu của bạn
-          </p>
-          <Button variant="secondary" size="sm">
-            Xem ngân sách
-          </Button>
+            <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+              <h4 className="font-semibold mb-4">Tiến độ tổng thể</h4>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Tổng số ngày</span>
+                  <span className="font-semibold">{daysCompleted}/30</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Chuỗi hiện tại</span>
+                  <span className="font-semibold">{currentStreak} ngày</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Chuỗi tốt nhất</span>
+                  <span className="font-semibold">{bestStreak} ngày</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+              <h4 className="font-semibold mb-4">Thành tựu</h4>
+              <div className="space-y-3">
+                {achievements.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">
+                    Hoàn thành tracking hoặc nhiệm vụ hằng ngày để mở khóa thành tựu.
+                  </div>
+                ) : null}
+                {achievements.map((achievement) => (
+                  <div key={achievement.code} className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                      <span>{achievement.code}</span>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium">{getAchievementTitle(achievement)}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {getAchievementDescription(achievement)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

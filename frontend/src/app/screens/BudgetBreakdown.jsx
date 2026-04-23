@@ -1,15 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { RefreshCw, ChevronRight } from "lucide-react";
+import { RefreshCw, ChevronRight, Pencil, Check, X } from "lucide-react";
 import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { apiGet, apiPost } from "../lib/api";
+import { apiGet, apiPatch, apiPost } from "../lib/api";
 
 export function BudgetBreakdown() {
   const navigate = useNavigate();
   const [budget, setBudget] = useState(null);
   const [error, setError] = useState("");
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [isEditingBudget, setIsEditingBudget] = useState(false);
+  const [budgetInput, setBudgetInput] = useState("");
+  const [isSavingBudget, setIsSavingBudget] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -20,6 +24,7 @@ export function BudgetBreakdown() {
 
         if (!ignore) {
           setBudget(data);
+          setBudgetInput(String(data?.total_budget || ""));
         }
       } catch (requestError) {
         if (!ignore) {
@@ -29,9 +34,13 @@ export function BudgetBreakdown() {
     }
 
     loadBudget();
+    window.addEventListener("budgetfit:budget-updated", loadBudget);
+    window.addEventListener("budgetfit:profile-updated", loadBudget);
 
     return () => {
       ignore = true;
+      window.removeEventListener("budgetfit:budget-updated", loadBudget);
+      window.removeEventListener("budgetfit:profile-updated", loadBudget);
     };
   }, []);
 
@@ -65,10 +74,62 @@ export function BudgetBreakdown() {
       await apiPost("/api/plans/generate", {});
       const data = await apiGet("/api/budget/current");
       setBudget(data);
+      setBudgetInput(String(data?.total_budget || ""));
     } catch (requestError) {
       setError(requestError.message);
     } finally {
       setIsRegenerating(false);
+    }
+  };
+
+  const handleStartEditingBudget = () => {
+    setBudgetInput(String(totalBudget || budget?.total_budget || ""));
+    setIsEditingBudget(true);
+    setError("");
+  };
+
+  const handleCancelEditingBudget = () => {
+    setBudgetInput(String(totalBudget || budget?.total_budget || ""));
+    setIsEditingBudget(false);
+    setError("");
+  };
+
+  const handleSaveBudget = async () => {
+    const nextBudget = Number(budgetInput);
+
+    if (!Number.isFinite(nextBudget) || nextBudget <= 0) {
+      setError("Ngân sách phải là số dương hợp lệ.");
+      return;
+    }
+
+    if (nextBudget < 3000000) {
+      setError("Ngân sách tối thiểu là 3.000.000 VND.");
+      return;
+    }
+
+    setError("");
+    setIsSavingBudget(true);
+
+    try {
+      const data = await apiPatch("/api/budget/current", {
+        total_budget: nextBudget,
+      });
+      setBudget(data);
+      setBudgetInput(String(data?.total_budget || nextBudget));
+      setIsEditingBudget(false);
+      window.dispatchEvent(
+        new CustomEvent("budgetfit:budget-updated", {
+          detail: { budget: nextBudget },
+        }),
+      );
+    } catch (requestError) {
+      setError(
+        requestError?.errors?.total_budget ||
+        requestError?.errors?.root ||
+        requestError.message,
+      );
+    } finally {
+      setIsSavingBudget(false);
     }
   };
 
@@ -179,9 +240,62 @@ export function BudgetBreakdown() {
                 <div className="text-sm text-muted-foreground mb-1">
                   Tổng ngân sách hàng tháng
                 </div>
-                <div className="text-3xl font-bold">
-                  {totalBudget.toLocaleString("vi-VN")} VND
+                <div className="mb-1 flex items-center justify-between gap-3">
+                  <div className="text-3xl font-bold">
+                    {totalBudget.toLocaleString("vi-VN")} VND
+                  </div>
+                  {!isEditingBudget ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleStartEditingBudget}
+                      disabled={isSavingBudget || isRegenerating}
+                      className="gap-2"
+                    >
+                      <Pencil className="h-4 w-4" />
+                      Chỉnh sửa ngân sách
+                    </Button>
+                  ) : null}
                 </div>
+                {isEditingBudget ? (
+                  <div className="space-y-3">
+                    <Input
+                      type="text"
+                      value={budgetInput}
+                      onChange={(event) =>
+                        setBudgetInput(event.target.value.replace(/\D/g, ""))
+                      }
+                      placeholder="Nhập ngân sách mới"
+                      disabled={isSavingBudget}
+                      className="h-12 text-lg font-semibold"
+                    />
+                    <div className="text-sm text-muted-foreground">
+                      {Number(budgetInput || 0).toLocaleString("vi-VN")} VND
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleCancelEditingBudget}
+                        disabled={isSavingBudget}
+                        className="gap-2"
+                      >
+                        <X className="h-4 w-4" />
+                        Hủy
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={handleSaveBudget}
+                        disabled={isSavingBudget}
+                        className="gap-2"
+                      >
+                        <Check className="h-4 w-4" />
+                        {isSavingBudget ? "Đang Lưu..." : "Lưu"}
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
               </div>
               <div className="h-px bg-border" />
               <div>
