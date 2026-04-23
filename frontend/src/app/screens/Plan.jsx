@@ -100,10 +100,12 @@ export function Plan() {
 
     loadCurrentPlan();
     window.addEventListener("budgetfit:budget-updated", loadCurrentPlan);
+    window.addEventListener("budgetfit:profile-updated", loadCurrentPlan);
 
     return () => {
       ignore = true;
       window.removeEventListener("budgetfit:budget-updated", loadCurrentPlan);
+      window.removeEventListener("budgetfit:profile-updated", loadCurrentPlan);
     };
   }, []);
 

@@ -15,8 +15,46 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
+import { MotivationalPopup } from "../components/MotivationalPopup";
 import { apiGet, apiPatch, apiPut } from "../lib/api";
 import { showToast } from "../components/ui/toast";
+
+const PROGRESS_MILESTONES = [30, 60, 90, 100];
+const PROGRESS_QUOTES = {
+  30: [
+    "Hòn than đang đỏ rực! Khởi động hoàn hảo, giữ vững nhịp độ nhé!",
+    "Bước đầu tiên là bước khó nhất. Bạn đã làm được!",
+  ],
+  60: [
+    "Vượt qua nửa chặng đường rồi! Kỷ luật tạo nên sức mạnh!",
+    "Mồ hôi của hôm nay là nụ cười của ngày mai. Tiếp tục thôi!",
+  ],
+  90: [
+    "Cố lên! Đỉnh núi ngay trước mắt rồi! Đừng dừng lại lúc này!",
+    "Chỉ còn 10% nữa thôi. Đốt cháy nốt năng lượng nào!",
+  ],
+  100: [
+    "HOÀN HẢO! Một ngày kỷ luật thép đỉnh cao. Tự hào về bạn! Giờ thì nghỉ ngơi thật tốt nhé.",
+  ],
+};
+
+function getReachedMilestone(percentage) {
+  return (
+    [...PROGRESS_MILESTONES]
+      .reverse()
+      .find((milestone) => percentage >= milestone) || 0
+  );
+}
+
+function getRandomQuote(milestone) {
+  const quotes = PROGRESS_QUOTES[milestone] || [];
+
+  if (quotes.length === 0) {
+    return "";
+  }
+
+  return quotes[Math.floor(Math.random() * quotes.length)];
+}
 
 function getMealSection(meal, index) {
   const value = `${meal.meal_time || ""} ${meal.meal_name || ""}`.toLowerCase();
@@ -125,6 +163,8 @@ export function DailyRoutine() {
   const [swappingId, setSwappingId] = useState("");
   const [showActualCostPrompt, setShowActualCostPrompt] = useState(false);
   const [actualCostInput, setActualCostInput] = useState("");
+  const [highestMilestone, setHighestMilestone] = useState(0);
+  const [activeMilestonePopup, setActiveMilestonePopup] = useState(null);
   const lastSavedSignatureRef = useRef("");
 
   const dayNumber = Number(dayId || 1);
@@ -138,9 +178,18 @@ export function DailyRoutine() {
 
         if (!ignore) {
           const completedTaskIds = new Set(data?.completed_tasks || []);
+          const totalTaskCount =
+            (data?.meals?.length || 0) +
+            (data?.workouts?.length || 0) +
+            2;
+          const initialPercentage = totalTaskCount
+            ? Math.round((completedTaskIds.size / totalTaskCount) * 100)
+            : 0;
 
           setDayData(data);
           setCheckedItems(completedTaskIds);
+          setHighestMilestone(getReachedMilestone(initialPercentage));
+          setActiveMilestonePopup(null);
           lastSavedSignatureRef.current = JSON.stringify(
             [...completedTaskIds].sort(),
           );
@@ -172,7 +221,7 @@ export function DailyRoutine() {
     const signature = JSON.stringify(sortedTaskIds);
 
     if (!options.force && signature === lastSavedSignatureRef.current) {
-      return response || true;
+      return true;
     }
 
     setIsSaving(true);
@@ -320,6 +369,30 @@ export function DailyRoutine() {
       ? null
       : normalizedDayData.plannedCost - normalizedDayData.actualCost;
 
+  useEffect(() => {
+    if (!dayData || dayData.is_locked || totalItems === 0) {
+      return;
+    }
+
+    const nextMilestone =
+      [...PROGRESS_MILESTONES]
+        .reverse()
+        .find(
+          (milestone) =>
+            completionPercentage >= milestone && milestone > highestMilestone,
+        ) || 0;
+
+    if (!nextMilestone) {
+      return;
+    }
+
+    setHighestMilestone(nextMilestone);
+    setActiveMilestonePopup({
+      milestone: nextMilestone,
+      quote: getRandomQuote(nextMilestone),
+    });
+  }, [completionPercentage, dayData, highestMilestone, totalItems]);
+
   const handleSwapMeal = async (mealId) => {
     if (isReadOnly) return;
 
@@ -422,6 +495,13 @@ export function DailyRoutine() {
 
   return (
     <div className="space-y-6">
+      <MotivationalPopup
+        isOpen={Boolean(activeMilestonePopup)}
+        milestone={activeMilestonePopup?.milestone}
+        quote={activeMilestonePopup?.quote}
+        onClose={() => setActiveMilestonePopup(null)}
+      />
+
       <div className="flex items-center gap-4">
         <Button
           variant="outline"

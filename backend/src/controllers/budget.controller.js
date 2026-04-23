@@ -9,6 +9,19 @@ async function getBudget(req, res) {
   }
 }
 
+async function updateBudget(req, res) {
+  try {
+    const data = await budgetService.updateCurrentBudget(
+      req.user.id,
+      req.body.total_budget
+    );
+    res.json(data);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+}
+
 module.exports = {
   getBudget,
+  updateBudget,
 };
