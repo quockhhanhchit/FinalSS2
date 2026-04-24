@@ -172,29 +172,33 @@ export function DailyRoutine() {
   useEffect(() => {
     let ignore = false;
 
+    function applyDayData(data) {
+      const completedTaskIds = new Set(data?.completed_tasks || []);
+      const totalTaskCount =
+        (data?.meals?.length || 0) +
+        (data?.workouts?.length || 0) +
+        2;
+      const initialPercentage = totalTaskCount
+        ? Math.round((completedTaskIds.size / totalTaskCount) * 100)
+        : 0;
+
+      setDayData(data);
+      setCheckedItems(completedTaskIds);
+      setHighestMilestone(getReachedMilestone(initialPercentage));
+      setActiveMilestonePopup(null);
+      lastSavedSignatureRef.current = JSON.stringify(
+        [...completedTaskIds].sort(),
+      );
+      setError("");
+      setSaveMessage("");
+    }
+
     async function loadDay() {
       try {
         const data = await apiGet(`/api/plans/current/day/${dayNumber}`);
 
         if (!ignore) {
-          const completedTaskIds = new Set(data?.completed_tasks || []);
-          const totalTaskCount =
-            (data?.meals?.length || 0) +
-            (data?.workouts?.length || 0) +
-            2;
-          const initialPercentage = totalTaskCount
-            ? Math.round((completedTaskIds.size / totalTaskCount) * 100)
-            : 0;
-
-          setDayData(data);
-          setCheckedItems(completedTaskIds);
-          setHighestMilestone(getReachedMilestone(initialPercentage));
-          setActiveMilestonePopup(null);
-          lastSavedSignatureRef.current = JSON.stringify(
-            [...completedTaskIds].sort(),
-          );
-          setError("");
-          setSaveMessage("");
+          applyDayData(data);
         }
       } catch (requestError) {
         if (!ignore) {
@@ -203,25 +207,51 @@ export function DailyRoutine() {
       }
     }
 
+    function handlePlanUpdated(event) {
+      if (ignore) {
+        return;
+      }
+
+      const affected = event?.detail?.affectedDayNumbers || [];
+
+      if (affected.length === 0 || affected.includes(dayNumber)) {
+        const updatedDay =
+          event?.detail?.updatedDays?.[String(dayNumber)] ||
+          event?.detail?.updatedDays?.[dayNumber];
+
+        if (updatedDay) {
+          applyDayData(updatedDay);
+        }
+
+        loadDay();
+
+        if (event?.detail?.source === "ai-swap") {
+          showToast("Thực đơn đã được cập nhật bởi AI", "success");
+        }
+      }
+    }
+
     loadDay();
     window.addEventListener("budgetfit:budget-updated", loadDay);
+    window.addEventListener("budgetfit:plan-updated", handlePlanUpdated);
 
     return () => {
       ignore = true;
       window.removeEventListener("budgetfit:budget-updated", loadDay);
+      window.removeEventListener("budgetfit:plan-updated", handlePlanUpdated);
     };
   }, [dayNumber]);
 
   async function saveProgress(taskIds, options = {}) {
     if (!dayData || dayData.is_locked) {
-      return false;
+      return null;
     }
 
     const sortedTaskIds = [...taskIds].sort();
     const signature = JSON.stringify(sortedTaskIds);
 
     if (!options.force && signature === lastSavedSignatureRef.current) {
-      return true;
+      return { completed_tasks: sortedTaskIds, completed: completionPercentage === 100 };
     }
 
     setIsSaving(true);
@@ -242,11 +272,19 @@ export function DailyRoutine() {
           showToast(`Bạn vừa mở khóa huy hiệu ${badge}.`, "success");
         });
       }
+      setDayData((current) => ({
+        ...current,
+        completed: Boolean(response?.completed),
+        actual_cost: response?.completed ? current?.actual_cost : null,
+      }));
+      if (!response?.completed) {
+        setShowActualCostPrompt(false);
+      }
       setError("");
-      return true;
+      return response;
     } catch (requestError) {
       setError(requestError.message);
-      return false;
+      return null;
     } finally {
       setIsSaving(false);
     }
@@ -404,6 +442,7 @@ export function DailyRoutine() {
       setDayData((current) => ({
         ...current,
         planned_cost: response.planned_cost ?? current.planned_cost,
+        planned_calories: response.planned_calories ?? current.planned_calories,
         meals: (current?.meals || []).map((meal) =>
           meal.id === mealId ? response.meal : meal
         ),
@@ -427,6 +466,8 @@ export function DailyRoutine() {
       );
       setDayData((current) => ({
         ...current,
+        planned_cost: response.planned_cost ?? current.planned_cost,
+        planned_calories: response.planned_calories ?? current.planned_calories,
         workouts: (current?.workouts || []).map((workout) =>
           workout.id === workoutId ? response.workout : workout
         ),

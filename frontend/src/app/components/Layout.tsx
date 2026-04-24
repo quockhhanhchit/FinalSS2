@@ -24,6 +24,7 @@ import { clearAuthSession, getAuthSession } from "../lib/auth";
 import { apiPost } from "../lib/api";
 import { RouteTransition } from "./RouteTransition";
 import { useLanguage } from "../LanguageContext";
+import { AIAssistantBubble } from "./AIAssistantBubble";
 
 export function Layout() {
   const location = useLocation();
@@ -204,6 +205,7 @@ export function Layout() {
         </RouteTransition>
       </main>
 
+      <AIAssistantBubble />
       <ToastContainer />
     </div>
   );

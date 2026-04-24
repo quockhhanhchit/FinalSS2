@@ -19,6 +19,82 @@ function normalizeWorkoutType(value) {
   return "rest";
 }
 
+function inferWorkoutTypePreference(value, fallbackType) {
+  const text = String(value || "").toLowerCase();
+
+  if (!text) {
+    return normalizeWorkoutType(fallbackType);
+  }
+
+  if (
+    text.includes("strength") ||
+    text.includes("tạ") ||
+    text.includes("tay") ||
+    text.includes("vai") ||
+    text.includes("ngực") ||
+    text.includes("lưng") ||
+    text.includes("bụng") ||
+    text.includes("cơ")
+  ) {
+    return "strength";
+  }
+
+  if (
+    text.includes("hiit") ||
+    text.includes("đốt mỡ") ||
+    text.includes("cường độ cao")
+  ) {
+    return "hiit";
+  }
+
+  if (
+    text.includes("cardio") ||
+    text.includes("nhẹ") ||
+    text.includes("bền") ||
+    text.includes("tim mạch")
+  ) {
+    return "cardio";
+  }
+
+  if (text.includes("rest") || text.includes("nghỉ") || text.includes("recovery")) {
+    return "rest";
+  }
+
+  return normalizeWorkoutType(fallbackType);
+}
+
+function parsePreferenceKeywords(value) {
+  return String(value || "")
+    .toLowerCase()
+    .split(/[^a-z0-9à-ỹđ]+/i)
+    .map((part) => part.trim())
+    .filter((part) => part.length >= 2);
+}
+
+function pickPreferredReplacement(rows, preferenceText, fields) {
+  if (!preferenceText) {
+    return rows[0] || null;
+  }
+
+  const keywords = parsePreferenceKeywords(preferenceText);
+
+  if (keywords.length === 0) {
+    return rows[0] || null;
+  }
+
+  const preferred = rows.find((row) =>
+    keywords.some((keyword) =>
+      fields.some((field) =>
+        String(row[field] || "")
+          .toLowerCase()
+          .includes(keyword)
+      )
+    )
+  );
+
+  return preferred || rows[0] || null;
+}
+
 function getMealTypeFromMealTime(mealTime = "") {
   const value = String(mealTime).toLowerCase();
 
@@ -267,22 +343,33 @@ async function syncFoodExpenseForCompletedDay(
   );
 }
 
-async function recalculatePlanDayPlannedCost(executor, planDayId) {
+async function recalculatePlanDayTotals(executor, planDayId) {
   const [[row]] = await executor.query(
-    `SELECT COALESCE(SUM(COALESCE(ml.estimated_cost, m.cost)), 0) AS plannedCost
+    `SELECT
+       COALESCE(SUM(COALESCE(ml.estimated_cost, m.cost)), 0) AS plannedCost,
+       COALESCE(SUM(COALESCE(ml.calories, m.calories)), 0) AS plannedCalories
      FROM meals m
      LEFT JOIN meal_library ml ON ml.id = m.meal_library_id
      WHERE m.plan_day_id = ?`,
     [planDayId]
   );
   const plannedCost = Number(row?.plannedCost || 0);
+  const plannedCalories = Number(row?.plannedCalories || 0);
 
   await executor.query(
-    "UPDATE plan_days SET planned_cost = ? WHERE id = ?",
-    [plannedCost, planDayId]
+    "UPDATE plan_days SET planned_cost = ?, planned_calories = ? WHERE id = ?",
+    [plannedCost, plannedCalories, planDayId]
   );
 
-  return plannedCost;
+  return {
+    plannedCost,
+    plannedCalories,
+  };
+}
+
+async function recalculatePlanDayPlannedCost(executor, planDayId) {
+  const totals = await recalculatePlanDayTotals(executor, planDayId);
+  return totals.plannedCost;
 }
 
 async function awardBadge(executor, userId, badgeName) {
@@ -851,9 +938,10 @@ async function updatePlanDayCompletion(userId, dayNumber, completedTasks) {
 
     await connection.query(
       `UPDATE plan_days
-       SET completed = ?
+       SET completed = ?,
+           actual_cost = CASE WHEN ? = false THEN NULL ELSE actual_cost END
        WHERE id = ?`,
-      [isCompleted, day.id]
+      [isCompleted, isCompleted, day.id]
     );
 
     await syncFoodExpenseForCompletedDay(
@@ -887,6 +975,7 @@ async function updatePlanDayCompletion(userId, dayNumber, completedTasks) {
     return {
       dayNumber,
       completed: isCompleted,
+      actual_cost: isCompleted ? day.actual_cost : null,
       plan_completed: planCompleted,
       awardedBadges,
       completed_tasks: completionRecords.map((record) =>
@@ -903,7 +992,7 @@ async function updatePlanDayCompletion(userId, dayNumber, completedTasks) {
   }
 }
 
-async function swapMeal(userId, dayNumber, mealId) {
+async function swapMeal(userId, dayNumber, mealId, options = {}) {
   const connection = await pool.getConnection();
 
   try {
@@ -943,7 +1032,7 @@ async function swapMeal(userId, dayNumber, mealId) {
          AND meal_type = ?
          AND id <> COALESCE(?, 0)
        ORDER BY RAND()
-       LIMIT 1`,
+       LIMIT 20`,
       [goalType, budgetTier, mealType, currentMeal.meal_library_id]
     );
 
@@ -951,7 +1040,15 @@ async function swapMeal(userId, dayNumber, mealId) {
       throw new Error("No replacement meal found");
     }
 
-    const replacement = libraryRows[0];
+    const replacement = pickPreferredReplacement(
+      libraryRows,
+      options.preference,
+      ["meal_name"]
+    );
+
+    if (!replacement) {
+      throw new Error("No replacement meal found");
+    }
     await connection.query(
       `UPDATE meals
        SET meal_library_id = ?, meal_name = ?, calories = ?, cost = ?
@@ -964,7 +1061,7 @@ async function swapMeal(userId, dayNumber, mealId) {
         currentMeal.id,
       ]
     );
-    const plannedCost = await recalculatePlanDayPlannedCost(connection, day.id);
+    const totals = await recalculatePlanDayTotals(connection, day.id);
 
     await connection.commit();
 
@@ -978,7 +1075,8 @@ async function swapMeal(userId, dayNumber, mealId) {
         calories: Number(replacement.calories),
         cost: Number(replacement.estimated_cost),
       },
-      planned_cost: plannedCost,
+      planned_cost: totals.plannedCost,
+      planned_calories: totals.plannedCalories,
     };
   } catch (error) {
     await connection.rollback();
@@ -988,7 +1086,82 @@ async function swapMeal(userId, dayNumber, mealId) {
   }
 }
 
-async function swapWorkout(userId, dayNumber, workoutId) {
+async function generateAndSwapMeal(userId, dayNumber, mealId, customMealData = {}) {
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const { day } = await getActivePlanDayForUser(connection, userId, dayNumber);
+    const lockState = getDayLockState(day);
+
+    if (lockState.isLocked) {
+      throw new Error(lockState.lockReason);
+    }
+
+    const [[currentMeal]] = await connection.query(
+      `SELECT m.*
+       FROM meals m
+       WHERE m.id = ? AND m.plan_day_id = ?
+       LIMIT 1`,
+      [mealId, day.id]
+    );
+
+    if (!currentMeal) {
+      throw new Error("Meal not found");
+    }
+
+    const mealName = String(customMealData.customMealName || "").trim();
+    const calories = Number(customMealData.estimatedCalories || 0);
+    const cost = Number(customMealData.estimatedCost || 0);
+
+    if (!mealName) {
+      throw new Error("Custom meal name is required");
+    }
+
+    if (!Number.isFinite(calories) || calories <= 0) {
+      throw new Error("Estimated calories must be greater than 0");
+    }
+
+    if (!Number.isFinite(cost) || cost <= 0) {
+      throw new Error("Estimated cost must be greater than 0");
+    }
+
+    await connection.query(
+      `UPDATE meals
+       SET meal_library_id = NULL, meal_name = ?, calories = ?, cost = ?
+       WHERE id = ?`,
+      [mealName, calories, cost, currentMeal.id]
+    );
+
+    const totals = await recalculatePlanDayTotals(connection, day.id);
+
+    await connection.commit();
+
+    return {
+      meal: {
+        id: currentMeal.id,
+        plan_day_id: day.id,
+        meal_library_id: null,
+        meal_name: mealName,
+        meal_time: currentMeal.meal_time,
+        calories,
+        cost,
+        is_custom: true,
+        description: String(customMealData.description || "").trim(),
+      },
+      planned_cost: totals.plannedCost,
+      planned_calories: totals.plannedCalories,
+    };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
+async function swapWorkout(userId, dayNumber, workoutId, options = {}) {
   const connection = await pool.getConnection();
 
   try {
@@ -1015,7 +1188,8 @@ async function swapWorkout(userId, dayNumber, workoutId) {
       throw new Error("Workout not found");
     }
 
-    const workoutType = normalizeWorkoutType(
+    const workoutType = inferWorkoutTypePreference(
+      options.preferredType || options.preference,
       currentWorkout.library_workout_type || day.workout_type
     );
     const gender = profile.gender === "female" ? "female" : "male";
@@ -1029,7 +1203,7 @@ async function swapWorkout(userId, dayNumber, workoutId) {
          AND (gender_target = ? OR gender_target = 'both')
          AND id <> COALESCE(?, 0)
        ORDER BY RAND()
-       LIMIT 1`,
+       LIMIT 20`,
       [workoutType, location, gender, currentWorkout.workout_library_id]
     );
 
@@ -1037,7 +1211,15 @@ async function swapWorkout(userId, dayNumber, workoutId) {
       throw new Error("No replacement workout found");
     }
 
-    const replacement = libraryRows[0];
+    const replacement = pickPreferredReplacement(
+      libraryRows,
+      options.preference,
+      ["workout_name", "suggested_volume", "notes"]
+    );
+
+    if (!replacement) {
+      throw new Error("No replacement workout found");
+    }
     const durationMinutes = calculateWorkoutDurationMinutes(
       replacement.workout_type,
       replacement.suggested_volume
@@ -1059,6 +1241,8 @@ async function swapWorkout(userId, dayNumber, workoutId) {
       ]
     );
 
+    const totals = await recalculatePlanDayTotals(connection, day.id);
+
     await connection.commit();
 
     return {
@@ -1072,6 +1256,103 @@ async function swapWorkout(userId, dayNumber, workoutId) {
           replacement.suggested_volume || replacement.notes || replacement.workout_type
         ),
       },
+      planned_cost: totals.plannedCost,
+      planned_calories: totals.plannedCalories,
+    };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
+async function generateAndSwapWorkout(
+  userId,
+  dayNumber,
+  workoutId,
+  customWorkoutData = {}
+) {
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const { day } = await getActivePlanDayForUser(connection, userId, dayNumber);
+    const lockState = getDayLockState(day);
+
+    if (lockState.isLocked) {
+      throw new Error(lockState.lockReason);
+    }
+
+    const [[currentWorkout]] = await connection.query(
+      `SELECT w.*
+       FROM workouts w
+       WHERE w.id = ? AND w.plan_day_id = ?
+       LIMIT 1`,
+      [workoutId, day.id]
+    );
+
+    if (!currentWorkout) {
+      throw new Error("Workout not found");
+    }
+
+    const workoutName = String(customWorkoutData.customWorkoutName || "").trim();
+    const durationMinutes = Number(customWorkoutData.durationMinutes || 0);
+    const caloriesBurned = Number(customWorkoutData.caloriesBurned || 0);
+    const description = String(customWorkoutData.description || "").trim();
+
+    if (!workoutName) {
+      throw new Error("Custom workout name is required");
+    }
+
+    if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) {
+      throw new Error("Workout duration must be greater than 0");
+    }
+
+    if (!Number.isFinite(caloriesBurned) || caloriesBurned < 0) {
+      throw new Error("Calories burned must be 0 or greater");
+    }
+
+    const finalDescription = [
+      description,
+      caloriesBurned > 0 ? `Estimated burn: ${caloriesBurned} kcal` : null,
+    ]
+      .filter(Boolean)
+      .join(" | ");
+
+    await connection.query(
+      `UPDATE workouts
+       SET workout_library_id = NULL,
+           workout_name = ?,
+           duration_minutes = ?,
+           description = ?
+       WHERE id = ?`,
+      [
+        workoutName,
+        durationMinutes,
+        finalDescription || workoutName,
+        currentWorkout.id,
+      ]
+    );
+
+    const totals = await recalculatePlanDayTotals(connection, day.id);
+
+    await connection.commit();
+
+    return {
+      workout: {
+        id: currentWorkout.id,
+        plan_day_id: day.id,
+        workout_library_id: null,
+        workout_name: workoutName,
+        duration_minutes: durationMinutes,
+        description: finalDescription || workoutName,
+        calories_burned: caloriesBurned,
+        is_custom: true,
+      },
+      planned_cost: totals.plannedCost,
+      planned_calories: totals.plannedCalories,
     };
   } catch (error) {
     await connection.rollback();
@@ -1119,6 +1400,8 @@ module.exports = {
   continueCurrentPlan,
   declineCurrentPlanContinuation,
   swapMeal,
+  generateAndSwapMeal,
   swapWorkout,
+  generateAndSwapWorkout,
   updateActualCost,
 };
