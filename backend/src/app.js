@@ -9,6 +9,7 @@ const trackingRoutes = require("./routes/tracking.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const budgetRoutes = require("./routes/budget.routes");
 const rewardsRoutes = require("./routes/rewards.routes");
+const aiRoutes = require("./routes/ai.routes");
 
 const app = express();
 
@@ -28,5 +29,6 @@ app.use("/api/tracking", trackingRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/budget", budgetRoutes);
 app.use("/api/rewards", rewardsRoutes);
+app.use("/api/ai", aiRoutes);
 
 module.exports = app;

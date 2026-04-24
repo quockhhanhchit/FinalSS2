@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { TrendingDown, Target, CheckCircle, Wallet, Trophy, Flame } from "lucide-react";
+import { TrendingDown, Target, CheckCircle, Wallet, Trophy, Flame, Sparkles } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -64,19 +64,22 @@ export function Dashboard() {
   const [dashboard, setDashboard] = useState(null);
   const [analytics, setAnalytics] = useState(null);
   const [plan, setPlan] = useState(null);
+  const [aiWeeklySummary, setAiWeeklySummary] = useState(null);
   const [error, setError] = useState("");
   const [isContinuingPlan, setIsContinuingPlan] = useState(false);
 
   const loadDashboard = async () => {
-    const [data, analyticsData, planData] = await Promise.all([
+    const [data, analyticsData, planData, aiSummary] = await Promise.all([
       apiGet("/api/dashboard/summary"),
       apiGet("/api/dashboard/analytics"),
       apiGet("/api/plans/current").catch(() => null),
+      apiGet("/api/ai/weekly-summary").catch(() => null),
     ]);
 
     setDashboard(data);
     setAnalytics(analyticsData);
     setPlan(planData);
+    setAiWeeklySummary(aiSummary);
     setError("");
   };
 
@@ -85,16 +88,18 @@ export function Dashboard() {
 
     async function loadDashboardData() {
       try {
-        const [data, analyticsData, planData] = await Promise.all([
+        const [data, analyticsData, planData, aiSummary] = await Promise.all([
           apiGet("/api/dashboard/summary"),
           apiGet("/api/dashboard/analytics"),
           apiGet("/api/plans/current").catch(() => null),
+          apiGet("/api/ai/weekly-summary").catch(() => null),
         ]);
 
         if (!ignore) {
           setDashboard(data);
           setAnalytics(analyticsData);
           setPlan(planData);
+          setAiWeeklySummary(aiSummary);
           setError("");
         }
       } catch (requestError) {
@@ -462,6 +467,33 @@ export function Dashboard() {
           </div>
 
           <DashboardAnalytics analytics={analytics} />
+
+          <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-6 shadow-sm dark:border-emerald-900 dark:from-emerald-950/30 dark:via-slate-950 dark:to-teal-950/20">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Nhận xét của AI tuần này</h3>
+                <p className="text-sm text-muted-foreground">
+                  Gợi ý ngắn từ trợ lý em Đạt dựa trên tiến độ và chi tiêu thật của bạn.
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card px-4 py-4 text-sm leading-7">
+              {aiWeeklySummary?.body ? (
+                <div data-no-translate>{aiWeeklySummary.body}</div>
+              ) : (
+                <div className="text-muted-foreground">
+                  Chưa có nhận xét AI tuần này. Bạn có thể mở bong bóng chat và bấm
+                  &nbsp;
+                  <span className="font-semibold">Tóm tắt tuần</span>
+                  &nbsp;để tạo ngay.
+                </div>
+              )}
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
