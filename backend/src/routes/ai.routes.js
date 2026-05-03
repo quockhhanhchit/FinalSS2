@@ -22,6 +22,8 @@ router.post(
   aiController.chat
 );
 router.get("/history", authMiddleware, aiController.getHistory);
+router.delete("/history", authMiddleware, aiController.clearHistory);
+router.get("/requests-remaining", authMiddleware, aiController.getRequestsRemaining);
 router.get("/weekly-summary", authMiddleware, aiController.getWeeklySummary);
 router.post(
   "/weekly-summary",

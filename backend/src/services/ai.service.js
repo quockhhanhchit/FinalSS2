@@ -32,6 +32,15 @@ function normalizeLanguage(language) {
   return language === "en" ? "en" : "vi";
 }
 
+function getMealSlot(mealTime) {
+  const t = String(mealTime || "").toLowerCase();
+  if (t.includes("breakfast") || t.includes("sang") || t.includes("sáng")) return "breakfast";
+  if (t.includes("lunch") || t.includes("trua") || t.includes("trưa")) return "lunch";
+  if (t.includes("dinner") || t.includes("toi") || t.includes("tối")) return "dinner";
+  if (t.includes("snack") || t.includes("phu") || t.includes("phụ")) return "snack";
+  return "unknown";
+}
+
 function ensureAiIsConfigured() {
   if (!process.env.GEMINI_API_KEY) {
     const error = new Error(
@@ -159,7 +168,7 @@ function getBaseAssistantPrompt(language, contextText) {
       "Never claim that you updated, swapped, or saved anything unless a tool call actually succeeded and returned ok: true.",
       "If a tool fails, clearly explain that the update did not happen yet.",
       "Be friendly, direct, and practical. Use short Markdown. Prefer 1 short paragraph or 3-5 bullets.",
-      "WHEN CALLING SWAP MEAL TOOLS: You MUST pass the exact meal_id from the meals list in today_plan. To find dinner, look for a meal whose meal_time contains 'dinner', 'toi', '18:', '19:', '20:'. For breakfast use 'breakfast', 'sang', '7:', '8:'. For lunch use 'lunch', 'trua', '12:', '11:'. Always pass the correct meal_id.",
+      "WHEN CALLING SWAP MEAL TOOLS: You MUST use the 'slot' field of each meal in today_plan to identify the correct meal — slot='breakfast' means morning meal, slot='lunch' means midday meal, slot='dinner' means evening meal, slot='snack' means snack. If the user says 'breakfast', pick the meal whose slot='breakfast' and pass its exact id as meal_id. NEVER infer the meal slot from the meal name — a custom meal name like 'Cao Lau Hai San' does NOT indicate its slot; only the 'slot' field does.",
       "WHEN CALLING SWAP WORKOUT TOOLS: You MUST pass the exact workout_id from the workouts list in today_plan.",
       "If the user asks to change today's meal or workout, you may call the provided tools instead of only giving advice.",
       "User context follows below:",
@@ -179,7 +188,7 @@ function getBaseAssistantPrompt(language, contextText) {
     "Tuyet doi khong duoc noi rang da doi, da cap nhat, da luu neu tool chua chay thanh cong va tra ve ok: true.",
     "Neu tool that bai thi phai noi ro la viec cap nhat chua xay ra.",
     "Giong dieu than thien, ngan gon, thuc dung. Tra loi bang Markdown ngan, uu tien 1 doan ngan hoac 3-5 gach dau dong.",
-    "KHI GOI TOOL SWAP MON AN: Ban BUOC PHAI truyen dung meal_id lay tu danh sach bua_an trong ke_hoach_hom_nay. Tim bua toi bang cach tim mon co meal_time chua chuoi 'dinner', 'toi', '18:', '19:', '20:' (khong phan biet hoa thuong). Tim bua sang bang meal_time chua 'breakfast', 'sang', '7:', '8:'. Tim bua trua bang 'lunch', 'trua', '12:', '11:'. Luon truyen meal_id chinh xac khi goi swap_meal hoac generate_and_swap_meal.",
+    "KHI GOI TOOL SWAP MON AN: Ban BUOC PHAI dung truong 'slot' cua moi mon trong bua_an de xac dinh bua can doi — slot='breakfast' la bua sang, slot='lunch' la bua trua, slot='dinner' la bua toi, slot='snack' la bua phu. Neu nguoi dung noi 'bua sang', hay chon mon co slot='breakfast' va truyen id cua mon do vao meal_id. TUYET DOI KHONG suy ra slot tu ten mon an — ten custom nhu 'Cao Lau Hai San' khong phan anh bua an, chi co truong slot moi chinh xac.",
     "KHI GOI TOOL SWAP BAI TAP: Truyen dung workout_id lay tu danh sach bai_tap trong ke_hoach_hom_nay.",
     "Neu nguoi dung muon doi mon an hoac doi bai tap trong he thong, ban co the dung cac tool da duoc cap thay vi chi tu van suong.",
     "Ngu canh that cua nguoi dung o duoi day:",
@@ -246,12 +255,12 @@ function getToolDefinitions() {
               },
               meal_id: {
                 type: SchemaType.INTEGER,
-                description: "ID cua mon an can doi trong ke hoach hien tai.",
+                description: "ID cua mon an can doi. Lay tu truong 'id' trong danh sach bua_an. Xac dinh dung bua bang truong 'slot': slot='breakfast' la bua sang, slot='lunch' la bua trua, slot='dinner' la bua toi, slot='snack' la bua phu. Neu nguoi dung noi 'bua sang' phai lay id cua mon co slot='breakfast', khong phu thuoc vao ten mon.",
               },
               preference: {
                 type: SchemaType.STRING,
                 description:
-                  "Mo ta so thich doi mon, vi du nhieu dam, it dau, re hon.",
+                  "Slot cua bua muon doi: 'breakfast', 'lunch', 'dinner', hoac 'snack'. Phai khop voi slot cua meal_id da chon.",
               },
             },
             required: ["day_number", "meal_id", "preference"],
@@ -295,12 +304,12 @@ function getToolDefinitions() {
               meal_id: {
                 type: SchemaType.INTEGER,
                 description:
-                  "ID cua mon an can thay the. BUOC PHAI lay chinh xac tu truong 'id' trong danh sach bua_an cua ke_hoach_hom_nay. Tim bua toi bang meal_time chua 'Dinner' hoac '19:00'. Tim bua sang bang 'Breakfast' hoac '7:00'. Tim bua trua bang 'Lunch' hoac '12:30'.",
+                  "ID cua mon an can thay the. BUOC PHAI lay chinh xac tu truong 'id' trong danh sach bua_an cua ke_hoach_hom_nay. De tim dung mon: dung truong 'slot' cua moi mon de xac dinh bua - slot='breakfast' la bua sang, slot='lunch' la bua trua, slot='dinner' la bua toi, slot='snack' la bua phu. Neu nguoi dung noi 'bua sang' thi lay id cua mon co slot='breakfast'. Tuyet doi khong dung ten mon an de suy ra slot.",
               },
               preference: {
                 type: SchemaType.STRING,
                 description:
-                  "Ten bua can doi: 'sang' (breakfast), 'trua' (lunch), 'toi' (dinner), 'phu' (snack). Dung de tim dung meal_id neu khong chac chan.",
+                  "Ten bua can doi: 'breakfast' (bua sang), 'lunch' (bua trua), 'dinner' (bua toi), 'snack' (bua phu). Phai khop voi truong 'slot' cua mon an trong danh sach. Dung gia tri nay de xac nhan lai meal_id da chon co dung slot hay khong.",
               },
               custom_meal_name: {
                 type: SchemaType.STRING,
@@ -403,6 +412,14 @@ async function getRecentChatHistory(userId, limit = 8) {
   );
 
   return rows.reverse();
+}
+
+async function clearChatHistory(userId) {
+  await pool.query(
+    `DELETE FROM ai_chat_messages
+     WHERE user_id = ?`,
+    [userId]
+  );
 }
 
 async function storeChatMessage(userId, role, messageText) {
@@ -575,6 +592,7 @@ async function buildUserContext(userId) {
       plannedCost: Number(planContext.todayPlanDay?.planned_cost || 0),
       meals: planContext.meals.map((meal) => ({
         id: Number(meal.id),
+        slot: getMealSlot(meal.meal_time),
         name: meal.meal_name,
         meal_time: meal.meal_time,
         calories: Number(meal.calories || 0),
@@ -806,13 +824,22 @@ async function executeToolCall(userId, functionCall, context) {
   if (functionCall.name === "swap_meal") {
     const dayNumber = Number(args.day_number || todayContext.dayNumber || 1);
 
-    // AI may pass meal_id directly, or we derive it from preference.
-    // Validate that the meal_id actually belongs to today's plan; if not, use fallback.
+    // Step 1: check if AI-provided meal_id belongs to today's plan
     let mealId = Number(args.meal_id || 0);
     const mealExistsInDay = mealId > 0 && todayContext.meals?.some((m) => Number(m.id) === mealId);
 
-    if (!mealExistsInDay) {
-      // Derive from preference or args.meal_id as text hint
+    if (mealExistsInDay) {
+      // Step 2: cross-check that the meal's slot matches the stated preference.
+      // Prevents AI passing a valid dinner-ID when the user asked for breakfast.
+      const preferenceSlot = getMealSlot(args.preference || "");
+      const pickedMeal = todayContext.meals.find((m) => Number(m.id) === mealId);
+      const pickedSlot = getMealSlot(pickedMeal?.meal_time || "");
+      if (preferenceSlot !== "unknown" && pickedSlot !== "unknown" && preferenceSlot !== pickedSlot) {
+        // Slot mismatch — override with the correct slot meal
+        mealId = Number(findFallbackMealId(todayContext, args.preference)) || mealId;
+      }
+    } else {
+      // meal_id not in today — derive from preference hint
       const hint = args.preference || String(args.meal_id || "");
       mealId = Number(findFallbackMealId(todayContext, hint));
     }
@@ -873,15 +900,20 @@ async function executeToolCall(userId, functionCall, context) {
   if (functionCall.name === "generate_and_swap_meal") {
     const dayNumber = Number(args.day_number || todayContext.dayNumber || 1);
 
-    // Validate meal_id belongs to today; fallback using explicit preference slot first,
-    // then custom_meal_name as secondary hint.
+    // Step 1: check if AI-provided meal_id belongs to today's plan
     let mealId = Number(args.meal_id || 0);
     const mealExistsInDay = mealId > 0 && todayContext.meals?.some((m) => Number(m.id) === mealId);
 
-    if (!mealExistsInDay) {
-      // args.preference holds the meal slot name ("tối", "sáng"...)
-      // args.custom_meal_name holds the dish name ("Cao Lầu Hải Sản") — usually NOT a slot hint
-      // Prioritise preference over custom_meal_name for slot detection
+    if (mealExistsInDay) {
+      // Step 2: cross-check slot vs preference to catch wrong-slot swaps
+      const preferenceSlot = getMealSlot(args.preference || "");
+      const pickedMeal = todayContext.meals.find((m) => Number(m.id) === mealId);
+      const pickedSlot = getMealSlot(pickedMeal?.meal_time || "");
+      if (preferenceSlot !== "unknown" && pickedSlot !== "unknown" && preferenceSlot !== pickedSlot) {
+        mealId = Number(findFallbackMealId(todayContext, args.preference)) || mealId;
+      }
+    } else {
+      // meal_id not in today — derive from preference slot hint
       const slotHint = args.preference || "";
       mealId = Number(findFallbackMealId(todayContext, slotHint));
     }
@@ -1214,4 +1246,6 @@ module.exports = {
   getUnavailableMessage,
   getChatLimitError,
   getRecentChatHistory,
+  clearChatHistory,
+  getRemainingRequestsToday,
 };

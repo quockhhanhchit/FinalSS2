@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import { Layout } from "./components/Layout";
+import { Landing } from "./screens/Landing";
 import { Login } from "./screens/Login";
 import { Register } from "./screens/Register";
 import { ForgotPassword } from "./screens/ForgotPassword";
@@ -17,10 +18,14 @@ import { GuestRoute } from "./components/GuestRoute";
 
 export const router = createBrowserRouter([
   {
+    path: "/",
+    element: <Landing />,
+  },
+  {
     element: <GuestRoute />,
     children: [
       {
-        path: "/",
+        path: "/login",
         element: <Login />,
       },
       {

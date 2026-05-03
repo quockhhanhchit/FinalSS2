@@ -145,7 +145,7 @@ export function ForgotPassword() {
 
                 <div className="flex items-center justify-center gap-2 text-base">
                   <ArrowLeft className="w-4 h-4" />
-                  <Link to="/" className="text-primary hover:underline font-medium">
+                  <Link to="/login" className="text-primary hover:underline font-medium">
                     Quay lại đăng nhập
                   </Link>
                 </div>
@@ -200,7 +200,7 @@ export function ForgotPassword() {
 
                 <div className="flex items-center justify-center gap-2 text-base">
                   <ArrowLeft className="w-4 h-4" />
-                  <Link to="/" className="text-primary hover:underline font-medium">
+                  <Link to="/login" className="text-primary hover:underline font-medium">
                     Quay lại đăng nhập
                   </Link>
                 </div>
@@ -212,7 +212,7 @@ export function ForgotPassword() {
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
                 Nhớ mật khẩu rồi?{" "}
-                <Link to="/" className="text-primary font-medium hover:underline">
+                <Link to="/login" className="text-primary font-medium hover:underline">
                   Đăng nhập
                 </Link>
               </p>
