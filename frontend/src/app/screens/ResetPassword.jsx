@@ -154,7 +154,7 @@ export function ResetPassword() {
 
               <Button
                 className="w-full h-14 rounded-xl"
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/login")}
               >
                 Quay lại đăng nhập
               </Button>

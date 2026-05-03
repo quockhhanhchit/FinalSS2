@@ -68,7 +68,10 @@ export function Plan() {
   const [viewMode, setViewMode] = useState("calendar");
   const [plan, setPlan] = useState(null);
   const [error, setError] = useState("");
-  const [displayDate, setDisplayDate] = useState(new Date());
+  const [displayDate, setDisplayDate] = useState(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
   const [isContinuingPlan, setIsContinuingPlan] = useState(false);
 
   const loadPlan = async () => {
@@ -125,12 +128,6 @@ export function Plan() {
       })),
     [plan],
   );
-
-  useEffect(() => {
-    if (planDays[0]?.date) {
-      setDisplayDate(new Date(planDays[0].date));
-    }
-  }, [planDays]);
 
   useEffect(() => {
     if (plan?.can_prompt_continue) {

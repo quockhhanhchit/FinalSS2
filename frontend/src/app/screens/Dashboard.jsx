@@ -113,14 +113,22 @@ export function Dashboard() {
       loadDashboardData();
     };
 
+    const handleSummaryUpdated = (event) => {
+      if (event.detail?.summary) {
+        setAiWeeklySummary(event.detail.summary);
+      }
+    };
+
     loadDashboardData();
     window.addEventListener("budgetfit:budget-updated", handleRefresh);
     window.addEventListener("budgetfit:profile-updated", handleRefresh);
+    window.addEventListener("budgetfit:ai-summary-updated", handleSummaryUpdated);
 
     return () => {
       ignore = true;
       window.removeEventListener("budgetfit:budget-updated", handleRefresh);
       window.removeEventListener("budgetfit:profile-updated", handleRefresh);
+      window.removeEventListener("budgetfit:ai-summary-updated", handleSummaryUpdated);
     };
   }, []);
 
@@ -486,9 +494,15 @@ export function Dashboard() {
                 <div data-no-translate>{aiWeeklySummary.body}</div>
               ) : (
                 <div className="text-muted-foreground">
-                  Chưa có nhận xét AI tuần này. Bạn có thể mở bong bóng chat và bấm
+                  Chưa có nhận xét AI tuần này. Bạn có thể bấm vào
                   &nbsp;
-                  <span className="font-semibold">Tóm tắt tuần</span>
+                  <button
+                    type="button"
+                    onClick={() => window.dispatchEvent(new CustomEvent("budgetfit:open-ai-summary"))}
+                    className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+                  >
+                    Tóm tắt tuần
+                  </button>
                   &nbsp;để tạo ngay.
                 </div>
               )}

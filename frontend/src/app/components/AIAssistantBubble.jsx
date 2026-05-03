@@ -7,10 +7,11 @@ import {
   MessageCircle,
   Send,
   Sparkles,
+  Trash2,
   X,
 } from "lucide-react";
 import { Button } from "./ui/button";
-import { apiGet, apiPost } from "../lib/api";
+import { apiDelete, apiGet, apiPost } from "../lib/api";
 import { useLanguage } from "../LanguageContext";
 
 function MarkdownMessage({ content }) {
@@ -41,6 +42,8 @@ export function AIAssistantBubble() {
             helper:
               "I answer only BudgetFit topics and I use your real data when available.",
             remaining: "AI requests left today",
+            clearChat: "Clear chat",
+
             suggestions: [
               "Suggest a dinner under today's budget",
               "Review my spending this week",
@@ -61,6 +64,8 @@ export function AIAssistantBubble() {
             helper:
               "Mình chỉ trả lời các chủ đề trong BudgetFit và sẽ ưu tiên dữ liệu thật của bạn khi có.",
             remaining: "Lượt AI còn lại hôm nay",
+            clearChat: "Xóa đoạn chat",
+
             suggestions: [
               "Gợi ý bữa tối vừa túi tiền hôm nay",
               "Xem giúp mình chi tiêu tuần này",
@@ -83,10 +88,13 @@ export function AIAssistantBubble() {
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
+  const [isClearingChat, setIsClearingChat] = useState(false);
   const [requestsRemaining, setRequestsRemaining] = useState(null);
   const [latestSummary, setLatestSummary] = useState(null);
   const [error, setError] = useState("");
   const bottomRef = useRef(null);
+  // Ref so the open-ai-summary event listener always calls the latest version
+  const generateSummaryRef = useRef(null);
 
   useEffect(() => {
     setMessages([
@@ -120,6 +128,13 @@ export function AIAssistantBubble() {
       })
       .catch(() => {});
 
+    // Fetch the REAL remaining count from the server so it reflects actual DB usage
+    apiGet("/api/ai/requests-remaining")
+      .then((data) => {
+        setRequestsRemaining(data.remaining);
+      })
+      .catch(() => {});
+
     apiGet("/api/ai/weekly-summary")
       .then((summary) => {
         setLatestSummary(summary);
@@ -132,6 +147,21 @@ export function AIAssistantBubble() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, latestSummary]);
+
+  // Listen for external trigger: clicking "Tóm tắt tuần" link on the Dashboard
+  useEffect(() => {
+    const handleOpenSummary = () => {
+      setIsOpen(true);
+      setTimeout(() => {
+        generateSummaryRef.current?.();
+      }, 400);
+    };
+
+    window.addEventListener("budgetfit:open-ai-summary", handleOpenSummary);
+    return () => {
+      window.removeEventListener("budgetfit:open-ai-summary", handleOpenSummary);
+    };
+  }, []);
 
   const handleSend = async (messageText = input) => {
     const trimmed = String(messageText || "").trim();
@@ -189,6 +219,25 @@ export function AIAssistantBubble() {
     }
   };
 
+  const handleClearChat = async () => {
+    if (isClearingChat) {
+      return;
+    }
+
+    setIsClearingChat(true);
+    setError("");
+
+    try {
+      await apiDelete("/api/ai/history");
+      setMessages([{ id: "welcome", role: "assistant", content: labels.welcome }]);
+      setLatestSummary(null);
+    } catch (requestError) {
+      setError(requestError.message || labels.unavailable);
+    } finally {
+      setIsClearingChat(false);
+    }
+  };
+
   const handleGenerateSummary = async () => {
     if (isLoadingSummary) {
       return;
@@ -208,12 +257,19 @@ export function AIAssistantBubble() {
           content: summary?.body || "",
         },
       ]);
+      // Notify Dashboard card to update without a page refresh
+      window.dispatchEvent(
+        new CustomEvent("budgetfit:ai-summary-updated", { detail: { summary } })
+      );
     } catch (requestError) {
       setError(requestError.message || labels.unavailable);
     } finally {
       setIsLoadingSummary(false);
     }
   };
+  // Keep the ref in sync so the event listener always calls the latest version
+  generateSummaryRef.current = handleGenerateSummary;
+
 
   return (
     <div className="fixed bottom-24 right-5 z-[95] flex flex-col items-end gap-3">
@@ -234,14 +290,32 @@ export function AIAssistantBubble() {
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="rounded-full p-2 transition-colors hover:bg-white/15"
-                aria-label="Close AI assistant"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              <div className="flex items-center gap-1">
+                {messages.length > 6 ? (
+                  <button
+                    type="button"
+                    onClick={handleClearChat}
+                    disabled={isClearingChat}
+                    title={labels.clearChat}
+                    className="rounded-full p-2 transition-colors hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60"
+                    aria-label={labels.clearChat}
+                  >
+                    {isClearingChat ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  className="rounded-full p-2 transition-colors hover:bg-white/15"
+                  aria-label="Close AI assistant"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -327,7 +401,7 @@ export function AIAssistantBubble() {
               <div className="text-[11px] text-muted-foreground">
                 {labels.remaining}:{" "}
                 <span className="font-semibold text-foreground">
-                  {requestsRemaining === null ? "40" : requestsRemaining}
+                  {requestsRemaining === null ? "–" : requestsRemaining}
                 </span>
               </div>
             </div>
