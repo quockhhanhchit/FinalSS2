@@ -350,8 +350,3 @@ node database/import_csv.js
 - File migration phan bo sung sau dump:
   - [backend/database/post_dump_migrations.sql](/d:/SPRING2026/SS2/project/backend/database/post_dump_migrations.sql)
 
-Neu ban muon, toi co the lam tiep mot viec nua:
-
-1. Viet them file `frontend/.env.example`
-2. Them script npm de import CSV bang 1 lenh nhu `npm run import:csv`
-3. Gop luon du lieu CSV vao file SQL de dung nghia `Execute` mot phat xong het
