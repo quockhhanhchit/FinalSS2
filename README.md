@@ -1,232 +1,137 @@
 # BudgetFit
 
-BudgetFit là ứng dụng web hỗ trợ người dùng quản lý mục tiêu sức khỏe và ngân sách cá nhân trong cùng một hệ thống. Ứng dụng cho phép đăng ký, đăng nhập, khai báo hồ sơ cá nhân, tạo kế hoạch 30 ngày, theo dõi cân nặng, ghi nhận chi tiêu và xem dashboard tổng quan để đánh giá tiến độ.
+BudgetFit la ung dung web ho tro nguoi dung quan ly suc khoe va ngan sach ca nhan trong cung mot he thong. Du an gom:
 
-## Mục tiêu dự án
+- `frontend`: React + Vite
+- `backend`: Node.js + Express
+- `database`: MySQL
 
-- Hỗ trợ người dùng theo dõi hành trình tăng cân, giảm cân hoặc duy trì cân nặng.
-- Kết hợp quản lý sức khỏe với quản lý chi tiêu thay vì tách rời thành nhiều ứng dụng.
-- Tạo kế hoạch ăn uống, vận động và phân bổ ngân sách theo hồ sơ cá nhân.
-- Cung cấp dashboard trực quan để người dùng theo dõi tiến độ thực hiện.
+README nay duoc viet lai theo huong dan cho nguoi moi clone code tu GitHub ve va muon chay du an tu dau den cuoi.
 
-## Tính năng chính
+## 1. Yeu cau truoc khi chay
 
-- Đăng ký, đăng nhập, đăng xuất bằng email/password.
-- Đăng nhập bằng Google.
-- Xác thực bằng JWT access token và refresh token.
-- Onboarding hồ sơ cá nhân: tuổi, chiều cao, cân nặng, mục tiêu, thời lượng, ngân sách, địa điểm tập, số bữa ăn mỗi ngày.
-- Sinh kế hoạch 30 ngày dựa trên hồ sơ người dùng.
-- Xem kế hoạch hiện tại và chi tiết từng ngày.
-- Theo dõi cân nặng theo thời gian.
-- Theo dõi chi tiêu theo danh mục.
-- Xem dashboard tổng hợp tiến độ sức khỏe và ngân sách.
-- Xem phân bổ ngân sách hiện tại.
+Can cai san:
 
-## Kiến trúc hệ thống
+- Node.js 18+ de tranh loi dependency
+- npm
+- MySQL 8.x
+- Mot cong cu quan ly MySQL nhu MySQL Workbench, DBeaver hoac phpMyAdmin
+- Git
 
-Project được tổ chức theo kiểu backend REST API và frontend SPA:
+Kiem tra nhanh:
 
-- Frontend: React + Vite
-- Backend: Node.js + Express
-- Database: MySQL
-- Auth: JWT + Google Sign-In
-
-Backend không phải MVC thuần mà đang theo mô hình:
-
-`Route -> Controller -> Service -> Database`
-
-Trong đó:
-
-- `routes` định nghĩa API endpoint
-- `controllers` xử lý request/response
-- `services` chứa business logic và truy vấn MySQL
-- `config/db.js` quản lý kết nối database
-
-## Công nghệ sử dụng
-
-### Frontend
-
-- React
-- Vite
-- React Router
-- Tailwind CSS
-- Radix UI
-- Recharts
-- Lucide React
-
-### Backend
-
-- Express
-- mysql2
-- jsonwebtoken
-- bcryptjs
-- zod
-- swagger-jsdoc
-- swagger-ui-express
-
-### Database
-
-- MySQL
-- File schema và dữ liệu mẫu: [backend/database/budgetfit.sql](/d:/FinalSS2/backend/database/budgetfit.sql)
-
-## Chức năng theo module
-
-### Authentication
-
-- Đăng ký tài khoản
-- Đăng nhập bằng email/password
-- Đăng nhập bằng Google
-- Refresh access token
-- Lấy thông tin người dùng hiện tại
-- Đăng xuất
-
-### Profile
-
-- Lưu hồ sơ cá nhân sau onboarding
-- Xem lại hồ sơ cá nhân
-
-### Plan
-
-- Sinh kế hoạch cá nhân theo hồ sơ
-- Xem kế hoạch hiện tại
-- Xem chi tiết từng ngày của kế hoạch
-
-### Tracking
-
-- Ghi log cân nặng
-- Xem lịch sử cân nặng
-- Ghi log chi tiêu
-- Xem lịch sử chi tiêu
-
-### Dashboard
-
-- Tổng hợp cân nặng hiện tại
-- Tính tiến độ mục tiêu
-- Tổng hợp ngân sách và chi tiêu
-- Thống kê số ngày hoàn thành trong plan
-
-### Budget
-
-- Xem breakdown ngân sách hiện tại của plan
-
-## Cấu trúc thư mục
-
-```text
-FinalSS2/
-|-- backend/
-|   |-- database/
-|   |-- src/
-|   |   |-- config/
-|   |   |-- controllers/
-|   |   |-- middleware/
-|   |   |-- routes/
-|   |   |-- services/
-|   |   |-- utils/
-|   |   |-- app.js
-|   |   `-- server.js
-|   `-- tests/
-|-- frontend/
-|   |-- src/
-|   |   |-- app/
-|   |   |   |-- components/
-|   |   |   |-- lib/
-|   |   |   `-- screens/
-|   |   `-- styles/
-|   `-- index.html
-`-- README.md
+```bash
+node -v
+npm -v
+mysql --version
+git --version
 ```
 
-## Cơ sở dữ liệu
-
-Database chính của project là `budgetfit_db`.
-
-Một số bảng quan trọng:
-
-- `users`
-- `user_profiles`
-- `plans`
-- `plan_days`
-- `meals`
-- `workouts`
-- `weight_logs`
-- `expense_logs`
-- `budget_breakdowns`
-
-Các migration đang có:
-
-- [backend/database/001_add_refresh_token_hash.sql](/d:/FinalSS2/backend/database/001_add_refresh_token_hash.sql)
-- [backend/database/002_add_google_auth_columns.sql](/d:/FinalSS2/backend/database/002_add_google_auth_columns.sql)
-- [backend/database/003_create_daily_task_completions.sql](/d:/FinalSS2/backend/database/003_create_daily_task_completions.sql)
-
-## API chính
-
-Một số endpoint tiêu biểu:
-
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/google`
-- `POST /api/auth/refresh`
-- `GET /api/auth/me`
-- `POST /api/profile`
-- `GET /api/profile`
-- `POST /api/plans/generate`
-- `GET /api/plans/current`
-- `GET /api/plans/current/day/:dayNumber`
-- `GET /api/tracking/weights`
-- `POST /api/tracking/weights`
-- `GET /api/tracking/expenses`
-- `POST /api/tracking/expenses`
-- `GET /api/dashboard/summary`
-- `GET /api/budget/current`
-
-Swagger docs được mount tại:
-
-- `http://localhost:5000/api-docs`
-
-## Yêu cầu hệ thống
-
-- Node.js
-- npm
-- MySQL
-- Công cụ quản lý MySQL như MySQL Workbench, DBeaver hoặc XAMPP
-
-## Hướng dẫn chạy project
-
-### 1. Clone source code
+## 2. Clone source code
 
 ```bash
 git clone https://github.com/quockhhanhchit/FinalSS2.git
 cd FinalSS2
 ```
 
-### 2. Tạo database và import dữ liệu mẫu
+Neu ban da tai source code dang `.zip` thi chi can giai nen va mo terminal tai thu muc goc cua project.
 
-Mở MySQL Workbench hoặc MySQL CLI, sau đó tạo database:
+## 3. Cau truc project
+
+```text
+FinalSS2/
+|-- backend/
+|   |-- database/
+|   |-- src/
+|   |-- tests/
+|   |-- package.json
+|   `-- .env.example
+|-- frontend/
+|   |-- src/
+|   `-- package.json
+|-- meal_library_import.csv
+|-- workout_library_import.csv
+`-- README.md
+```
+
+## 4. Setup database
+
+Day la buoc quan trong nhat. Project nay khong chi can tao bang ma con can nap them du lieu thu vien mon an va bai tap.
+
+### 4.1. Tao database
+
+Mo MySQL Workbench hoac MySQL CLI va chay:
 
 ```sql
 CREATE DATABASE budgetfit_db;
 ```
 
-Import file:
+### 4.2. Import file SQL all-in-one
 
-- [backend/database/budgetfit.sql](/d:/FinalSS2/backend/database/budgetfit.sql)
+File import chinh:
 
-Sau đó chạy thêm các migration:
+- [backend/database/budgetfit_all_in_one.sql](/d:/SPRING2026/SS2/project/backend/database/budgetfit_all_in_one.sql)
 
-- [backend/database/001_add_refresh_token_hash.sql](/d:/FinalSS2/backend/database/001_add_refresh_token_hash.sql)
-- [backend/database/002_add_google_auth_columns.sql](/d:/FinalSS2/backend/database/002_add_google_auth_columns.sql)
-- [backend/database/003_create_daily_task_completions.sql](/d:/FinalSS2/backend/database/003_create_daily_task_completions.sql)
+File nay da gom:
 
-### 3. Cấu hình backend
+- schema goc
+- du lieu mau co san trong dump
+- cac migration SQL de tao day du bang, cot va rang buoc moi nhat
 
-Di chuyển vào thư mục backend:
+Ban chi can mo file nay trong MySQL Workbench roi nhan `Execute` mot lan.
+
+### 4.3. Import them du lieu meal library va workout library
+
+Luu y: file SQL all-in-one hien tai tao bang `meal_library` va `workout_library` nhung chua tu dong do du lieu CSV vao hai bang nay.
+
+Neu bo qua buoc nay, app van len duoc nhung mot so chuc nang sinh plan se thieu du lieu.
+
+Sau khi import SQL xong, chay script import CSV:
 
 ```bash
 cd backend
 npm install
+node database/import_csv.js
 ```
 
-Tạo file `.env` trong thư mục `backend`:
+Script nay se doc du lieu tu:
+
+- `../meal_library_import.csv`
+- `../workout_library_import.csv`
+
+Neu import thanh cong, ban se thay log thong bao so luong du lieu da duoc nap vao database.
+
+## 5. Cau hinh backend
+
+Di chuyen vao thu muc backend:
+
+```bash
+cd backend
+```
+
+### 5.1. Cai dependency backend
+
+```bash
+npm install
+```
+
+### 5.2. Tao file `.env`
+
+Ban co the copy tu file mau:
+
+```bash
+copy .env.example .env
+```
+
+Neu dung PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Sau do sua file `backend/.env`.
+
+Gia tri toi thieu de chay local:
 
 ```env
 PORT=5000
@@ -234,71 +139,219 @@ DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=budgetfit_db
 DB_USER=root
-DB_PASSWORD='your_mysql_password'
+DB_PASSWORD=your_mysql_password
+
 JWT_SECRET=budgetfit_super_secret_key
 JWT_EXPIRES_IN=7d
+
+APP_URL=http://localhost:5173
+```
+
+### 5.3. Bien moi truong tuy chon
+
+Neu muon dung them cac tinh nang sau, can cau hinh them:
+
+- Dang nhap Google:
+
+```env
 GOOGLE_CLIENT_ID=your_google_client_id
 ```
 
-Chạy backend:
+- Quen mat khau qua email:
+
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_app_password
+MAIL_FROM=BudgetFit <your_email@gmail.com>
+```
+
+- AI assistant / weekly summary:
+
+```env
+GEMINI_API_KEY=your_gemini_api_key
+GEMINI_MODEL=gemini-1.5-flash
+```
+
+Neu khong cau hinh cac bien tuy chon tren:
+
+- app van co the chay co ban
+- Google login se khong hoat dong
+- quen mat khau qua email se khong gui mail duoc
+- AI assistant se bi vo hieu hoa
+
+### 5.4. Chay backend
 
 ```bash
 npm run dev
 ```
 
-### 4. Cấu hình frontend
+Neu thanh cong, backend se chay tai:
 
-Mở terminal mới:
+- `http://localhost:5000`
+
+Swagger docs:
+
+- `http://localhost:5000/api-docs`
+
+## 6. Cau hinh frontend
+
+Mo terminal moi, quay lai thu muc goc project roi vao `frontend`:
 
 ```bash
 cd frontend
+```
+
+### 6.1. Cai dependency frontend
+
+```bash
 npm install
 ```
 
-Tạo file `.env` trong thư mục `frontend`:
+### 6.2. Tao file `.env`
+
+Tao file `frontend/.env` voi noi dung toi thieu:
 
 ```env
 VITE_API_URL=http://localhost:5000
 VITE_GOOGLE_CLIENT_ID=your_google_client_id
 ```
 
-Chạy frontend:
+Giai thich:
+
+- `VITE_API_URL`: URL cua backend local
+- `VITE_GOOGLE_CLIENT_ID`: chi can neu muon bat dang nhap Google
+
+Neu ban khong dung Google login, co the bo dong nay hoac de rong:
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+### 6.3. Chay frontend
 
 ```bash
 npm run dev
 ```
 
-Frontend mặc định chạy tại:
+Frontend thuong se chay tai:
 
 - `http://localhost:5173`
 
-## Google Sign-In
+## 7. Thu tu chay du an de tranh loi
 
-Để dùng Google Sign-In, cần cấu hình OAuth client trên Google Cloud Console:
+Day la thu tu nen lam:
 
-- Tạo OAuth Client loại `Web application`
-- Thêm `http://localhost:5173` vào `Authorized JavaScript origins`
-- Dùng cùng một `client id` cho:
-  - `backend/.env` -> `GOOGLE_CLIENT_ID`
-  - `frontend/.env` -> `VITE_GOOGLE_CLIENT_ID`
+1. Clone repo
+2. Tao database `budgetfit_db`
+3. Import `backend/database/budgetfit_all_in_one.sql`
+4. Chay `node backend/database/import_csv.js` sau khi da `npm install` trong `backend`
+5. Tao `backend/.env`
+6. Chay backend bang `npm run dev`
+7. Tao `frontend/.env`
+8. Chay frontend bang `npm run dev`
+9. Mo `http://localhost:5173`
 
-## Kiểm thử
+## 8. Cac URL quan trong
 
-Chạy test backend:
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:5000`
+- Swagger docs: `http://localhost:5000/api-docs`
+
+## 9. Neu muon dung Google Login
+
+Can cau hinh tren Google Cloud Console:
+
+- `Authorized JavaScript origins`:
+  - `http://localhost:5173`
+- `Authorized redirect URIs`:
+  - Neu ban co cau hinh redirect rieng thi them theo setup cua ban
+
+Sau do dat cung mot `GOOGLE_CLIENT_ID` cho:
+
+- `backend/.env`
+- `frontend/.env`
+
+Neu hai ben khong giong nhau, dang nhap Google se that bai.
+
+## 10. Cac loi thuong gap
+
+### Loi ket noi MySQL
+
+Kiem tra lai:
+
+- MySQL da bat chua
+- `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` co dung khong
+- database `budgetfit_db` da duoc tao va import chua
+
+### Loi backend chay duoc nhung sinh plan loi
+
+Nguyen nhan thuong la chua import CSV cho:
+
+- `meal_library`
+- `workout_library`
+
+Can chay lai:
 
 ```bash
 cd backend
-npm test
+node database/import_csv.js
 ```
 
-## Định hướng phát triển
+### Loi frontend khong goi duoc API
 
-- Tách tầng truy vấn dữ liệu sang repository hoặc ORM
-- Bổ sung phân quyền admin/user
-- Hoàn thiện reward và notification flow
-- Thêm cập nhật trạng thái hoàn thành task trong plan
-- Cải thiện test coverage cho frontend và backend
+Kiem tra:
 
-## Nhóm phát triển
+- backend co dang chay tai `http://localhost:5000` khong
+- `frontend/.env` co `VITE_API_URL=http://localhost:5000` khong
+- co mo nham frontend truoc khi backend san sang khong
 
-Project được phát triển cho mục đích học tập và thực hành xây dựng hệ thống full-stack với React, Express và MySQL.
+### Loi Google login khong hien nut hoac khong dang nhap duoc
+
+Kiem tra:
+
+- `VITE_GOOGLE_CLIENT_ID` da khai bao chua
+- `GOOGLE_CLIENT_ID` ben backend da khai bao chua
+- origin `http://localhost:5173` da them trong Google Cloud Console chua
+
+## 11. Lenh hay dung
+
+Backend:
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Import CSV:
+
+```bash
+cd backend
+node database/import_csv.js
+```
+
+## 12. Ghi chu
+
+- File SQL all-in-one da co san de import nhanh:
+  - [backend/database/budgetfit_all_in_one.sql](/d:/SPRING2026/SS2/project/backend/database/budgetfit_all_in_one.sql)
+- File schema goc:
+  - [backend/database/budgetfit.sql](/d:/SPRING2026/SS2/project/backend/database/budgetfit.sql)
+- File migration phan bo sung sau dump:
+  - [backend/database/post_dump_migrations.sql](/d:/SPRING2026/SS2/project/backend/database/post_dump_migrations.sql)
+
+Neu ban muon, toi co the lam tiep mot viec nua:
+
+1. Viet them file `frontend/.env.example`
+2. Them script npm de import CSV bang 1 lenh nhu `npm run import:csv`
+3. Gop luon du lieu CSV vao file SQL de dung nghia `Execute` mot phat xong het
