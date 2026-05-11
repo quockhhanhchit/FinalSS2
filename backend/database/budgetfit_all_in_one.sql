@@ -1,5 +1,7 @@
-CREATE DATABASE  IF NOT EXISTS `budgetfit_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `budgetfit_db`;
+-- For Railway: skip CREATE DATABASE, use the connected database directly
+-- For local: run `CREATE DATABASE  budgetfit_db;` manually first
+-- CREATE DATABASE   `budgetfit_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+-- USE `budgetfit_db`;
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: budgetfit_db
@@ -462,16 +464,16 @@ UNLOCK TABLES;
 -- Consolidated migrations for one-shot MySQL import
 -- Generated from budgetfit.sql + migrations 002..011
 -- ============================================================
-USE `budgetfit_db`;
+-- USE `budgetfit_db`;
 
 SET @BF_OLD_FOREIGN_KEY_CHECKS = @@FOREIGN_KEY_CHECKS;
 SET FOREIGN_KEY_CHECKS = 0;
 
 ALTER TABLE `users`
-  ADD COLUMN IF NOT EXISTS `auth_provider` VARCHAR(20) NOT NULL DEFAULT 'local' AFTER `refresh_token_hash`;
+  ADD COLUMN  `auth_provider` VARCHAR(20) NOT NULL DEFAULT 'local' AFTER `refresh_token_hash`;
 
 ALTER TABLE `users`
-  ADD COLUMN IF NOT EXISTS `google_id` VARCHAR(255) NULL AFTER `auth_provider`;
+  ADD COLUMN  `google_id` VARCHAR(255) NULL AFTER `auth_provider`;
 
 SET @bf_sql = IF (
   EXISTS (
@@ -491,7 +493,7 @@ DEALLOCATE PREPARE bf_stmt;
 ALTER TABLE `user_profiles`
   MODIFY COLUMN `budget_style` ENUM('saving', 'normal', 'premium') DEFAULT 'normal';
 
-CREATE TABLE IF NOT EXISTS `meal_library` (
+CREATE TABLE  `meal_library` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `meal_name` VARCHAR(150) NOT NULL,
   `meal_type` ENUM('breakfast', 'lunch', 'dinner', 'snack') NOT NULL,
@@ -506,7 +508,7 @@ CREATE TABLE IF NOT EXISTS `meal_library` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 ALTER TABLE `meals`
-  ADD COLUMN IF NOT EXISTS `meal_library_id` INT NULL AFTER `plan_day_id`;
+  ADD COLUMN  `meal_library_id` INT NULL AFTER `plan_day_id`;
 
 SET @bf_sql = IF (
   EXISTS (
@@ -523,7 +525,7 @@ PREPARE bf_stmt FROM @bf_sql;
 EXECUTE bf_stmt;
 DEALLOCATE PREPARE bf_stmt;
 
-CREATE TABLE IF NOT EXISTS `workout_library` (
+CREATE TABLE  `workout_library` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `workout_type` ENUM('cardio', 'strength', 'hiit', 'rest') NOT NULL,
   `gender_target` ENUM('male', 'female', 'both') DEFAULT 'both',
@@ -541,7 +543,7 @@ CREATE TABLE IF NOT EXISTS `workout_library` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 ALTER TABLE `workouts`
-  ADD COLUMN IF NOT EXISTS `workout_library_id` INT NULL AFTER `plan_day_id`;
+  ADD COLUMN  `workout_library_id` INT NULL AFTER `plan_day_id`;
 
 SET @bf_sql = IF (
   EXISTS (
@@ -559,9 +561,9 @@ EXECUTE bf_stmt;
 DEALLOCATE PREPARE bf_stmt;
 
 ALTER TABLE `plan_days`
-  ADD COLUMN IF NOT EXISTS `actual_cost` DECIMAL(10,2) DEFAULT NULL AFTER `planned_cost`;
+  ADD COLUMN  `actual_cost` DECIMAL(10,2) DEFAULT NULL AFTER `planned_cost`;
 
-CREATE TABLE IF NOT EXISTS `user_badges` (
+CREATE TABLE  `user_badges` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
   `badge_name` VARCHAR(100) NOT NULL,
@@ -572,23 +574,26 @@ CREATE TABLE IF NOT EXISTS `user_badges` (
   CONSTRAINT `user_badges_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 008_plan_continuation.sql
 ALTER TABLE `plans`
-  ADD COLUMN IF NOT EXISTS `continuation_declined_after_day` INT DEFAULT NULL AFTER `status`;
+  ADD COLUMN  `continuation_declined_after_day` INT DEFAULT NULL AFTER `status`;
 
 ALTER TABLE `users`
-  ADD COLUMN IF NOT EXISTS `password_reset_token_hash` VARCHAR(255) NULL AFTER `google_id`;
+  ADD COLUMN  `password_reset_token_hash` VARCHAR(255) NULL AFTER `google_id`;
 
 ALTER TABLE `users`
-  ADD COLUMN IF NOT EXISTS `password_reset_expires_at` DATETIME NULL AFTER `password_reset_token_hash`;
+  ADD COLUMN  `password_reset_expires_at` DATETIME NULL AFTER `password_reset_token_hash`;
 
+-- 010_weekly_reward_vouchers.sql
 ALTER TABLE `reward_vouchers`
-  ADD COLUMN IF NOT EXISTS `weekly_quantity` INT DEFAULT NULL AFTER `available_quantity`;
+  ADD COLUMN  `weekly_quantity` INT DEFAULT NULL AFTER `available_quantity`;
 
 UPDATE `reward_vouchers`
 SET `weekly_quantity` = `available_quantity`
 WHERE `weekly_quantity` IS NULL;
 
-CREATE TABLE IF NOT EXISTS `ai_chat_messages` (
+-- 011_ai_assistant.sql
+CREATE TABLE  `ai_chat_messages` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
   `role` ENUM('user', 'assistant') NOT NULL,
@@ -600,7 +605,7 @@ CREATE TABLE IF NOT EXISTS `ai_chat_messages` (
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS `ai_usage_logs` (
+CREATE TABLE  `ai_usage_logs` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
   `usage_type` ENUM('chat', 'weekly_summary') NOT NULL DEFAULT 'chat',
@@ -611,7 +616,7 @@ CREATE TABLE IF NOT EXISTS `ai_usage_logs` (
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS `user_notifications` (
+CREATE TABLE  `user_notifications` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
   `notification_type` VARCHAR(50) NOT NULL,
