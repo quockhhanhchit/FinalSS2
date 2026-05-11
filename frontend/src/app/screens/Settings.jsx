@@ -4,6 +4,7 @@ import { Button } from "../components/ui/button";
 import { getAuthSession } from "../lib/auth";
 import { apiGet, apiPost, apiPut } from "../lib/api";
 import { showToast } from "../components/ui/toast";
+import { useLanguage } from "../LanguageContext";
 
 const initialBodyGoalsData = {
   age: "",
@@ -38,6 +39,7 @@ function hasValidPositiveNumber(value) {
 }
 
 export function Settings() {
+  const { t } = useLanguage();
   const session = getAuthSession();
   const [bodyGoalsData, setBodyGoalsData] = useState(initialBodyGoalsData);
   const [budgetData, setBudgetData] = useState(initialBudgetData);
@@ -142,7 +144,7 @@ export function Settings() {
 
     try {
       await apiPut("/api/profile/notifications", nextNotificationData);
-      showToast("Đã lưu tùy chọn thông báo.", "success");
+      showToast(t("Đã lưu tùy chọn thông báo."), "success");
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -171,7 +173,7 @@ export function Settings() {
     }
 
     if (!hasValidPositiveNumber(bodyGoalsData.height)) {
-      setError("Chiều cao là bắt buộc và phải lớn hơn 0.");
+      setError(t("Chiều cao là bắt buộc và phải lớn hơn 0."));
       return;
     }
 
@@ -209,7 +211,7 @@ export function Settings() {
       );
       setSavedBodyGoalsData(bodyGoalsData);
       setIsBodyGoalsEditing(false);
-      showToast("Đã lưu chỉ số cơ thể và mục tiêu.", "success");
+      showToast(t("Đã lưu chỉ số cơ thể và mục tiêu."), "success");
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -255,7 +257,7 @@ export function Settings() {
       );
       setSavedBudgetData(budgetData);
       setIsBudgetEditing(false);
-      showToast("Đã lưu ngân sách và tùy chọn.", "success");
+      showToast(t("Đã lưu ngân sách và tùy chọn."), "success");
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -278,7 +280,7 @@ export function Settings() {
       await apiPut("/api/auth/change-password", passwordData);
       setPasswordData(initialPasswordData);
       setShowPasswordForm(false);
-      showToast("Đã đổi mật khẩu thành công.", "success");
+      showToast(t("Đã đổi mật khẩu thành công."), "success");
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -296,7 +298,7 @@ export function Settings() {
       });
       const currentPlan = await apiGet("/api/plans/current");
       setPlanStatus(currentPlan);
-      showToast("Đã khởi động lại cuộc đua 30 ngày từ hôm nay.", "success");
+      showToast(t("Đã khởi động lại cuộc đua 30 ngày từ hôm nay."), "success");
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -410,7 +412,7 @@ export function Settings() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Chiều cao (cm)</label>
+              <label className="text-sm font-medium mb-2 block">{t("Chiều cao")} (cm)</label>
               <input
                 type="number"
                 value={bodyGoalsData.height}
@@ -616,8 +618,8 @@ export function Settings() {
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-medium">Theo dõi cân nặng</div>
-              <div className="text-sm text-muted-foreground">Nhắc bạn ghi nhận cân nặng</div>
+              <div className="font-medium">{t("Theo dõi cân nặng")}</div>
+              <div className="text-sm text-muted-foreground">{t("Nhắc bạn ghi nhận cân nặng")}</div>
             </div>
             <input
               type="checkbox"

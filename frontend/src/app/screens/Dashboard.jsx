@@ -482,7 +482,7 @@ export function Dashboard() {
                 <Sparkles className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold">Nhận xét của AI tuần này</h3>
+                <h3 className="text-lg font-semibold">{t("Nhận xét của AI tuần này")}</h3>
                 <p className="text-sm text-muted-foreground">
                   Gợi ý ngắn từ trợ lý em Đạt dựa trên tiến độ và chi tiêu thật của bạn.
                 </p>
@@ -501,7 +501,7 @@ export function Dashboard() {
                     onClick={() => window.dispatchEvent(new CustomEvent("budgetfit:open-ai-summary"))}
                     className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
                   >
-                    Tóm tắt tuần
+                    {t("Tóm tắt tuần")}
                   </button>
                   &nbsp;để tạo ngay.
                 </div>
