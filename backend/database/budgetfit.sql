@@ -1,5 +1,5 @@
-CREATE DATABASE  IF NOT EXISTS `budgetfit_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `budgetfit_db`;
+-- CREATE DATABASE  IF NOT EXISTS `budgetfit_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+-- USE `budgetfit_db`;
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: budgetfit_db
@@ -21,7 +21,7 @@ USE `budgetfit_db`;
 -- Table structure for table `budget_breakdowns`
 --
 
-DROP TABLE IF EXISTS `budget_breakdowns`;
+DROP TABLE  `budget_breakdowns`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `budget_breakdowns` (
@@ -53,7 +53,7 @@ UNLOCK TABLES;
 -- Table structure for table `daily_task_completions`
 --
 
-DROP TABLE IF EXISTS `daily_task_completions`;
+DROP TABLE  `daily_task_completions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `daily_task_completions` (
@@ -82,7 +82,7 @@ UNLOCK TABLES;
 -- Table structure for table `expense_logs`
 --
 
-DROP TABLE IF EXISTS `expense_logs`;
+DROP TABLE  `expense_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `expense_logs` (
@@ -112,7 +112,7 @@ UNLOCK TABLES;
 -- Table structure for table `meals`
 --
 
-DROP TABLE IF EXISTS `meals`;
+DROP TABLE  `meals`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `meals` (
@@ -142,7 +142,7 @@ UNLOCK TABLES;
 -- Table structure for table `plan_days`
 --
 
-DROP TABLE IF EXISTS `plan_days`;
+DROP TABLE  `plan_days`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `plan_days` (
@@ -174,7 +174,7 @@ UNLOCK TABLES;
 -- Table structure for table `plans`
 --
 
-DROP TABLE IF EXISTS `plans`;
+DROP TABLE  `plans`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `plans` (
@@ -205,7 +205,7 @@ UNLOCK TABLES;
 -- Table structure for table `reward_redemptions`
 --
 
-DROP TABLE IF EXISTS `reward_redemptions`;
+DROP TABLE  `reward_redemptions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `reward_redemptions` (
@@ -236,7 +236,7 @@ UNLOCK TABLES;
 -- Table structure for table `reward_vouchers`
 --
 
-DROP TABLE IF EXISTS `reward_vouchers`;
+DROP TABLE  `reward_vouchers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `reward_vouchers` (
@@ -265,7 +265,7 @@ UNLOCK TABLES;
 -- Table structure for table `user_achievements`
 --
 
-DROP TABLE IF EXISTS `user_achievements`;
+DROP TABLE  `user_achievements`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_achievements` (
@@ -297,7 +297,7 @@ UNLOCK TABLES;
 -- Table structure for table `user_notification_settings`
 --
 
-DROP TABLE IF EXISTS `user_notification_settings`;
+DROP TABLE  `user_notification_settings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_notification_settings` (
@@ -326,7 +326,7 @@ UNLOCK TABLES;
 -- Table structure for table `user_profiles`
 --
 
-DROP TABLE IF EXISTS `user_profiles`;
+DROP TABLE  `user_profiles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_profiles` (
@@ -363,7 +363,7 @@ UNLOCK TABLES;
 -- Table structure for table `users`
 --
 
-DROP TABLE IF EXISTS `users`;
+DROP TABLE  `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
@@ -392,7 +392,7 @@ UNLOCK TABLES;
 -- Table structure for table `weight_logs`
 --
 
-DROP TABLE IF EXISTS `weight_logs`;
+DROP TABLE  `weight_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `weight_logs` (
@@ -421,7 +421,7 @@ UNLOCK TABLES;
 -- Table structure for table `workouts`
 --
 
-DROP TABLE IF EXISTS `workouts`;
+DROP TABLE  `workouts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `workouts` (
@@ -456,3 +456,219 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2026-04-03 21:55:16
+ALTER TABLE users
+ADD COLUMN refresh_token_hash TEXT NULL;
+
+ALTER TABLE users
+ADD COLUMN auth_provider VARCHAR(20) NOT NULL DEFAULT 'local',
+ADD COLUMN google_id VARCHAR(255) NULL,
+ADD UNIQUE KEY unique_google_id (google_id);
+
+CREATE TABLE IF NOT EXISTS daily_task_completions (
+  id INT NOT NULL AUTO_INCREMENT,
+  plan_day_id INT NOT NULL,
+  task_type ENUM('meal', 'workout', 'sleep', 'water') NOT NULL,
+  task_ref_id VARCHAR(50) DEFAULT NULL,
+  is_completed TINYINT(1) DEFAULT 0,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY unique_task_completion (plan_day_id, task_type, task_ref_id),
+  CONSTRAINT daily_task_completions_ibfk_1
+    FOREIGN KEY (plan_day_id) REFERENCES plan_days (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS reward_vouchers (
+  id INT NOT NULL AUTO_INCREMENT,
+  brand VARCHAR(100) NOT NULL,
+  discount_label VARCHAR(50) NOT NULL,
+  image_url VARCHAR(255) DEFAULT NULL,
+  points_required INT NOT NULL,
+  available_quantity INT DEFAULT 0,
+  is_active TINYINT(1) DEFAULT 1,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS reward_redemptions (
+  id INT NOT NULL AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  voucher_id INT NOT NULL,
+  points_spent INT NOT NULL,
+  redeem_code VARCHAR(50) DEFAULT NULL,
+  redeemed_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY user_id (user_id),
+  KEY voucher_id (voucher_id),
+  CONSTRAINT reward_redemptions_ibfk_1 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+  CONSTRAINT reward_redemptions_ibfk_2 FOREIGN KEY (voucher_id) REFERENCES reward_vouchers (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS user_achievements (
+  id INT NOT NULL AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  type ENUM('streak', 'weight', 'budget', 'complete', 'milestone', 'special') NOT NULL,
+  level INT DEFAULT NULL,
+  title VARCHAR(150) NOT NULL,
+  description VARCHAR(255) DEFAULT NULL,
+  earned TINYINT(1) DEFAULT 0,
+  points_awarded INT DEFAULT 0,
+  earned_at TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (id),
+  KEY user_id (user_id),
+  CONSTRAINT user_achievements_ibfk_1 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS user_notification_settings (
+  id INT NOT NULL AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  daily_reminders TINYINT(1) DEFAULT 1,
+  weight_tracking_reminders TINYINT(1) DEFAULT 1,
+  budget_alerts TINYINT(1) DEFAULT 1,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY user_id (user_id),
+  CONSTRAINT user_notification_settings_ibfk_1 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+INSERT INTO reward_vouchers
+  (brand, discount_label, image_url, points_required, available_quantity, is_active)
+SELECT 'Shopee', '50,000 VND',
+       'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=400',
+       500, 5, true
+WHERE NOT EXISTS (SELECT 1 FROM reward_vouchers WHERE brand = 'Shopee' AND discount_label = '50,000 VND');
+
+INSERT INTO reward_vouchers
+  (brand, discount_label, image_url, points_required, available_quantity, is_active)
+SELECT 'Grab Food', '30,000 VND',
+       'https://images.unsplash.com/photo-1661257711676-79a0fc533569?w=400',
+       300, 3, true
+WHERE NOT EXISTS (SELECT 1 FROM reward_vouchers WHERE brand = 'Grab Food' AND discount_label = '30,000 VND');
+
+INSERT INTO reward_vouchers
+  (brand, discount_label, image_url, points_required, available_quantity, is_active)
+SELECT 'The Coffee House', '25,000 VND',
+       'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400',
+       250, 10, true
+WHERE NOT EXISTS (SELECT 1 FROM reward_vouchers WHERE brand = 'The Coffee House' AND discount_label = '25,000 VND');
+
+INSERT INTO reward_vouchers
+  (brand, discount_label, image_url, points_required, available_quantity, is_active)
+SELECT 'Decathlon', '100,000 VND',
+       'https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=400',
+       1000, 2, true
+WHERE NOT EXISTS (SELECT 1 FROM reward_vouchers WHERE brand = 'Decathlon' AND discount_label = '100,000 VND');
+
+ALTER TABLE user_profiles
+ADD COLUMN gender ENUM('male', 'female', 'other') NOT NULL DEFAULT 'male' AFTER age;
+
+ALTER TABLE user_profiles
+MODIFY COLUMN budget_style ENUM('saving', 'normal', 'premium') DEFAULT 'normal';
+
+CREATE TABLE IF NOT EXISTS meal_library (
+  id INT NOT NULL AUTO_INCREMENT,
+  meal_name VARCHAR(150) NOT NULL,
+  meal_type ENUM('breakfast', 'lunch', 'dinner', 'snack') NOT NULL,
+  budget_tier ENUM('saving', 'normal', 'premium') DEFAULT NULL ,
+  goal_type ENUM('lose', 'maintain', 'gain') DEFAULT NULL,
+  calories INT NOT NULL DEFAULT 0,
+  estimated_cost DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  is_active TINYINT(1) DEFAULT 1,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_meal_library_filter (goal_type, budget_tier, meal_type)
+);
+
+ALTER TABLE meals
+ADD COLUMN meal_library_id INT NULL AFTER plan_day_id,
+ADD CONSTRAINT fk_meals_library
+  FOREIGN KEY (meal_library_id) REFERENCES meal_library(id) ON DELETE SET NULL;
+
+CREATE TABLE IF NOT EXISTS workout_library (
+  id INT NOT NULL AUTO_INCREMENT,
+  workout_type ENUM('cardio', 'strength', 'hiit', 'rest') NOT NULL,
+  gender_target ENUM('male', 'female', 'both') DEFAULT 'both',
+  location ENUM('gym', 'home') DEFAULT NULL,
+  workout_name VARCHAR(150) NOT NULL,
+  primary_focus VARCHAR(150) DEFAULT NULL,
+  equipment VARCHAR(150) DEFAULT NULL,
+  difficulty ENUM('beginner', 'intermediate', 'advanced') DEFAULT 'beginner',
+  suggested_volume VARCHAR(100) DEFAULT NULL,
+  notes VARCHAR(255) DEFAULT NULL,
+  is_active TINYINT(1) DEFAULT 1,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_workout_library_filter (workout_type, gender_target, location, difficulty)
+);
+
+ALTER TABLE workouts
+ADD COLUMN workout_library_id INT NULL AFTER plan_day_id,
+ADD CONSTRAINT fk_workouts_library
+  FOREIGN KEY (workout_library_id) REFERENCES workout_library(id) ON DELETE SET NULL;
+
+ALTER TABLE plan_days
+ADD COLUMN actual_cost DECIMAL(10,2) DEFAULT NULL AFTER planned_cost;
+
+CREATE TABLE IF NOT EXISTS user_badges (
+  id INT NOT NULL AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  badge_name VARCHAR(100) NOT NULL,
+  earned_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uniq_user_badge (user_id, badge_name),
+  KEY idx_user_badges_user_id (user_id),
+  CONSTRAINT user_badges_ibfk_1 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+ALTER TABLE plans
+ADD COLUMN continuation_declined_after_day INT DEFAULT NULL AFTER status;
+
+ALTER TABLE users
+ADD COLUMN password_reset_token_hash VARCHAR(255) NULL AFTER refresh_token_hash,
+ADD COLUMN password_reset_expires_at DATETIME NULL AFTER password_reset_token_hash;
+
+ALTER TABLE reward_vouchers
+ADD COLUMN weekly_quantity INT DEFAULT NULL AFTER available_quantity;
+
+UPDATE reward_vouchers
+SET weekly_quantity = available_quantity
+WHERE weekly_quantity IS NULL;
+
+CREATE TABLE IF NOT EXISTS ai_chat_messages (
+  id INT NOT NULL AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  role ENUM('user', 'assistant') NOT NULL,
+  message_text TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_ai_chat_messages_user_created (user_id, created_at),
+  CONSTRAINT fk_ai_chat_messages_user
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS ai_usage_logs (
+  id INT NOT NULL AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  usage_type ENUM('chat', 'weekly_summary') NOT NULL DEFAULT 'chat',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_ai_usage_logs_user_created (user_id, created_at),
+  CONSTRAINT fk_ai_usage_logs_user
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS user_notifications (
+  id INT NOT NULL AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  notification_type VARCHAR(50) NOT NULL,
+  title VARCHAR(160) NOT NULL,
+  body TEXT NOT NULL,
+  week_key VARCHAR(20) DEFAULT NULL,
+  is_read TINYINT(1) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uniq_user_notification_week (user_id, notification_type, week_key),
+  KEY idx_user_notifications_user_created (user_id, created_at),
+  CONSTRAINT fk_user_notifications_user
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
