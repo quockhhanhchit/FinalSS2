@@ -18,6 +18,7 @@ import { Button } from "../components/ui/button";
 import { MotivationalPopup } from "../components/MotivationalPopup";
 import { apiGet, apiPatch, apiPut } from "../lib/api";
 import { showToast } from "../components/ui/toast";
+import { translateText, useLanguage } from "../LanguageContext";
 
 const PROGRESS_MILESTONES = [30, 60, 90, 100];
 const PROGRESS_QUOTES = {
@@ -153,6 +154,7 @@ function MealGroup({
 }
 
 export function DailyRoutine() {
+  const { language, t } = useLanguage();
   const navigate = useNavigate();
   const { dayId } = useParams();
   const [checkedItems, setCheckedItems] = useState(new Set());
@@ -226,7 +228,7 @@ export function DailyRoutine() {
         loadDay();
 
         if (event?.detail?.source === "ai-swap") {
-          showToast("Thực đơn đã được cập nhật bởi AI", "success");
+          showToast(t("Thực đơn đã được cập nhật bởi AI"), "success");
         }
       }
     }
@@ -269,7 +271,7 @@ export function DailyRoutine() {
       );
       if (response?.awardedBadges?.length) {
         response.awardedBadges.forEach((badge) => {
-          showToast(`Bạn vừa mở khóa huy hiệu ${badge}.`, "success");
+          showToast(`${t("Bạn vừa mở khóa huy hiệu")} ${badge}.`, "success");
         });
       }
       setDayData((current) => ({
@@ -325,7 +327,7 @@ export function DailyRoutine() {
       groupedMeals[section].push({
         id: `meal-${meal.id}`,
         rawId: meal.id,
-        name: meal.meal_name,
+        name: translateText(meal.meal_name || "", language),
         calories: Number(meal.calories),
         cost: Number(meal.cost),
         time: formatMealTime(meal.meal_time),
@@ -335,16 +337,16 @@ export function DailyRoutine() {
     const workouts = (dayData?.workouts || []).map((workout) => ({
       id: `workout-${workout.id}`,
       rawId: workout.id,
-      name: workout.workout_name,
+      name: translateText(workout.workout_name || "", language),
       duration: `${workout.duration_minutes} min`,
       durationMinutes: Number(workout.duration_minutes || 0),
-      description: workout.description,
+      description: translateText(workout.description || "", language),
     }));
 
     return {
       day: dayData?.day_number || dayNumber,
       date: formattedDate,
-      workout: dayData?.workout_type || "Bài tập",
+      workout: translateText(dayData?.workout_type || "Bài tập", language),
       plannedCalories: Number(dayData?.planned_calories || 0),
       plannedCost: Number(dayData?.planned_cost || 0),
       actualCost:
@@ -361,14 +363,20 @@ export function DailyRoutine() {
       workouts,
       sleep: {
         id: "sleep",
-        ...(dayData?.sleep || { target: "8 giờ", time: "22:00 - 06:00" }),
+        ...(dayData?.sleep || {
+          target: language === "en" ? "8 hours" : "8 giờ",
+          time: "22:00 - 06:00",
+        }),
       },
       water: {
         id: "water",
-        ...(dayData?.water || { target: "2,5 lít", glasses: 10 }),
+        ...(dayData?.water || {
+          target: language === "en" ? "2.5 liters" : "2,5 lít",
+          glasses: 10,
+        }),
       },
     };
-  }, [dayData, dayNumber, formattedDate]);
+  }, [dayData, dayNumber, formattedDate, language]);
 
   const toggleCheck = (id) => {
     if (dayData?.is_locked) {
@@ -522,7 +530,7 @@ export function DailyRoutine() {
       }));
       if (response?.awardedBadges?.length) {
         response.awardedBadges.forEach((badge) => {
-          showToast(`Bạn vừa mở khóa huy hiệu ${badge}.`, "success");
+          showToast(`${t("Bạn vừa mở khóa huy hiệu")} ${badge}.`, "success");
         });
       }
       setShowActualCostPrompt(false);

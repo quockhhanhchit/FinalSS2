@@ -341,12 +341,3 @@ cd backend
 node database/import_csv.js
 ```
 
-## 12. Ghi chu
-
-- File SQL all-in-one da co san de import nhanh:
-  - [backend/database/budgetfit_all_in_one.sql](/d:/SPRING2026/SS2/project/backend/database/budgetfit_all_in_one.sql)
-- File schema goc:
-  - [backend/database/budgetfit.sql](/d:/SPRING2026/SS2/project/backend/database/budgetfit.sql)
-- File migration phan bo sung sau dump:
-  - [backend/database/post_dump_migrations.sql](/d:/SPRING2026/SS2/project/backend/database/post_dump_migrations.sql)
-

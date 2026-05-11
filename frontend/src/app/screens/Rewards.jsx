@@ -5,7 +5,6 @@ import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { SuccessCelebration } from "../components/SuccessCelebration";
 import { apiGet, apiPost } from "../lib/api";
-import { formatShortDate } from "../lib/formatters";
 import { useLanguage } from "../LanguageContext";
 
 export function Rewards() {
@@ -51,6 +50,13 @@ export function Rewards() {
     () => Math.max(nextLevelPoints - totalPoints, 0),
     [nextLevelPoints, totalPoints],
   );
+  const formatRewardDate = (date) =>
+    date
+      ? new Date(date).toLocaleDateString(language === "en" ? "en-US" : "vi-VN", {
+          month: "short",
+          day: "numeric",
+        })
+      : "";
 
   const handleRedeem = async (voucher) => {
     setRedeemingId(voucher.id);
@@ -138,7 +144,9 @@ export function Rewards() {
             <Crown className="w-6 h-6 text-purple-600" />
             <span className="text-sm font-medium text-purple-900">Cấp hiện tại</span>
           </div>
-          <div className="text-3xl font-bold text-purple-600">Cấp {currentLevel}</div>
+          <div className="text-3xl font-bold text-purple-600">
+            {language === "en" ? `Level ${currentLevel}` : `Cấp ${currentLevel}`}
+          </div>
         </div>
 
         <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-6 border border-orange-200">
@@ -147,7 +155,7 @@ export function Rewards() {
             <span className="text-sm font-medium text-orange-900">Cấp tiếp theo</span>
           </div>
           <div className="text-3xl font-bold text-orange-600">
-            {pointsToNextLevel} điểm
+            {language === "en" ? `${pointsToNextLevel} points` : `${pointsToNextLevel} điểm`}
           </div>
         </div>
       </div>
@@ -270,9 +278,9 @@ export function Rewards() {
           {recentRewards.map((item, index) => (
             <div key={`${item.reward}-${index}`} className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
               <div>
-                <div className="font-medium">{item.reward}</div>
+                <div className="font-medium">{t(item.reward)}</div>
                 <div className="text-sm text-muted-foreground">
-                  {formatShortDate(item.date)}
+                  {formatRewardDate(item.date)}
                 </div>
               </div>
               <Badge
@@ -280,7 +288,7 @@ export function Rewards() {
                 icon={<Star className="w-3 h-3 fill-current" />}
               >
                 {Number(item.points) >= 0 ? "+" : ""}
-                {item.points} điểm
+                {language === "en" ? `${item.points} points` : `${item.points} điểm`}
               </Badge>
             </div>
           ))}

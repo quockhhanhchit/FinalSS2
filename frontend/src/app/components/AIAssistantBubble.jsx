@@ -41,7 +41,6 @@ export function AIAssistantBubble() {
               "Hi, I am **Coach Dat AI**. I can look at your current BudgetFit plan and help with meals, workouts, budget, and weekly progress.",
             helper:
               "I answer only BudgetFit topics and I use your real data when available.",
-            remaining: "AI requests left today",
             clearChat: "Clear chat",
 
             suggestions: [
@@ -63,7 +62,6 @@ export function AIAssistantBubble() {
               "Chào bạn, mình là **trợ lý em Đạt**. Mình có thể đọc kế hoạch BudgetFit hiện tại của bạn để tư vấn bữa ăn, bài tập, ngân sách và tiến độ trong tuần.",
             helper:
               "Mình chỉ trả lời các chủ đề trong BudgetFit và sẽ ưu tiên dữ liệu thật của bạn khi có.",
-            remaining: "Lượt AI còn lại hôm nay",
             clearChat: "Xóa đoạn chat",
 
             suggestions: [
@@ -89,7 +87,6 @@ export function AIAssistantBubble() {
   const [isSending, setIsSending] = useState(false);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [isClearingChat, setIsClearingChat] = useState(false);
-  const [requestsRemaining, setRequestsRemaining] = useState(null);
   const [latestSummary, setLatestSummary] = useState(null);
   const [error, setError] = useState("");
   const bottomRef = useRef(null);
@@ -125,13 +122,6 @@ export function AIAssistantBubble() {
             ...loadedMessages,
           ]);
         }
-      })
-      .catch(() => {});
-
-    // Fetch the REAL remaining count from the server so it reflects actual DB usage
-    apiGet("/api/ai/requests-remaining")
-      .then((data) => {
-        setRequestsRemaining(data.remaining);
       })
       .catch(() => {});
 
@@ -195,8 +185,6 @@ export function AIAssistantBubble() {
           content: response.reply,
         },
       ]);
-      setRequestsRemaining(response.requestsRemaining);
-
       if (response.swapOccurred) {
         window.localStorage.setItem(
           "budgetfit:plan-updated-at",
@@ -381,7 +369,7 @@ export function AIAssistantBubble() {
               </div>
             ) : null}
 
-            <div className="mb-3 flex items-center justify-between gap-2">
+            <div className="mb-3 flex items-center gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -398,7 +386,7 @@ export function AIAssistantBubble() {
                 {isLoadingSummary ? labels.summaryLoading : labels.summary}
               </Button>
 
-              <div className="text-[11px] text-muted-foreground">
+              <div className="hidden text-[11px] text-muted-foreground">
                 {labels.remaining}:{" "}
                 <span className="font-semibold text-foreground">
                   {requestsRemaining === null ? "–" : requestsRemaining}
