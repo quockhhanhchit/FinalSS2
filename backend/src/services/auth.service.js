@@ -14,6 +14,18 @@ function hashToken(token) {
   return crypto.createHash("sha256").update(token).digest("hex");
 }
 
+function getAllowedGoogleClientIds() {
+  return [
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_IDS,
+    process.env.VITE_GOOGLE_CLIENT_ID,
+  ]
+    .filter(Boolean)
+    .flatMap((value) => String(value).split(","))
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
 function buildPasswordResetUrl(token) {
   const appUrl = (process.env.APP_URL || "http://localhost:5173").replace(/\/$/, "");
   return `${appUrl}/reset-password?token=${encodeURIComponent(token)}`;
@@ -41,9 +53,19 @@ async function verifyGoogleIdToken(idToken) {
   }
 
   const payload = await response.json();
+  const allowedClientIds = getAllowedGoogleClientIds();
+  const tokenAudience = String(payload.aud || "").trim();
 
-  if (payload.aud !== process.env.GOOGLE_CLIENT_ID) {
-    const error = new Error("Google client ID mismatch");
+  if (allowedClientIds.length === 0) {
+    const error = new Error("Google Sign-In is not configured");
+    error.status = 500;
+    throw error;
+  }
+
+  if (!allowedClientIds.includes(tokenAudience)) {
+    const error = new Error(
+      `Google client ID mismatch (received aud: ${tokenAudience || "unknown"})`
+    );
     error.status = 401;
     throw error;
   }
@@ -136,7 +158,7 @@ async function loginWithGoogle({ idToken }) {
     throw error;
   }
 
-  if (!process.env.GOOGLE_CLIENT_ID) {
+  if (getAllowedGoogleClientIds().length === 0) {
     const error = new Error("Google Sign-In is not configured");
     error.status = 500;
     throw error;
