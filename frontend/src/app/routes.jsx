@@ -15,14 +15,23 @@ import { DailyRoutine } from "./screens/DailyRoutine";
 import { BudgetBreakdown } from "./screens/BudgetBreakdown";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { GuestRoute } from "./components/GuestRoute";
+import { LightThemePage, ThemeProvider } from "./ThemeContext";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Landing />,
+    element: (
+      <LightThemePage>
+        <Landing />
+      </LightThemePage>
+    ),
   },
   {
-    element: <GuestRoute />,
+    element: (
+      <LightThemePage>
+        <GuestRoute />
+      </LightThemePage>
+    ),
     children: [
       {
         path: "/login",
@@ -44,14 +53,22 @@ export const router = createBrowserRouter([
   },
   {
     path: "/onboarding",
-    element: <Onboarding />,
+    element: (
+      <LightThemePage>
+        <Onboarding />
+      </LightThemePage>
+    ),
   },
   {
     element: <ProtectedRoute />,
     children: [
       {
         path: "/app",
-        element: <Layout />,
+        element: (
+          <ThemeProvider>
+            <Layout />
+          </ThemeProvider>
+        ),
         children: [
           {
             index: true,
