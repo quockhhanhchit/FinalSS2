@@ -42,7 +42,6 @@ export function AIAssistantBubble() {
             helper:
               "I answer only BudgetFit topics and I use your real data when available.",
             clearChat: "Clear chat",
-
             suggestions: [
               "Suggest a dinner under today's budget",
               "Review my spending this week",
@@ -63,7 +62,6 @@ export function AIAssistantBubble() {
             helper:
               "Mình chỉ trả lời các chủ đề trong BudgetFit và sẽ ưu tiên dữ liệu thật của bạn khi có.",
             clearChat: "Xóa đoạn chat",
-
             suggestions: [
               "Gợi ý bữa tối vừa túi tiền hôm nay",
               "Xem giúp mình chi tiêu tuần này",
@@ -90,7 +88,6 @@ export function AIAssistantBubble() {
   const [latestSummary, setLatestSummary] = useState(null);
   const [error, setError] = useState("");
   const bottomRef = useRef(null);
-  // Ref so the open-ai-summary event listener always calls the latest version
   const generateSummaryRef = useRef(null);
 
   useEffect(() => {
@@ -114,7 +111,10 @@ export function AIAssistantBubble() {
         if (history && history.length > 0) {
           const loadedMessages = history.map((msg) => ({
             id: `history-${msg.created_at || Math.random()}`,
-            role: msg.role === "model" || msg.role === "assistant" ? "assistant" : "user",
+            role:
+              msg.role === "model" || msg.role === "assistant"
+                ? "assistant"
+                : "user",
             content: msg.message_text,
           }));
           setMessages([
@@ -138,7 +138,6 @@ export function AIAssistantBubble() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, latestSummary]);
 
-  // Listen for external trigger: clicking "Tóm tắt tuần" link on the Dashboard
   useEffect(() => {
     const handleOpenSummary = () => {
       setIsOpen(true);
@@ -149,7 +148,10 @@ export function AIAssistantBubble() {
 
     window.addEventListener("budgetfit:open-ai-summary", handleOpenSummary);
     return () => {
-      window.removeEventListener("budgetfit:open-ai-summary", handleOpenSummary);
+      window.removeEventListener(
+        "budgetfit:open-ai-summary",
+        handleOpenSummary
+      );
     };
   }, []);
 
@@ -185,6 +187,7 @@ export function AIAssistantBubble() {
           content: response.reply,
         },
       ]);
+
       if (response.swapOccurred) {
         window.localStorage.setItem(
           "budgetfit:plan-updated-at",
@@ -217,7 +220,9 @@ export function AIAssistantBubble() {
 
     try {
       await apiDelete("/api/ai/history");
-      setMessages([{ id: "welcome", role: "assistant", content: labels.welcome }]);
+      setMessages([
+        { id: "welcome", role: "assistant", content: labels.welcome },
+      ]);
       setLatestSummary(null);
     } catch (requestError) {
       setError(requestError.message || labels.unavailable);
@@ -245,7 +250,6 @@ export function AIAssistantBubble() {
           content: summary?.body || "",
         },
       ]);
-      // Notify Dashboard card to update without a page refresh
       window.dispatchEvent(
         new CustomEvent("budgetfit:ai-summary-updated", { detail: { summary } })
       );
@@ -255,9 +259,8 @@ export function AIAssistantBubble() {
       setIsLoadingSummary(false);
     }
   };
-  // Keep the ref in sync so the event listener always calls the latest version
-  generateSummaryRef.current = handleGenerateSummary;
 
+  generateSummaryRef.current = handleGenerateSummary;
 
   return (
     <div className="fixed bottom-24 right-5 z-[95] flex flex-col items-end gap-3">
@@ -308,7 +311,9 @@ export function AIAssistantBubble() {
           </div>
 
           <div className="border-b border-border bg-secondary/35 px-4 py-3">
-            <div className="mb-2 text-xs text-muted-foreground">{labels.helper}</div>
+            <div className="mb-2 text-xs text-muted-foreground">
+              {labels.helper}
+            </div>
             <div className="flex flex-wrap gap-2">
               {labels.suggestions.map((suggestion) => (
                 <button
@@ -337,7 +342,9 @@ export function AIAssistantBubble() {
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex ${
+                  message.role === "user" ? "justify-end" : "justify-start"
+                }`}
               >
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm ${
@@ -385,13 +392,6 @@ export function AIAssistantBubble() {
                 )}
                 {isLoadingSummary ? labels.summaryLoading : labels.summary}
               </Button>
-
-              <div className="hidden text-[11px] text-muted-foreground">
-                {labels.remaining}:{" "}
-                <span className="font-semibold text-foreground">
-                  {requestsRemaining === null ? "–" : requestsRemaining}
-                </span>
-              </div>
             </div>
 
             <div className="flex gap-2">

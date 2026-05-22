@@ -18,7 +18,7 @@ function getInitialTheme() {
     : "light";
 }
 
-function applyTheme(theme) {
+export function applyTheme(theme) {
   const root = document.documentElement;
   root.classList.toggle("dark", theme === "dark");
   root.style.colorScheme = theme;
@@ -51,4 +51,12 @@ export function useTheme() {
   }
 
   return context;
+}
+
+export function LightThemePage({ children }) {
+  useEffect(() => {
+    applyTheme("light");
+  }, []);
+
+  return children;
 }
