@@ -68,9 +68,17 @@ CREATE DATABASE budgetfit_db;
 
 ### 4.2. Import file SQL all-in-one
 
+O phan Adminstration chon  Data Import/Restore 
+
+Tich chon import from self-contained file 
+
 File import chinh:
 
-- [backend/database/budgetfit_all_in_one.sql](/d:/SPRING2026/SS2/project/backend/database/budgetfit_all_in_one.sql)
+- [backend/database/budgetfit_all_in_one.sql]
+- 
+O phan Default Scheme To Import To: Default Target Scheme: chon database moi tao (budgetfit_db) -> Nhan Start Import (o goc duoi ben phai tab)
+
+( Dam bao rang import complete with 0 error)
 
 File nay da gom:
 
@@ -78,13 +86,20 @@ File nay da gom:
 - du lieu mau co san trong dump
 - cac migration SQL de tao day du bang, cot va rang buoc moi nhat
 
-Ban chi can mo file nay trong MySQL Workbench roi nhan `Execute` mot lan.
-
 ### 4.3. Import them du lieu meal library va workout library
 
 Luu y: file SQL all-in-one hien tai tao bang `meal_library` va `workout_library` nhung chua tu dong do du lieu CSV vao hai bang nay.
 
 Neu bo qua buoc nay, app van len duoc nhung mot so chuc nang sinh plan se thieu du lieu.
+
+Chuan bi moi truong .env de co the ket noi voi database:
+
+PORT=5000
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=budgetfit_db
+DB_USER=root
+DB_PASSWORD=your_mysql_password
 
 Sau khi import SQL xong, chay script import CSV:
 
