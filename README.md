@@ -94,12 +94,14 @@ Neu bo qua buoc nay, app van len duoc nhung mot so chuc nang sinh plan se thieu 
 
 Chuan bi moi truong .env de co the ket noi voi database:
 
+```env
 PORT=5000
 DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=budgetfit_db
 DB_USER=root
 DB_PASSWORD=your_mysql_password
+```
 
 Sau khi import SQL xong, chay script import CSV:
 
