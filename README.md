@@ -1,360 +1,160 @@
-# BudgetFit
+﻿# BudgetFit
 
-BudgetFit la ung dung web ho tro nguoi dung quan ly suc khoe va ngan sach ca nhan trong cung mot he thong. Du an gom:
+BudgetFit is a full-stack web application that helps users build realistic health plans around their personal budget. The project combines meal planning, workout planning, daily tracking, rewards, budgeting, and AI-assisted guidance in one experience.
 
-- `frontend`: React + Vite
-- `backend`: Node.js + Express
-- `database`: MySQL
+The goal of BudgetFit is to make healthy routines feel practical instead of abstract. Users can define their profile, budget, and goals, then receive plans that account for both wellness needs and financial constraints.
 
-README nay duoc viet lai theo huong dan cho nguoi moi clone code tu GitHub ve va muon chay du an tu dau den cuoi.
+## Core Features
 
-## 1. Yeu cau truoc khi chay
+- **User authentication** with email/password login, Google sign-in support, refresh tokens, and password reset flows.
+- **Personal onboarding and profiles** for collecting user details such as body metrics, gender, goals, lifestyle context, and preferences.
+- **Budget-aware planning** that connects health recommendations with user spending limits.
+- **Meal and workout plan generation** powered by local meal and workout libraries.
+- **Daily routine tracking** for following assigned meals, workouts, and habit tasks.
+- **Dashboard analytics** for progress, budget usage, activity summaries, and personalized insights.
+- **Rewards system** with vouchers, badges, task completions, and weekly reward logic.
+- **AI assistant** for conversational support, weekly summaries, recommendations, and health-plan guidance.
+- **Theme and language support** through dedicated frontend context providers.
 
-Can cai san:
-
-- Node.js 18+ de tranh loi dependency
-- npm
-- MySQL 8.x
-- Mot cong cu quan ly MySQL nhu MySQL Workbench, DBeaver hoac phpMyAdmin
-- Git
-
-Kiem tra nhanh:
-
-```bash
-node -v
-npm -v
-mysql --version
-git --version
-```
-
-## 2. Clone source code
-
-```bash
-git clone https://github.com/quockhhanhchit/FinalSS2.git
-cd FinalSS2
-```
-
-Neu ban da tai source code dang `.zip` thi chi can giai nen va mo terminal tai thu muc goc cua project.
-
-## 3. Cau truc project
+## Project Structure
 
 ```text
 FinalSS2/
-|-- backend/
-|   |-- database/
+|-- backend/                  # Express API, services, routes, database scripts, tests
+|   |-- database/             # SQL schema, migrations, seed data, CSV import script
 |   |-- src/
-|   |-- tests/
-|   |-- package.json
-|   `-- .env.example
-|-- frontend/
-|   |-- src/
-|   `-- package.json
-|-- meal_library_import.csv
-|-- workout_library_import.csv
+|   |   |-- config/           # App and database configuration
+|   |   |-- controllers/      # Request handlers
+|   |   |-- cron/             # Scheduled jobs
+|   |   |-- middleware/       # Auth and request middleware
+|   |   |-- routes/           # API route definitions
+|   |   |-- services/         # Business logic
+|   |   `-- utils/            # Shared backend utilities
+|   `-- tests/                # Backend test coverage
+|-- frontend/                 # React + Vite client application
+|   `-- src/
+|       |-- app/
+|       |   |-- components/    # Shared UI and layout components
+|       |   |-- lib/           # Frontend helpers
+|       |   `-- screens/       # Main application screens
+|       |-- assets/           # Static assets
+|       `-- styles/           # Global styling
+|-- meal_library_import.csv   # Meal library import data
+|-- workout_library_import.csv # Workout library import data
 `-- README.md
 ```
 
-## 4. Setup database
+## Main Application Areas
 
-Day la buoc quan trong nhat. Project nay khong chi can tao bang ma con can nap them du lieu thu vien mon an va bai tap.
+### Frontend
 
-### 4.1. Tao database
+The frontend is a React application built with Vite. It contains the user-facing screens for landing, authentication, onboarding, dashboard, plan viewing, daily routine tracking, budget breakdown, rewards, and settings.
 
-Mo MySQL Workbench hoac MySQL CLI va chay:
+Key screens include:
 
-```sql
-CREATE DATABASE budgetfit_db;
+- `Landing`
+- `Login`, `Register`, `ForgotPassword`, `ResetPassword`
+- `Onboarding`
+- `Dashboard`
+- `Plan`
+- `DailyRoutine`
+- `Tracking`
+- `BudgetBreakdown`
+- `Rewards`
+- `Settings`
+
+Shared frontend behavior includes protected routes, guest routes, route transitions, theme switching, language switching, dashboard analytics, motivational popups, and an AI assistant bubble.
+
+### Backend
+
+The backend is a Node.js and Express API. It organizes application behavior into route, controller, and service layers.
+
+Main backend modules include:
+
+- `auth` for registration, login, Google authentication, refresh tokens, and password reset.
+- `profile` for user profile and onboarding data.
+- `budget` for user budget configuration and budget-related plan data.
+- `plan` for meal and workout plan generation.
+- `tracking` for daily progress and task completion.
+- `dashboard` for summaries and analytics.
+- `rewards` for badges, vouchers, and weekly rewards.
+- `ai` for assistant responses and AI-powered summaries.
+
+### Database
+
+BudgetFit uses MySQL as its primary database. The `backend/database` folder contains schema files, migration scripts, seed data, and an import script for loading meal and workout libraries from CSV files.
+
+The all-in-one SQL dump is stored at:
+
+```text
+backend/database/budgetfit_all_in_one.sql
 ```
 
-### 4.2. Import file SQL all-in-one
+Library import data is stored at:
 
-O phan Adminstration chon  Data Import/Restore 
-
-Tich chon import from self-contained file 
-
-File import chinh:
-
-- [backend/database/budgetfit_all_in_one.sql]
-- 
-O phan Default Scheme To Import To: Default Target Scheme: chon database moi tao (budgetfit_db) -> Nhan Start Import (o goc duoi ben phai tab)
-
-( Dam bao rang import complete with 0 error)
-
-File nay da gom:
-
-- schema goc
-- du lieu mau co san trong dump
-- cac migration SQL de tao day du bang, cot va rang buoc moi nhat
-
-### 4.3. Import them du lieu meal library va workout library
-
-Luu y: file SQL all-in-one hien tai tao bang `meal_library` va `workout_library` nhung chua tu dong do du lieu CSV vao hai bang nay.
-
-Neu bo qua buoc nay, app van len duoc nhung mot so chuc nang sinh plan se thieu du lieu.
-
-Chuan bi moi truong .env de co the ket noi voi database:
-
-```env
-PORT=5000
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=budgetfit_db
-DB_USER=root
-DB_PASSWORD=your_mysql_password
+```text
+meal_library_import.csv
+workout_library_import.csv
 ```
 
-Sau khi import SQL xong, chay script import CSV:
+## Technology Stack
 
-```bash
-cd backend
-npm install
-node database/import_csv.js
+- **Frontend:** React, Vite, JavaScript, JSX, CSS
+- **Backend:** Node.js, Express
+- **Database:** MySQL
+- **Authentication:** JWT, refresh tokens, Google sign-in support
+- **AI Integration:** Gemini-compatible assistant service configuration
+- **API Documentation:** Swagger endpoint support
+
+## API Surface
+
+The backend exposes route groups for the main product domains:
+
+```text
+/api/auth
+/api/profile
+/api/budget
+/api/plan
+/api/tracking
+/api/dashboard
+/api/rewards
+/api/ai
 ```
 
-Script nay se doc du lieu tu:
+Swagger documentation is available when the backend is running:
 
-- `../meal_library_import.csv`
-- `../workout_library_import.csv`
-
-Neu import thanh cong, ban se thay log thong bao so luong du lieu da duoc nap vao database.
-
-## 5. Cau hinh backend
-
-Di chuyen vao thu muc backend:
-
-```bash
-cd backend
+```text
+http://localhost:5000/api-docs
 ```
 
-### 5.1. Cai dependency backend
+## Data Flow Overview
 
-```bash
-npm install
+1. A user registers or signs in.
+2. The user completes onboarding and profile setup.
+3. Budget and health preferences are stored in MySQL.
+4. The backend generates meal and workout plans using profile data, budget limits, and local library data.
+5. The user follows daily tasks and tracks completion.
+6. Dashboard and reward modules summarize progress and encourage consistency.
+7. The AI assistant provides contextual guidance based on available user and plan data.
+
+## Local Development Summary
+
+This README focuses on the project overview. At a high level, local development requires:
+
+- Node.js 18+
+- npm
+- MySQL 8.x
+- Backend environment variables in `backend/.env`
+- Frontend environment variables in `frontend/.env`
+
+Typical local services:
+
+```text
+Frontend: http://localhost:5173
+Backend:  http://localhost:5000
+Swagger:  http://localhost:5000/api-docs
 ```
 
-### 5.2. Tao file `.env`
+## Project Purpose
 
-Ban co the copy tu file mau:
-
-```bash
-copy .env.example .env
-```
-
-Neu dung PowerShell:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Sau do sua file `backend/.env`.
-
-Gia tri toi thieu de chay local:
-
-```env
-PORT=5000
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=budgetfit_db
-DB_USER=root
-DB_PASSWORD=your_mysql_password
-
-JWT_SECRET=budgetfit_super_secret_key
-JWT_EXPIRES_IN=7d
-
-APP_URL=http://localhost:5173
-```
-
-### 5.3. Bien moi truong tuy chon
-
-Neu muon dung them cac tinh nang sau, can cau hinh them:
-
-- Dang nhap Google:
-
-```env
-GOOGLE_CLIENT_ID=your_google_client_id
-```
-
-- Quen mat khau qua email:
-
-```env
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
-MAIL_FROM=BudgetFit <your_email@gmail.com>
-```
-
-- AI assistant / weekly summary:
-
-```env
-GEMINI_API_KEY=your_gemini_api_key
-GEMINI_MODEL=gemini-1.5-flash
-```
-
-Neu khong cau hinh cac bien tuy chon tren:
-
-- app van co the chay co ban
-- Google login se khong hoat dong
-- quen mat khau qua email se khong gui mail duoc
-- AI assistant se bi vo hieu hoa
-
-### 5.4. Chay backend
-
-```bash
-npm run dev
-```
-
-Neu thanh cong, backend se chay tai:
-
-- `http://localhost:5000`
-
-Swagger docs:
-
-- `http://localhost:5000/api-docs`
-
-## 6. Cau hinh frontend
-
-Mo terminal moi, quay lai thu muc goc project roi vao `frontend`:
-
-```bash
-cd frontend
-```
-
-### 6.1. Cai dependency frontend
-
-```bash
-npm install
-```
-
-### 6.2. Tao file `.env`
-
-Tao file `frontend/.env` voi noi dung toi thieu:
-
-```env
-VITE_API_URL=http://localhost:5000
-VITE_GOOGLE_CLIENT_ID=your_google_client_id
-```
-
-Giai thich:
-
-- `VITE_API_URL`: URL cua backend local
-- `VITE_GOOGLE_CLIENT_ID`: chi can neu muon bat dang nhap Google
-
-Neu ban khong dung Google login, co the bo dong nay hoac de rong:
-
-```env
-VITE_API_URL=http://localhost:5000
-```
-
-### 6.3. Chay frontend
-
-```bash
-npm run dev
-```
-
-Frontend thuong se chay tai:
-
-- `http://localhost:5173`
-
-## 7. Thu tu chay du an de tranh loi
-
-Day la thu tu nen lam:
-
-1. Clone repo
-2. Tao database `budgetfit_db`
-3. Import `backend/database/budgetfit_all_in_one.sql`
-4. Chay `node backend/database/import_csv.js` sau khi da `npm install` trong `backend`
-5. Tao `backend/.env`
-6. Chay backend bang `npm run dev`
-7. Tao `frontend/.env`
-8. Chay frontend bang `npm run dev`
-9. Mo `http://localhost:5173`
-
-## 8. Cac URL quan trong
-
-- Frontend: `http://localhost:5173`
-- Backend API: `http://localhost:5000`
-- Swagger docs: `http://localhost:5000/api-docs`
-
-## 9. Neu muon dung Google Login
-
-Can cau hinh tren Google Cloud Console:
-
-- `Authorized JavaScript origins`:
-  - `http://localhost:5173`
-- `Authorized redirect URIs`:
-  - Neu ban co cau hinh redirect rieng thi them theo setup cua ban
-
-Sau do dat cung mot `GOOGLE_CLIENT_ID` cho:
-
-- `backend/.env`
-- `frontend/.env`
-
-Neu hai ben khong giong nhau, dang nhap Google se that bai.
-
-## 10. Cac loi thuong gap
-
-### Loi ket noi MySQL
-
-Kiem tra lai:
-
-- MySQL da bat chua
-- `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` co dung khong
-- database `budgetfit_db` da duoc tao va import chua
-
-### Loi backend chay duoc nhung sinh plan loi
-
-Nguyen nhan thuong la chua import CSV cho:
-
-- `meal_library`
-- `workout_library`
-
-Can chay lai:
-
-```bash
-cd backend
-node database/import_csv.js
-```
-
-### Loi frontend khong goi duoc API
-
-Kiem tra:
-
-- backend co dang chay tai `http://localhost:5000` khong
-- `frontend/.env` co `VITE_API_URL=http://localhost:5000` khong
-- co mo nham frontend truoc khi backend san sang khong
-
-### Loi Google login khong hien nut hoac khong dang nhap duoc
-
-Kiem tra:
-
-- `VITE_GOOGLE_CLIENT_ID` da khai bao chua
-- `GOOGLE_CLIENT_ID` ben backend da khai bao chua
-- origin `http://localhost:5173` da them trong Google Cloud Console chua
-
-## 11. Lenh hay dung
-
-Backend:
-
-```bash
-cd backend
-npm install
-npm run dev
-```
-
-Frontend:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Import CSV:
-
-```bash
-cd backend
-node database/import_csv.js
-```
-
+BudgetFit is designed as a practical wellness companion for users who want healthier habits without ignoring real financial limits. Instead of treating fitness, nutrition, and budgeting as separate problems, the application brings them into a single planning and tracking workflow.
